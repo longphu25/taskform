@@ -1,5 +1,9 @@
-import type { FormField, FieldType } from '../../../types/form'
 import { useState } from 'react'
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import type { DragEndEvent } from '@dnd-kit/core'
+import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import type { FormField, FieldType } from '../../../types/form'
 
 const FIELD_TYPES: { type: FieldType; label: string }[] = [
   { type: 'short-text', label: 'Short Text' },
@@ -31,6 +35,19 @@ export function FieldList({
   onMove,
 }: FieldListProps) {
   const [showTypeMenu, setShowTypeMenu] = useState(false)
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIndex = fields.findIndex((f) => f.id === active.id)
+    const newIndex = fields.findIndex((f) => f.id === over.id)
+    if (oldIndex !== -1 && newIndex !== -1) {
+      onMove(oldIndex, newIndex)
+    }
+  }
 
   return (
     <div className="rounded-2xl border border-white/10 bg-zinc-900/50 p-6">
@@ -64,85 +81,107 @@ export function FieldList({
         </div>
       )}
 
-      {/* Field list */}
+      {/* Field list with drag-to-reorder */}
       {fields.length === 0 ? (
         <p className="text-center text-sm text-zinc-600">No fields yet. Add one above.</p>
       ) : (
-        <ul className="space-y-2">
-          {fields.map((field, index) => (
-            <li
-              key={field.id}
-              className={`group flex items-center gap-2 rounded-lg border px-3 py-2 transition-colors cursor-pointer ${
-                field.id === selectedFieldId
-                  ? 'border-indigo-500/50 bg-indigo-500/10'
-                  : 'border-white/5 hover:border-white/10 hover:bg-white/5'
-              }`}
-              onClick={() => onSelect(field.id)}
-              onKeyDown={(e) => e.key === 'Enter' && onSelect(field.id)}
-            >
-              {/* Reorder buttons */}
-              <div className="flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  type="button"
-                  disabled={index === 0}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onMove(index, index - 1)
-                  }}
-                  className="cursor-pointer text-zinc-500 hover:text-white disabled:opacity-30 text-xs"
-                >
-                  ▲
-                </button>
-                <button
-                  type="button"
-                  disabled={index === fields.length - 1}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onMove(index, index + 1)
-                  }}
-                  className="cursor-pointer text-zinc-500 hover:text-white disabled:opacity-30 text-xs"
-                >
-                  ▼
-                </button>
-              </div>
-
-              {/* Field info */}
-              <div className="flex-1 min-w-0">
-                <p className="truncate text-sm font-medium">
-                  {field.label || `Untitled ${field.type}`}
-                </p>
-                <p className="text-xs text-zinc-500">{field.type}</p>
-              </div>
-
-              {/* Badges */}
-              <div className="flex gap-1">
-                {field.required && (
-                  <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] text-amber-400">
-                    req
-                  </span>
-                )}
-                {field.sensitive && (
-                  <span className="rounded bg-red-500/20 px-1.5 py-0.5 text-[10px] text-red-400">
-                    enc
-                  </span>
-                )}
-              </div>
-
-              {/* Remove */}
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onRemove(field.id)
-                }}
-                className="cursor-pointer text-zinc-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                ✕
-              </button>
-            </li>
-          ))}
-        </ul>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={fields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
+            <ul className="space-y-2">
+              {fields.map((field) => (
+                <SortableFieldItem
+                  key={field.id}
+                  field={field}
+                  isSelected={field.id === selectedFieldId}
+                  onSelect={onSelect}
+                  onRemove={onRemove}
+                />
+              ))}
+            </ul>
+          </SortableContext>
+        </DndContext>
       )}
     </div>
+  )
+}
+
+interface SortableFieldItemProps {
+  field: FormField
+  isSelected: boolean
+  onSelect: (id: string) => void
+  onRemove: (id: string) => void
+}
+
+function SortableFieldItem({ field, isSelected, onSelect, onRemove }: SortableFieldItemProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: field.id,
+  })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      className={`group flex items-center gap-2 rounded-lg border px-3 py-2 transition-colors cursor-pointer ${
+        isSelected
+          ? 'border-indigo-500/50 bg-indigo-500/10'
+          : 'border-white/5 hover:border-white/10 hover:bg-white/5'
+      }`}
+      onClick={() => onSelect(field.id)}
+      onKeyDown={(e) => e.key === 'Enter' && onSelect(field.id)}
+    >
+      {/* Drag handle */}
+      <button
+        type="button"
+        {...attributes}
+        {...listeners}
+        className="cursor-grab touch-none text-zinc-600 hover:text-zinc-400 active:cursor-grabbing"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+          <circle cx="4" cy="3" r="1.5" />
+          <circle cx="12" cy="3" r="1.5" />
+          <circle cx="4" cy="8" r="1.5" />
+          <circle cx="12" cy="8" r="1.5" />
+          <circle cx="4" cy="13" r="1.5" />
+          <circle cx="12" cy="13" r="1.5" />
+        </svg>
+      </button>
+
+      {/* Field info */}
+      <div className="flex-1 min-w-0">
+        <p className="truncate text-sm font-medium">{field.label || `Untitled ${field.type}`}</p>
+        <p className="text-xs text-zinc-500">{field.type}</p>
+      </div>
+
+      {/* Badges */}
+      <div className="flex gap-1">
+        {field.required && (
+          <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] text-amber-400">
+            req
+          </span>
+        )}
+        {field.sensitive && (
+          <span className="rounded bg-red-500/20 px-1.5 py-0.5 text-[10px] text-red-400">enc</span>
+        )}
+      </div>
+
+      {/* Remove */}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation()
+          onRemove(field.id)
+        }}
+        className="cursor-pointer text-zinc-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        ✕
+      </button>
+    </li>
   )
 }
