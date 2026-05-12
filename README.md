@@ -161,6 +161,10 @@ VITE_BASE_PATH=/ bun run build
 
 ## Status
 
-**Day 1 complete** — Foundation, multi-page build, CDN externals, types, schemas, page shells.
+**Day 5 complete** — Move contract deployed to testnet, codegen TypeScript bindings generated.
+
+Completed:
+- Day 1: Foundation (multi-page build, CDN externals, types, schemas, page shells)
+- Day 5: Move contract (Registry, Form, Caps, SubmissionMeta, events, tests, testnet deploy, codegen)
 
 See `docs/ROADMAP.md` for full progress.

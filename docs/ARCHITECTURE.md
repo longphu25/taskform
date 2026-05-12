@@ -64,6 +64,8 @@ taskform/
 ├── dashboard.html
 ├── create-form.html
 ├── form.html
+├── Makefile              # Orchestrates frontend + contract commands
+├── sui-codegen.config.ts # Codegen configuration
 ├── vite.config.ts
 ├── src/
 │   ├── pages/
@@ -71,11 +73,16 @@ taskform/
 │   │   ├── dashboard/
 │   │   ├── create-form/
 │   │   └── form/
+│   ├── contract/      (generated TS bindings — do not edit)
 │   ├── lazy/          (SDK clients, loaded on demand)
 │   ├── schemas/       (Zod validation schemas)
 │   ├── types/         (TypeScript type definitions)
 │   └── styles/        (Page-specific Tailwind CSS)
 └── contract/          # Sui Move contract (git submodule)
+    ├── Makefile
+    ├── Move.toml
+    ├── sources/       (taskform, capabilities, events, submission, sponsor)
+    └── tests/
 ```
 
 ## Dependency Rule
@@ -104,6 +111,40 @@ Move is not a database. Move is:
 - Event indexing layer
 
 Large data (schemas, submissions, attachments) lives on Walrus blobs.
+
+### Deployed Contract (Testnet)
+
+| Item | ID |
+|------|-----|
+| Package | `0x657b4145e585ad305ac351170eb78c49ba8ba3099135e64ece43c02da1b69f0f` |
+| TaskFormRegistry (shared) | `0x4b6690f251dc18f19afd22f4f5dad0f00bb94971832386e225ab94332b67f405` |
+
+### Entry Functions
+
+| Function | Permission | Purpose |
+|----------|-----------|---------|
+| `create_form` | any wallet | Create form + mint CreatorCap |
+| `publish_form` | CreatorCap | Set form as public |
+| `unpublish_form` | CreatorCap | Remove from public |
+| `submit_form` | public (if published) | Record submission metadata |
+| `add_admin` | CreatorCap | Delegate AdminCap |
+| `update_submission_status` | AdminCap | Change status |
+| `update_submission_priority` | AdminCap | Change priority |
+| `update_form_storage_expiry` | CreatorCap | Update expiry tracking |
+| `configure_sponsored_mode` | CreatorCap | Toggle sponsored submissions |
+
+### Codegen Integration
+
+TypeScript bindings are generated from the contract using `@mysten/codegen`:
+
+```
+contract/ → sui move summary → package_summaries/ → sui-ts-codegen generate → src/contract/
+```
+
+- Config: `sui-codegen.config.ts`
+- Output: `src/contract/` (auto-generated, eslint-ignored)
+- Run: `make codegen`
+- Package alias: `@local-pkg/taskform` (requires MVR override in client)
 
 ## Network Strategy
 

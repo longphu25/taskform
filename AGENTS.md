@@ -1,75 +1,132 @@
 # Agent Operating Guide
 
-This repository is in Harness v0. There is no product implementation yet.
+## Project Status
 
-The current job of agents is to preserve and grow the collaboration harness
-before writing application code. Do not scaffold application source folders,
-platform shells, package scripts, CI, or tests unless a later story explicitly
-moves the project into implementation.
+TaskForm is in active implementation (Day 5 of 7-day sprint).
+Move contract is deployed to testnet. Frontend pages are scaffolded.
+Codegen TypeScript bindings are generated from the contract.
 
 ## Source Of Truth
 
 Read in this order:
 
-1. `README.md` for project status.
-2. `docs/HARNESS.md` for the human-agent operating model.
-3. `docs/FEATURE_INTAKE.md` before turning any prompt into work.
-4. The user-provided spec or prompt, when one exists.
-5. `docs/product/` for current product contracts.
-6. `docs/ARCHITECTURE.md` before proposing implementation shape.
-7. `docs/stories/` for story packets and backlog.
-8. `docs/TEST_MATRIX.md` for proof status.
-9. `docs/decisions/` for why important choices were made.
+1. `README.md` for project overview and status.
+2. This file (`AGENTS.md`) for agent operating model.
+3. `docs/ARCHITECTURE.md` for technical architecture and constraints.
+4. `docs/product/` for current product contracts.
+5. `docs/ROADMAP.md` for the 7-day implementation plan.
+6. `docs/stories/` for story packets and backlog.
+7. `docs/decisions/` for why important choices were made.
+8. `contract/README.md` for Move contract details and deployed IDs.
+9. `contract/docs/SPEC.md` for full contract specification.
 
-This harness does not ship with a project-specific `SPEC.md`. When the human
-provides a spec for a new project, treat that spec as input material for the
-first buildout. Derive product docs, story packets, architecture decisions, and
-validation expectations from it. Product docs, stories, tests, and decisions
-then become the living contract that agents should update as the system evolves.
+## Key Facts
+
+### Contract (Sui Testnet)
+
+| Item | Value |
+|------|-------|
+| Package ID | `0x657b4145e585ad305ac351170eb78c49ba8ba3099135e64ece43c02da1b69f0f` |
+| TaskFormRegistry | `0x4b6690f251dc18f19afd22f4f5dad0f00bb94971832386e225ab94332b67f405` |
+| UpgradeCap | `0xfb74655a33b008c81219113733260bc48ff7e126be929dd35970a4f223fb148c` |
+| Network | Testnet |
+| Modules | `taskform`, `capabilities`, `events`, `submission`, `sponsor` |
+
+### Codegen
+
+- Config: `sui-codegen.config.ts`
+- Output: `src/contract/` (generated, do not edit manually)
+- Package alias: `@local-pkg/taskform`
+- Run: `make codegen` or `pnpm codegen`
+- Requires: `sui move summary` in `contract/` first (handled by Makefile)
+- ESLint ignores `src/contract/` via `globalIgnores` in `eslint.config.js`
+
+### Build Commands
+
+| Command | Purpose |
+|---------|---------|
+| `make dev` | Start Vite dev server |
+| `make build` | Production build |
+| `make lint` | ESLint |
+| `make format` | Biome format |
+| `make codegen` | Generate TS bindings from contract (summary + codegen + format) |
+| `make contract-build` | Build Move contract |
+| `make contract-test` | Run Move unit tests |
+| `make contract-publish` | Deploy contract to current network |
+
+### Frontend Architecture
+
+- Multi-page Vite app (index.html, create-form.html, form.html, dashboard.html)
+- CDN-first: React, Zod, TanStack Query externalized via import maps
+- form.html is ultra-light (no dashboard code, no TanStack Query)
+- SDKs (Walrus, Seal, Sui) lazy-loaded on user action only
+- Generated contract bindings in `src/contract/` provide type-safe Move calls
+- Use `@local-pkg/taskform` with MVR override in SuiGrpcClient
+
+### Using Contract Bindings
+
+```typescript
+import { createForm, publishForm, submitForm } from './contract/taskform/taskform';
+import { Transaction } from '@mysten/sui/transactions';
+
+const tx = new Transaction();
+tx.add(createForm({
+  arguments: {
+    registry: REGISTRY_ID,
+    title: 'My Form',
+    schemaBlobId: Array.from(blobIdBytes),
+    schemaBlobObjectId: blobObjectId,
+    expiryEpoch: 100n,
+  },
+}));
+```
+
+### SuiGrpcClient Setup
+
+```typescript
+import { SuiGrpcClient } from '@mysten/sui/grpc';
+
+const client = new SuiGrpcClient({
+  network: 'testnet',
+  baseUrl: 'https://fullnode.testnet.sui.io:443',
+  mvr: {
+    overrides: {
+      packages: {
+        '@local-pkg/taskform': '0x657b4145e585ad305ac351170eb78c49ba8ba3099135e64ece43c02da1b69f0f',
+      },
+    },
+  },
+});
+```
 
 ## Task Loop
 
 For every task:
 
-1. Classify the request with `docs/FEATURE_INTAKE.md`.
-2. Identify whether the input is a new spec, spec slice, change request, new
-   initiative, maintenance request, or harness improvement.
-3. Locate the affected product docs and story files.
-4. Check `docs/TEST_MATRIX.md` for existing proof and gaps.
-5. Work only inside the selected lane: tiny, normal, or high-risk.
-6. Before finishing, ask:
-   - Did product truth change?
-   - Did validation expectations change?
-   - Did architecture rules change?
-   - Did we discover a repeated failure pattern?
-   - Did the next agent need a clearer instruction?
-7. Update routine harness files directly, or add a proposal to
-   `docs/HARNESS_BACKLOG.md` when the change is structural.
+1. Read relevant docs before making changes.
+2. Match existing code style and conventions.
+3. Run `make contract-test` after contract changes.
+4. Run `make codegen` after contract changes that affect entry functions or structs.
+5. Run `make build` to verify frontend compiles.
+6. Commit with conventional commit messages, split into logical chunks.
 
-## Harness Change Policy
+## Constraints
 
-Agents may update directly:
-
-- Story status and evidence.
-- `docs/TEST_MATRIX.md` rows.
-- Links from story packets to product docs.
-- Validation notes and reports.
-- Small clarifications tied to the current task.
-
-Agents should ask for human confirmation before:
-
-- Changing architecture direction.
-- Removing validation requirements.
-- Changing the source-of-truth hierarchy.
-- Changing risk classification rules.
-- Replacing the feature workflow.
+- Do not edit files in `src/contract/` — they are generated.
+- Do not store large data on-chain — use Walrus blobs.
+- form.html must stay ultra-light (no TanStack Query, no Headless UI).
+- SDKs must be lazy-loaded, never imported at top level.
+- Dist target < 500 KB without vendor, hard cap < 1 MB.
+- Contract operates on Sui testnet.
+- Walrus blob storage uses mainnet.
+- Walrus Site hosting uses mainnet.
 
 ## Done Definition
 
-A task is done only when:
+A task is done when:
 
-- The requested change is completed or the blocker is documented.
-- Relevant docs, stories, and test matrix entries remain current.
-- Validation commands were run when they exist.
-- Missing harness capabilities were added to `docs/HARNESS_BACKLOG.md`.
-- The final response says what changed and what was not attempted.
+- The requested change is completed.
+- Build passes (`make build`).
+- Contract tests pass if contract was modified (`make contract-test`).
+- Codegen is re-run if contract entry functions or structs changed.
+- Commit messages follow conventional commits.
