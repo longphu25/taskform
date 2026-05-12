@@ -2,13 +2,10 @@
 
 This file maps product behavior to proof.
 
-No product behavior has been defined or implemented yet. Do not mark a row
-implemented until tests or validation evidence exist.
-
 ## Status Values
 
 | Status | Meaning |
-| --- | --- |
+|--------|---------|
 | planned | Accepted as intended behavior, not implemented |
 | in_progress | Actively being built |
 | implemented | Implemented and proof exists |
@@ -18,16 +15,24 @@ implemented until tests or validation evidence exist.
 ## Matrix
 
 | Story | Contract | Unit | Integration | E2E | Platform | Status | Evidence |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| TBD | Add rows when story packets are created | no | no | no | no | planned | none |
+|-------|----------|------|-------------|-----|----------|--------|----------|
+| E01 Foundation | Multi-page build, CDN externals, types, schemas | no | no | no | build passes | implemented | `bun run build` + `tsc -b` pass |
+| E02 Landing | Hero, features, CTA, responsive | no | no | no | build passes | implemented | Page renders at /index.html |
+| E03 Form Builder | Field builder, preview, validation | planned | no | no | no | planned | none |
+| E04 Walrus Storage | Upload/download schema | no | planned | no | no | planned | none |
+| E05 Public Form | Ultra-light renderer, lazy SDKs | no | no | planned | no | planned | none |
+| E06 Move Contract | Registry, Form, Caps, entry fns | planned | planned | no | no | planned | none |
+| E07 Dashboard | Wallet, forms, submissions, triage | no | no | planned | no | planned | none |
+| E08 Seal | Encrypt/decrypt sensitive fields | planned | planned | no | no | planned | none |
+| E09 Sponsored | Sponsor toggle, demo flow | no | planned | no | no | planned | none |
+| E10 Storage Health | Expiry tracking, health UI | no | no | planned | no | planned | none |
+| E11 Optimization | Bundle size, no vendor in dist | no | no | no | build check | planned | none |
+| E12 Deployment | Walrus Site deploy, smoke test | no | no | planned | planned | planned | none |
 
 ## Evidence Rules
 
 - Unit proof covers pure domain and application rules.
-- Integration proof covers backend enforcement, data integrity, provider
-  behavior, jobs, or service contracts.
-- E2E proof covers user-visible browser flows.
-- Platform proof covers only shell, deployment, mobile, desktop, or runtime
-  behavior that cannot be proven in lower layers.
-- A story can be implemented without every proof column if the story packet
-  explains why.
+- Integration proof covers Walrus upload/download, Sui transactions, Seal encrypt/decrypt.
+- E2E proof covers user-visible browser flows (create form → submit → view in dashboard).
+- Platform proof covers Walrus Site deployment and page loading.
+- A story can be implemented without every proof column if the story packet explains why.

@@ -1,133 +1,115 @@
 # Architecture
 
-No application stack is selected yet.
+## Stack
 
-No application code exists yet. This document defines generic architecture
-questions and boundary rules that future implementation should adapt after a
-user-provided spec and stack decision exist.
+| Layer | Choice | Version |
+|-------|--------|---------|
+| Runtime | Bun | 1.3.13 |
+| Build | Vite | 8.x |
+| Language | TypeScript | 6.x |
+| UI | React | 19.x |
+| Styling | Tailwind CSS | 4.x |
+| Validation | Zod | 4.4.3 |
+| Data fetching | TanStack Query | 5.x (dashboard only) |
+| Forms | React Hook Form | 7.x (create-form only) |
+| Components | Headless UI | 2.x (dashboard/create-form only) |
+| Blockchain | Sui Move | — |
+| Storage | Walrus | — |
+| Encryption | Seal | — |
 
-## Discovery Before Shape
-
-Before proposing implementation shape, identify:
-
-- Product surfaces: browser, mobile, desktop, CLI, API, worker, or service.
-- Runtime stack: language, framework, database, queues, providers, and hosting.
-- Core domains: the product concepts that deserve stable names and contracts.
-- Boundary inputs: user input, API requests, webhooks, jobs, files, credentials,
-  provider payloads, and environment configuration.
-- Validation ladder: the smallest checks that can prove the selected stack.
-
-Record stack choices in `docs/decisions/` when they meaningfully constrain
-future work.
-
-## Default Layering
+## Architecture Overview
 
 ```text
-domain
-  <- application
-      <- infrastructure
-          <- interface
-              <- app surfaces
+Static React UI (multi-page)
+↓
+Zod runtime validation
+↓
+Seal encryption (when needed)
+↓
+Walrus upload/download
+↓
+Sui Move metadata + permissions
+↓
+Dashboard query and triage
 ```
 
-## Candidate Structure
+## Key Strategy
 
 ```text
-app/
-  domain/
-    entities/
-    value-objects/
-    repositories/
-    services/
-
-  application/
-    commands/
-    queries/
-    handlers/
-
-  infrastructure/
-    database/
-    logging/
-    notifications/
-
-  interface/
-    controllers/
-    dto/
-    presenters/
-    routes/
-    middlewares/
-
-surfaces/
-  browser/
-  mobile/
-  desktop/
-  cli/
+CDN-first dependencies
++ page-level lazy loading
++ local app logic only
 ```
 
-This is a thinking template, not a scaffold. Create real folders only when a
-story enters implementation and the selected stack needs them.
+Goals:
+- Reduce Walrus Site upload size (target < 500 KB)
+- Make form.html fastest (minimal initial load)
+- Keep dashboard logic isolated
+- Load SDKs only when needed
+
+## Static Pages
+
+| Page | Purpose | CDN Deps |
+|------|---------|----------|
+| index.html | Landing | React |
+| dashboard.html | Admin | React, Zod, TanStack Query, Headless UI |
+| create-form.html | Builder | React, Zod, React Hook Form, Headless UI |
+| form.html | Public submit | React, Zod (minimal) |
+
+## Project Structure
+
+```text
+taskform/
+├── index.html
+├── dashboard.html
+├── create-form.html
+├── form.html
+├── vite.config.ts
+├── src/
+│   ├── pages/
+│   │   ├── landing/
+│   │   ├── dashboard/
+│   │   ├── create-form/
+│   │   └── form/
+│   ├── lazy/          (SDK clients, loaded on demand)
+│   ├── schemas/       (Zod validation schemas)
+│   ├── types/         (TypeScript type definitions)
+│   └── styles/        (Page-specific Tailwind CSS)
+└── contract/          # Sui Move contract (git submodule)
+```
 
 ## Dependency Rule
 
-Inner layers must not depend on outer layers.
+- Inner modules (schemas, types) must not depend on React or UI.
+- Lazy modules must not be imported at top level.
+- form.html must not import dashboard code.
+- SDKs (Walrus, Seal, Sui) are always lazy-loaded.
 
-| Layer | May depend on | Must not depend on |
-| --- | --- | --- |
-| domain | nothing project-external except tiny pure utilities | framework, database, UI, provider, process/env |
-| application | domain | framework, UI, provider, database concrete clients |
-| infrastructure | domain, application | interface controllers or UI |
-| interface | all backend layers | UI state or platform shell assumptions |
-| app surfaces | API contracts and app-facing clients | domain internals directly |
+## Performance Budget
 
-## Parse-First Boundary Rule
+| Metric | Target |
+|--------|--------|
+| form.html HTML | < 15 KB |
+| form.html CSS | < 30 KB |
+| form.html local JS | < 60 KB gzip |
+| Total dist (no vendor) | < 500 KB |
+| Hard cap MVP | < 1 MB |
 
-Unknown data must be parsed at boundaries before it enters inner code.
+## Move Contract Role
 
-Boundaries include:
+Move is not a database. Move is:
+- Permission layer
+- Lifecycle layer
+- Metadata pointer layer
+- Event indexing layer
 
-- HTTP request bodies, params, and query strings.
-- Session payloads and identity claims.
-- Environment variables.
-- Database rows returned from external clients.
-- Platform shell payloads.
-- Deep links, tokens, and signed URLs.
-- Provider webhooks, events, and async payloads.
+Large data (schemas, submissions, attachments) lives on Walrus blobs.
 
-Target flow:
+## Network Strategy
 
-```text
-unknown input
-  -> parser
-  -> typed DTO or command
-  -> application use case
-  -> domain object/value object
-```
-
-Inner layers should work with meaningful product types such as `UserId`,
-`AccountId`, `WorkspaceId`, `Role`, `DateRange`, or domain-specific IDs,
-rather than repeatedly validating raw strings.
-
-## Command/Query Boundary
-
-If the product has both reads and writes, keep command/query separation clear at
-the code level even when the storage layer is simple:
-
-- Commands mutate state and own audit side effects.
-- Queries read state and format for consumers.
-- Shared domain rules live in domain/application, not controllers.
-
-## Observability Contract
-
-The future server should emit one canonical JSON log line per request with:
-
-- timestamp
-- level
-- request_id
-- user_id when known
-- action
-- duration_ms
-- status_code
-- message
-
-Audit logs are product records. Application logs are operational records. Do not
-use one as a substitute for the other.
+| Component | Network |
+|-----------|---------|
+| Move contract | Testnet |
+| Frontend Sui interaction | Testnet |
+| Walrus Site hosting | Mainnet |
+| Walrus blob storage | Mainnet |

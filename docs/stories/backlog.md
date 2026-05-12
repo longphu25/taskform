@@ -1,13 +1,20 @@
 # Story Backlog
 
-This backlog will be populated after a user provides a project spec or selects a
-specific initiative.
-
-Do not create every possible story packet up front. Create story packets when
-the work is selected or when a product decision needs a durable place to land.
+Derived from TaskForm_Docs_Package_v3_cdn_optimized spec intake.
 
 ## Candidate Epics
 
 | Epic | Description | Status |
-| --- | --- | --- |
-| TBD | Add candidate epics after spec intake | unsliced |
+|------|-------------|--------|
+| E01 | Foundation — Multi-page Vite, CDN, Tailwind, types, schemas | done |
+| E02 | Landing Page — Hero, features, CTA | done |
+| E03 | Form Builder — Field builder, preview, validation, publish | unsliced |
+| E04 | Walrus Storage — Upload/download abstraction, schema publish | unsliced |
+| E05 | Public Form — Ultra-light renderer, lazy SDKs, submit | unsliced |
+| E06 | Move Contract — Registry, Form, Caps, entry functions, tests | unsliced |
+| E07 | Dashboard — Wallet connect, forms list, submissions, triage | unsliced |
+| E08 | Seal Encryption — Encrypt sensitive fields, decrypt in dashboard | unsliced |
+| E09 | Sponsored Submission — Sponsor toggle, demo flow, fallback | unsliced |
+| E10 | Storage Lifecycle — Expiry tracking, health UI, export backup | unsliced |
+| E11 | Optimization — Bundle check, sourcemaps off, perf budget | unsliced |
+| E12 | Deployment — Walrus Site deploy, ws-resources.json, smoke test | unsliced |
