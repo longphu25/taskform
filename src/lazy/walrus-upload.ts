@@ -1,12 +1,17 @@
 /**
- * Walrus upload client — lazy-loaded only on submit/publish
+ * Walrus upload via @mysten/walrus SDK + Sui PTB (no publisher dependency).
  *
- * Uses the Walrus HTTP Publisher API.
- * Docs: https://docs.walrus.site/usage/web-api.html
+ * Flow:
+ * 1. Encode blob locally (WASM)
+ * 2. Register blob on-chain (Sui TX — user signs via wallet)
+ * 3. Upload slivers to storage nodes (via upload relay)
+ * 4. Certify blob on-chain (Sui TX — user signs via wallet)
+ *
+ * User pays for storage directly with their SUI + WAL.
  */
-
-// Walrus publisher endpoint (mainnet)
-const WALRUS_PUBLISHER_URL = 'https://publisher.walrus-testnet.walrus.space'
+import { SuiGrpcClient } from '@mysten/sui/grpc'
+import { walrus, WalrusFile } from '@mysten/walrus'
+import walrusWasmUrl from '@mysten/walrus-wasm/web/walrus_wasm_bg.wasm?url'
 
 export interface WalrusUploadResult {
   blobId: string
@@ -19,46 +24,90 @@ export interface WalrusUploadOptions {
   epochs: number
 }
 
+let walrusClient: ReturnType<typeof createWalrusClient> | null = null
+
+function createWalrusClient() {
+  return new SuiGrpcClient({
+    network: 'testnet',
+    baseUrl: 'https://fullnode.testnet.sui.io:443',
+  }).$extend(
+    walrus({
+      uploadRelay: {
+        host: 'https://upload-relay.testnet.walrus.space',
+        sendTip: { max: 1_000 },
+      },
+      wasmUrl: walrusWasmUrl,
+    }),
+  )
+}
+
+function getWalrusClient() {
+  if (!walrusClient) {
+    walrusClient = createWalrusClient()
+  }
+  return walrusClient
+}
+
+/**
+ * Upload data to Walrus using PTB (user signs transactions via wallet).
+ * Uses writeFilesFlow for browser-compatible multi-step signing.
+ */
 export async function uploadToWalrus(options: WalrusUploadOptions): Promise<WalrusUploadResult> {
   const { data, epochs } = options
 
-  const body = typeof data === 'string' ? new TextEncoder().encode(data) : data
+  const bytes = typeof data === 'string' ? new TextEncoder().encode(data) : data
+  const client = getWalrusClient()
 
-  const url = `${WALRUS_PUBLISHER_URL}/v1/blobs?epochs=${epochs}`
+  const { dAppKit } = await import('./sui-client')
 
-  const response = await fetch(url, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/octet-stream',
-    },
-    body: body as BodyInit,
+  const connection = dAppKit.stores.$connection.get()
+  if (!connection.isConnected || !connection.account) {
+    throw new Error('Wallet not connected. Please connect your wallet first.')
+  }
+
+  const ownerAddress = connection.account.address
+
+  // Create the write flow
+  const flow = client.walrus.writeFilesFlow({
+    files: [WalrusFile.from({ contents: bytes, identifier: 'schema.json' })],
   })
 
-  if (!response.ok) {
-    const text = await response.text().catch(() => 'Unknown error')
-    throw new Error(`Walrus upload failed (${response.status}): ${text}`)
+  // Step 1: Encode
+  await flow.encode()
+
+  // Step 2: Register (user signs TX)
+  const registerTx = flow.register({
+    epochs,
+    owner: ownerAddress,
+    deletable: false,
+  })
+
+  const registerResult = await dAppKit.signAndExecuteTransaction({ transaction: registerTx })
+  const regTx = registerResult.Transaction ?? registerResult.FailedTransaction
+  if (!regTx || ('status' in regTx && regTx.status?.error)) {
+    throw new Error('Blob registration transaction failed')
   }
 
-  const result = await response.json()
+  // Step 3: Upload slivers to storage nodes (via upload relay)
+  await flow.upload({
+    digest: (registerResult.Transaction ?? registerResult.FailedTransaction)!.digest,
+  })
 
-  // Walrus API returns either { newlyCreated: {...} } or { alreadyCertified: {...} }
-  const info =
-    result.newlyCreated?.blobObject ??
-    result.alreadyCertified?.blobObject ??
-    result.newlyCreated ??
-    result.alreadyCertified
-
-  if (!info) {
-    throw new Error('Unexpected Walrus response format')
+  // Step 4: Certify (user signs TX)
+  const certifyTx = flow.certify()
+  const certifyResult = await dAppKit.signAndExecuteTransaction({ transaction: certifyTx })
+  const certTx = certifyResult.Transaction ?? certifyResult.FailedTransaction
+  if (!certTx || ('status' in certTx && certTx.status?.error)) {
+    throw new Error('Blob certification transaction failed')
   }
+
+  // Step 5: Get results
+  const files = await flow.listFiles()
+  const file = files[0]
 
   return {
-    blobId:
-      info.blobId ??
-      result.newlyCreated?.blobObject?.blobId ??
-      result.alreadyCertified?.blobId ??
-      '',
-    objectId: info.id ?? undefined,
-    expiryEpoch: info.storage?.endEpoch ?? info.endEpoch ?? epochs,
+    blobId: file?.blobId ?? '',
+    objectId: file?.id,
+    expiryEpoch: epochs,
   }
 }

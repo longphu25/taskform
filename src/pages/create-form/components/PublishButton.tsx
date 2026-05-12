@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import type { FormField, StoragePolicy, SponsorSettings, FormSchema } from '../../../types/form'
 import { formSchemaValidator } from '../../../schemas/form'
-import { uploadToWalrus } from '../../../lazy/walrus-upload'
 import { pagePath } from '../../../utils/paths'
 import { useWalletAddress } from './WalletConnect'
 
@@ -63,6 +62,7 @@ export function PublishButton({
     setState('uploading')
     try {
       const jsonData = JSON.stringify(schema)
+      const { uploadToWalrus } = await import('../../../lazy/walrus-upload')
       const uploadResult = await uploadToWalrus({
         data: jsonData,
         epochs: storagePolicy.schemaDuration,
