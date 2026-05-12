@@ -1,8 +1,35 @@
 /**
- * Sui client — lazy-loaded only when wallet interaction is needed
+ * Sui client and dApp Kit setup — lazy-loaded when wallet interaction is needed.
  */
+import { SuiGrpcClient } from '@mysten/sui/grpc'
+import { createDAppKit } from '@mysten/dapp-kit-core'
 
-export async function getSuiClient() {
-  // TODO: Implement Sui client in Phase 6 (Day 5)
-  throw new Error('Sui client not yet implemented')
+export const PACKAGE_ID = '0x657b4145e585ad305ac351170eb78c49ba8ba3099135e64ece43c02da1b69f0f'
+export const REGISTRY_ID = '0x4b6690f251dc18f19afd22f4f5dad0f00bb94971832386e225ab94332b67f405'
+
+const GRPC_URLS: Record<string, string> = {
+  mainnet: 'https://fullnode.mainnet.sui.io:443',
+  testnet: 'https://fullnode.testnet.sui.io:443',
+  devnet: 'https://fullnode.devnet.sui.io:443',
+}
+
+export const dAppKit = createDAppKit({
+  networks: ['mainnet', 'testnet', 'devnet'],
+  defaultNetwork: 'testnet',
+  createClient: (network) =>
+    new SuiGrpcClient({
+      network,
+      baseUrl: GRPC_URLS[network],
+      mvr: {
+        overrides: {
+          packages: {
+            '@local-pkg/taskform': PACKAGE_ID,
+          },
+        },
+      },
+    }),
+})
+
+export function getSuiClient() {
+  return dAppKit.getClient()
 }

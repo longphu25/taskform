@@ -6,6 +6,7 @@ import { FormPreview } from './components/FormPreview'
 import { StoragePolicyPanel } from './components/StoragePolicyPanel'
 import { SponsorPanel } from './components/SponsorPanel'
 import { PublishButton } from './components/PublishButton'
+import { WalletConnect } from './components/WalletConnect'
 import type { StoragePolicy, SponsorSettings } from '../../types/form'
 import { DEFAULT_STORAGE_POLICY, DEFAULT_SPONSOR_SETTINGS } from '../../schemas/form'
 import { Undo2, Redo2, Eye, Pencil } from 'lucide-react'
@@ -77,6 +78,8 @@ function FormBuilderInner() {
           >
             Dashboard
           </a>
+
+          <WalletConnect />
         </div>
       </nav>
 
