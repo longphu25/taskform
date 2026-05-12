@@ -3,6 +3,7 @@ import type { FormField, StoragePolicy, SponsorSettings, FormSchema } from '../.
 import { formSchemaValidator } from '../../../schemas/form'
 import { uploadToWalrus } from '../../../lazy/walrus-upload'
 import { pagePath } from '../../../utils/paths'
+import { useWalletAddress } from './WalletConnect'
 
 interface PublishButtonProps {
   title: string
@@ -24,9 +25,17 @@ export function PublishButton({
   const [state, setState] = useState<PublishState>('idle')
   const [error, setError] = useState<string | null>(null)
   const [publicLink, setPublicLink] = useState<string | null>(null)
+  const walletAddress = useWalletAddress()
 
   const handlePublish = async () => {
     setError(null)
+
+    if (!walletAddress) {
+      setError('Please connect your wallet first')
+      setState('error')
+      return
+    }
+
     setState('validating')
 
     // Build schema object
@@ -38,7 +47,7 @@ export function PublishButton({
       storagePolicy,
       sponsor: sponsorSettings,
       createdAt: Date.now(),
-      creatorAddress: '', // Will be set when wallet is connected
+      creatorAddress: walletAddress,
     }
 
     // Validate with Zod
