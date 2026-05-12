@@ -7,24 +7,23 @@ interface SponsorPanelProps {
 
 export function SponsorPanel({ settings, onChange }: SponsorPanelProps) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-zinc-900/50 p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-sm font-medium text-zinc-400">Sponsored Submissions</h3>
-        <label className="flex items-center gap-2 cursor-pointer">
+    <div className="rounded-xl border border-white/10 bg-zinc-900/50 p-3">
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="text-xs font-medium text-zinc-500">Sponsored</h3>
+        <label className="flex items-center gap-1.5 cursor-pointer">
           <input
             type="checkbox"
             checked={settings.enabled}
             onChange={(e) => onChange({ ...settings, enabled: e.target.checked })}
-            className="size-4 rounded accent-indigo-500"
+            className="size-3.5 rounded accent-indigo-500"
           />
-          <span className="text-xs text-zinc-400">Enable</span>
+          <span className="text-[10px] text-zinc-400">Enable</span>
         </label>
       </div>
 
       {settings.enabled && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between gap-4">
-            <span className="text-sm text-zinc-300">Budget (SUI)</span>
+        <div className="space-y-2">
+          <Row label="Budget (SUI)">
             <input
               type="number"
               value={settings.budgetSUI}
@@ -33,11 +32,10 @@ export function SponsorPanel({ settings, onChange }: SponsorPanelProps) {
               }
               min={0}
               step={0.1}
-              className="w-24 rounded-lg border border-white/10 bg-zinc-800 px-3 py-1.5 text-center text-sm text-white outline-none focus:border-indigo-500"
+              className="w-16 rounded border border-white/10 bg-zinc-800 px-2 py-1 text-center text-xs text-white outline-none focus:border-indigo-500"
             />
-          </div>
-          <div className="flex items-center justify-between gap-4">
-            <span className="text-sm text-zinc-300">Max sponsored</span>
+          </Row>
+          <Row label="Max count">
             <input
               type="number"
               value={settings.maxSponsored}
@@ -45,11 +43,10 @@ export function SponsorPanel({ settings, onChange }: SponsorPanelProps) {
                 onChange({ ...settings, maxSponsored: Math.max(0, Number(e.target.value)) })
               }
               min={0}
-              className="w-24 rounded-lg border border-white/10 bg-zinc-800 px-3 py-1.5 text-center text-sm text-white outline-none focus:border-indigo-500"
+              className="w-16 rounded border border-white/10 bg-zinc-800 px-2 py-1 text-center text-xs text-white outline-none focus:border-indigo-500"
             />
-          </div>
-          <div className="flex items-center justify-between gap-4">
-            <span className="text-sm text-zinc-300">Max file size (MB)</span>
+          </Row>
+          <Row label="Max file (MB)">
             <input
               type="number"
               value={settings.maxFileSizeMB}
@@ -58,11 +55,20 @@ export function SponsorPanel({ settings, onChange }: SponsorPanelProps) {
               }
               min={1}
               max={100}
-              className="w-24 rounded-lg border border-white/10 bg-zinc-800 px-3 py-1.5 text-center text-sm text-white outline-none focus:border-indigo-500"
+              className="w-16 rounded border border-white/10 bg-zinc-800 px-2 py-1 text-center text-xs text-white outline-none focus:border-indigo-500"
             />
-          </div>
+          </Row>
         </div>
       )}
+    </div>
+  )
+}
+
+function Row({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-xs text-zinc-400">{label}</span>
+      {children}
     </div>
   )
 }
