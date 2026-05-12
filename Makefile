@@ -31,4 +31,5 @@ contract-publish:
 # === Codegen (requires contract-summary first) ===
 
 codegen: contract-summary
-	bun codegen
+	bunx sui-ts-codegen generate
+	bun biome format --write src/contract/
