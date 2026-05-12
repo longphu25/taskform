@@ -15,9 +15,9 @@ interface CoinBalance {
   wal: string
 }
 
-// WAL coin type on testnet (from Walrus exchange)
+// WAL coin type on testnet
 const WAL_COIN_TYPE_TESTNET =
-  '0x8190b041122eb492bf63cb464476bd68c6b7e570540218c80a68bca413e3ed84::wal::WAL'
+  '0x8270feb7375eee355e64fdb69c50abb6b5f9393a722883c1cf45f8e26048810a::wal::WAL'
 
 export function WalletConnect() {
   const [wallet, setWallet] = useState<WalletInfo | null>(null)
