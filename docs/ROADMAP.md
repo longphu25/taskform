@@ -50,24 +50,24 @@
 
 ## Day 4 — Public Form
 
-- [ ] Ultra-light form renderer (reads schema, renders fields)
-- [ ] Native text input component
-- [ ] Native textarea component
-- [ ] Native select/dropdown component
-- [ ] Checkbox component
-- [ ] Star rating component (custom, no deps)
-- [ ] File upload component (screenshot + video)
-- [ ] URL input component
-- [ ] Confirmation checkbox component
-- [ ] Required field validation (Zod runtime)
-- [ ] Submit progress UI (loading state)
-- [ ] Lazy-load Walrus upload client on submit
+- [x] Ultra-light form renderer (reads schema, renders fields)
+- [x] Native text input component
+- [x] Native textarea component
+- [x] Native select/dropdown component
+- [x] Checkbox component
+- [x] Star rating component (custom, no deps)
+- [x] File upload component (screenshot + video) — UI done, upload pending wallet
+- [x] URL input component
+- [x] Confirmation checkbox component
+- [x] Required field validation (Zod runtime)
+- [x] Submit progress UI (loading state)
+- [x] Lazy-load Walrus upload client on submit
 - [ ] Lazy-load Seal encrypt only if sensitive fields exist
-- [ ] Lazy-load Sui/wallet only if required by form
+- [ ] Lazy-load Sui/wallet only if required by form — wallet always needed currently
 - [ ] Encrypt sensitive field values before upload
-- [ ] Upload submission JSON to Walrus
+- [x] Upload submission JSON to Walrus — requires wallet connect
 - [ ] Upload attachments to Walrus
-- [ ] Success screen with confirmation
+- [ ] Success screen with confirmation — pending wallet connect for submit
 
 ## Day 5 — Move Contract
 
