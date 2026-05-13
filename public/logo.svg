@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 286 72" role="img" aria-labelledby="title desc">
+  <title id="title">TaskForm</title>
+  <desc id="desc">TaskForm wordmark for private decentralized feedback forms.</desc>
+  <defs>
+    <linearGradient id="a" x1="13" y1="10" x2="52" y2="55" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8fffe1"/>
+      <stop offset=".55" stop-color="#23d3bd"/>
+      <stop offset="1" stop-color="#0c897f"/>
+    </linearGradient>
+    <linearGradient id="b" x1="17" y1="15" x2="47" y2="49" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0f2b2a"/>
+      <stop offset="1" stop-color="#071011"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(4 4)">
+    <rect width="64" height="64" rx="16" fill="#071011"/>
+    <rect x="7" y="7" width="50" height="50" rx="13" fill="url(#b)" stroke="url(#a)" stroke-width="2"/>
+    <path fill="url(#a)" d="M18 17h30v8H37v25h-9V25H18v-8Z"/>
+    <path fill="#effff8" d="M37 29h12v7H37v-7Zm0 12h9v7h-9v-7Z"/>
+    <circle cx="48" cy="18" r="4" fill="#ffc46b"/>
+  </g>
+  <text x="84" y="43" fill="#effff8" font-family="Avenir Next, Avenir, Inter, system-ui, sans-serif" font-size="32" font-weight="800">TaskForm</text>
+  <text x="86" y="58" fill="#9fb9b1" font-family="Avenir Next, Avenir, Inter, system-ui, sans-serif" font-size="10" font-weight="700">Private feedback on decentralized rails</text>
+</svg>

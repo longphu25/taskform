@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">TaskForm social preview</title>
+  <desc id="desc">TaskForm private feedback forms with Walrus storage, Seal encryption, and Sui ownership.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#071011"/>
+      <stop offset=".58" stop-color="#0b2020"/>
+      <stop offset="1" stop-color="#152119"/>
+    </linearGradient>
+    <linearGradient id="mark-a" x1="122" y1="74" x2="236" y2="210" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8fffe1"/>
+      <stop offset=".55" stop-color="#23d3bd"/>
+      <stop offset="1" stop-color="#0c897f"/>
+    </linearGradient>
+    <linearGradient id="mark-b" x1="132" y1="88" x2="224" y2="202" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0f2b2a"/>
+      <stop offset="1" stop-color="#071011"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <path fill="none" stroke="#80ffd5" stroke-opacity=".16" stroke-width="2" d="M0 490c178-74 316-59 448 46 151 120 300 68 448-78 118-116 210-143 304-112"/>
+  <path fill="none" stroke="#ffc46b" stroke-opacity=".22" stroke-width="3" d="M0 546c164-58 300-47 421 25 146 88 288 54 426-54 141-111 246-142 353-96"/>
+  <g transform="translate(84 62)">
+    <rect width="154" height="154" rx="38" fill="#071011"/>
+    <rect x="17" y="17" width="120" height="120" rx="31" fill="url(#mark-b)" stroke="url(#mark-a)" stroke-width="5"/>
+    <path fill="url(#mark-a)" d="M43 42h70v19H88v60H67V61H43V42Z"/>
+    <path fill="#effff8" d="M88 70h28v17H88V70Zm0 29h22v17H88V99Z"/>
+    <circle cx="116" cy="44" r="10" fill="#ffc46b"/>
+  </g>
+  <text x="84" y="322" fill="#effff8" font-family="Avenir Next, Avenir, Inter, system-ui, sans-serif" font-size="104" font-weight="850">TaskForm</text>
+  <text x="90" y="390" fill="#b9d7ce" font-family="Avenir Next, Avenir, Inter, system-ui, sans-serif" font-size="34" font-weight="650">Private feedback forms on decentralized rails.</text>
+  <g transform="translate(90 450)">
+    <rect width="190" height="46" rx="23" fill="#80ffd5" fill-opacity=".12" stroke="#80ffd5" stroke-opacity=".32"/>
+    <text x="24" y="30" fill="#80ffd5" font-family="Avenir Next, Avenir, Inter, system-ui, sans-serif" font-size="18" font-weight="800">Walrus-native</text>
+    <rect x="214" width="180" height="46" rx="23" fill="#80ffd5" fill-opacity=".12" stroke="#80ffd5" stroke-opacity=".32"/>
+    <text x="238" y="30" fill="#80ffd5" font-family="Avenir Next, Avenir, Inter, system-ui, sans-serif" font-size="18" font-weight="800">Seal encrypted</text>
+    <rect x="418" width="206" height="46" rx="23" fill="#ffc46b" fill-opacity=".12" stroke="#ffc46b" stroke-opacity=".32"/>
+    <text x="442" y="30" fill="#ffc46b" font-family="Avenir Next, Avenir, Inter, system-ui, sans-serif" font-size="18" font-weight="800">Sponsored submit</text>
+  </g>
+  <g transform="translate(792 116)">
+    <rect width="308" height="344" rx="28" fill="#effff8" fill-opacity=".06" stroke="#80ffd5" stroke-opacity=".28"/>
+    <rect x="32" y="40" width="244" height="50" rx="12" fill="#effff8" fill-opacity=".12"/>
+    <rect x="32" y="114" width="244" height="68" rx="12" fill="#80ffd5" fill-opacity=".12" stroke="#80ffd5" stroke-opacity=".22"/>
+    <rect x="32" y="208" width="116" height="52" rx="12" fill="#effff8" fill-opacity=".1"/>
+    <rect x="168" y="208" width="108" height="52" rx="12" fill="#ffc46b" fill-opacity=".16"/>
+    <rect x="32" y="292" width="244" height="36" rx="18" fill="#80ffd5"/>
+  </g>
+</svg>

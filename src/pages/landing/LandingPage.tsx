@@ -42,7 +42,7 @@ export function LandingPage() {
     <div className="landing-shell">
       <nav className="landing-nav" aria-label="Primary navigation">
         <a href={pagePath('/')} className="landing-brand" aria-label="TaskForm home">
-          <span className="brand-mark" />
+          <img src={pagePath('/logo-mark.svg')} alt="" className="brand-mark" />
           TaskForm
         </a>
         <div className="landing-nav-links">
