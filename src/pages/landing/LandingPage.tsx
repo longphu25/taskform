@@ -1,225 +1,168 @@
+import landingHero from '../../assets/landing-hero.jpg'
 import { pagePath } from '../../utils/paths'
+
+const signals = ['Walrus-native', 'Seal encrypted', 'Sponsored submit', 'Storage lifecycle']
+
+const features = [
+  {
+    kicker: 'Storage',
+    title: 'Forms and submissions live on Walrus',
+    description:
+      'Publish schemas, collect response payloads, and track epoch-based expiry without turning Move into a database.',
+  },
+  {
+    kicker: 'Privacy',
+    title: 'Sensitive answers stay sealed',
+    description:
+      'Mark private fields once. TaskForm encrypts before upload and keeps raw content out of events and on-chain metadata.',
+  },
+  {
+    kicker: 'Access',
+    title: 'Feedback without wallet friction',
+    description:
+      'Creators can sponsor submissions so teams can collect high-signal reports from users who never touch gas.',
+  },
+]
+
+const workflow = [
+  ['Create', 'Build a form with required fields, attachments, and privacy flags.'],
+  ['Publish', 'Store the schema, register metadata, and share one public link.'],
+  ['Collect', 'Render a fast public form with lazy storage, encryption, and submit logic.'],
+  ['Review', 'Triage status, priority, decryption, exports, and storage health.'],
+]
+
+const inbox = [
+  ['Security report', 'Critical', 'Encrypted', 'Expiring in 4 epochs'],
+  ['Grant application', 'High', 'Open', 'Active'],
+  ['Product feedback', 'Medium', 'Sponsored', 'Active'],
+]
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      {/* Navbar */}
-      <nav className="fixed top-4 left-4 right-4 z-50 mx-auto max-w-6xl rounded-2xl border border-white/10 bg-slate-900/80 px-6 py-3 backdrop-blur-xl">
-        <div className="flex items-center justify-between">
-          <a href={pagePath('/')} className="text-lg font-bold tracking-tight">
-            TaskForm
-          </a>
-          <a
-            href={pagePath('/dashboard.html')}
-            className="cursor-pointer rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium transition-colors duration-200 hover:bg-indigo-500"
-          >
-            Launch App
-          </a>
+    <div className="landing-shell">
+      <nav className="landing-nav" aria-label="Primary navigation">
+        <a href={pagePath('/')} className="landing-brand" aria-label="TaskForm home">
+          <span className="brand-mark" />
+          TaskForm
+        </a>
+        <div className="landing-nav-links">
+          <a href="#product">Product</a>
+          <a href="#workflow">Workflow</a>
+          <a href="#security">Security</a>
         </div>
+        <a href={pagePath('/dashboard.html')} className="nav-cta">
+          Launch App
+        </a>
       </nav>
 
-      {/* Hero */}
-      <section className="flex min-h-screen flex-col items-center justify-center px-4 pt-20 text-center">
-        <div className="mx-auto max-w-3xl">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-1.5 text-sm text-indigo-300">
-            <span className="h-2 w-2 rounded-full bg-indigo-400" />
-            Built on Walrus &amp; Sui
-          </div>
-          <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tight md:text-6xl">
-            Feedback Operating System
-            <br />
-            <span className="text-indigo-400">for Decentralized Teams</span>
-          </h1>
-          <p className="mx-auto mb-10 max-w-xl text-lg text-slate-400">
-            Collect private feedback, sponsor user submissions, and manage storage lifecycle — all
-            powered by Walrus storage and Seal encryption.
-          </p>
-          <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <a
-              href={pagePath('/dashboard.html')}
-              className="cursor-pointer rounded-xl bg-indigo-600 px-8 py-3.5 text-base font-semibold transition-colors duration-200 hover:bg-indigo-500"
-            >
-              Launch App
-            </a>
-            <a
-              href="#features"
-              className="cursor-pointer rounded-xl border border-white/10 px-8 py-3.5 text-base font-semibold transition-colors duration-200 hover:border-white/20 hover:bg-white/5"
-            >
-              Learn More
-            </a>
+      <header className="hero-section">
+        <img src={landingHero} alt="" className="hero-image" />
+        <div className="hero-scrim" />
+        <div className="hero-content">
+          <div className="hero-copy">
+            <p className="eyebrow">Walrus-native feedback infrastructure</p>
+            <h1>TaskForm</h1>
+            <p className="hero-lede">
+              Private forms for decentralized teams. Collect encrypted submissions, sponsor user
+              fees, and manage storage lifecycle from one focused dashboard.
+            </p>
+            <div className="hero-actions">
+              <a href={pagePath('/dashboard.html')} className="primary-action">
+                Launch App
+              </a>
+              <a href="#workflow" className="secondary-action">
+                View workflow
+              </a>
+            </div>
           </div>
         </div>
-      </section>
+      </header>
 
-      {/* Features */}
-      <section id="features" className="px-4 py-24">
-        <div className="mx-auto max-w-6xl">
-          <h2 className="mb-4 text-center text-3xl font-bold">Why TaskForm?</h2>
-          <p className="mx-auto mb-16 max-w-2xl text-center text-slate-400">
-            Web2 UX, Web3 ownership. Create forms, collect feedback, and manage everything on-chain.
-          </p>
-          <div className="grid gap-6 md:grid-cols-3">
-            <FeatureCard
-              title="Walrus Storage"
-              description="Form schemas and submissions stored on Walrus — decentralized, epoch-based, and cost-effective."
-              icon={<WalrusIcon />}
-            />
-            <FeatureCard
-              title="Seal Encryption"
-              description="Field-level privacy. Sensitive data is encrypted before upload — only authorized admins can decrypt."
-              icon={<SealIcon />}
-            />
-            <FeatureCard
-              title="Sponsored Submissions"
-              description="Creators sponsor gas fees so submitters never need a wallet. Frictionless feedback collection."
-              icon={<SponsorIcon />}
-            />
+      <main>
+        <section className="signal-strip" aria-label="TaskForm capabilities">
+          {signals.map((signal) => (
+            <div key={signal} className="signal-item">
+              <span />
+              {signal}
+            </div>
+          ))}
+        </section>
+
+        <section id="product" className="content-section">
+          <div className="section-heading">
+            <p className="section-kicker">Product</p>
+            <h2>Everything a Web3 feedback loop needs.</h2>
           </div>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="px-4 py-24">
-        <div className="mx-auto max-w-4xl">
-          <h2 className="mb-16 text-center text-3xl font-bold">How It Works</h2>
-          <div className="grid gap-8 md:grid-cols-4">
-            <Step number={1} title="Create" description="Build your form with custom fields" />
-            <Step
-              number={2}
-              title="Publish"
-              description="Store schema on Walrus, get a public link"
-            />
-            <Step
-              number={3}
-              title="Collect"
-              description="Anyone can submit — fast, private, sponsored"
-            />
-            <Step
-              number={4}
-              title="Manage"
-              description="Triage, decrypt, export from your dashboard"
-            />
+          <div className="feature-grid">
+            {features.map((feature) => (
+              <article key={feature.title} className="feature-card">
+                <p>{feature.kicker}</p>
+                <h3>{feature.title}</h3>
+                <span>{feature.description}</span>
+              </article>
+            ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* CTA */}
-      <section className="px-4 py-24">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="mb-4 text-3xl font-bold">Ready to collect feedback?</h2>
-          <p className="mb-8 text-slate-400">Start building your first form in minutes.</p>
-          <a
-            href={pagePath('/dashboard.html')}
-            className="cursor-pointer inline-block rounded-xl bg-indigo-600 px-8 py-3.5 text-base font-semibold transition-colors duration-200 hover:bg-indigo-500"
-          >
+        <section id="workflow" className="content-section workflow-section">
+          <div className="section-heading">
+            <p className="section-kicker">Workflow</p>
+            <h2>Create, publish, collect, review.</h2>
+          </div>
+          <div className="workflow-grid">
+            {workflow.map(([title, description], index) => (
+              <article key={title} className="workflow-step">
+                <div>{String(index + 1).padStart(2, '0')}</div>
+                <h3>{title}</h3>
+                <p>{description}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section id="security" className="dashboard-band">
+          <div className="dashboard-copy">
+            <p className="section-kicker">Dashboard</p>
+            <h2>Review feedback without exposing what should stay private.</h2>
+            <p>
+              List views stay metadata-first. Teams download and decrypt the sensitive payload only
+              when a reviewer has the right access.
+            </p>
+          </div>
+
+          <div className="dashboard-preview" aria-label="Submission dashboard preview">
+            <div className="preview-toolbar">
+              <span>Submission inbox</span>
+              <strong>Storage healthy</strong>
+            </div>
+            <div className="preview-list">
+              {inbox.map(([title, priority, privacy, health]) => (
+                <div key={title} className="preview-row">
+                  <div>
+                    <strong>{title}</strong>
+                    <span>{health}</span>
+                  </div>
+                  <em>{priority}</em>
+                  <small>{privacy}</small>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="final-cta">
+          <p>Web2 UX. Web3 ownership.</p>
+          <h2>Start collecting private feedback on decentralized rails.</h2>
+          <a href={pagePath('/dashboard.html')} className="primary-action">
             Launch App
           </a>
-        </div>
-      </section>
+        </section>
+      </main>
 
-      {/* Footer */}
-      <footer className="border-t border-white/10 px-4 py-8">
-        <div className="mx-auto max-w-6xl text-center text-sm text-slate-500">
-          TaskForm — Walrus-native feedback operating system
-        </div>
+      <footer className="landing-footer">
+        <span>TaskForm</span>
+        <span>Walrus storage. Seal privacy. Sui ownership.</span>
       </footer>
     </div>
-  )
-}
-
-function FeatureCard({
-  title,
-  description,
-  icon,
-}: {
-  title: string
-  description: string
-  icon: React.ReactNode
-}) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-6 transition-colors duration-200 hover:border-white/20">
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400">
-        {icon}
-      </div>
-      <h3 className="mb-2 text-lg font-semibold">{title}</h3>
-      <p className="text-sm leading-relaxed text-slate-400">{description}</p>
-    </div>
-  )
-}
-
-function Step({
-  number,
-  title,
-  description,
-}: {
-  number: number
-  title: string
-  description: string
-}) {
-  return (
-    <div className="text-center">
-      <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-indigo-600 text-sm font-bold">
-        {number}
-      </div>
-      <h3 className="mb-1 font-semibold">{title}</h3>
-      <p className="text-sm text-slate-400">{description}</p>
-    </div>
-  )
-}
-
-function WalrusIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      className="h-6 w-6"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"
-      />
-    </svg>
-  )
-}
-
-function SealIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      className="h-6 w-6"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
-      />
-    </svg>
-  )
-}
-
-function SponsorIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      className="h-6 w-6"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M21 11.25v8.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 1 0 9.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1 1 14.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z"
-      />
-    </svg>
   )
 }
