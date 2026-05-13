@@ -15,7 +15,7 @@ export interface WalrusDownloadOptions {
 export async function downloadFromWalrus(options: WalrusDownloadOptions): Promise<Uint8Array> {
   const { blobId } = options
 
-  const url = `${WALRUS_AGGREGATOR_URL}/v1/blobs/${blobId}`
+  const url = `${WALRUS_AGGREGATOR_URL}/v1/blobs/by-quilt-patch-id/${blobId}`
 
   const response = await fetch(url)
 

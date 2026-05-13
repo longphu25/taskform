@@ -18,35 +18,35 @@
 - [x] TypeScript compiles clean
 - [x] Build passes, dist ~47 KB
 
-## Day 2 — Form Builder
+## Day 2 — Form Builder ✅
 
-- [ ] Form builder layout (2-column: editor + preview)
-- [ ] Title and description inputs
-- [ ] Field list with drag-to-reorder
-- [ ] Add field button + type selector
-- [ ] Field editor: label, placeholder, required toggle, sensitive toggle
-- [ ] Options editor (for dropdown/checkbox)
-- [ ] Upload field settings (max size, allowed types)
-- [ ] Storage policy UI (duration selectors)
-- [ ] Sponsored submission settings (toggle, budget, max count, max file size)
-- [ ] Live preview panel
-- [ ] Zod validation on form config before publish
-- [ ] Publish button (wired to Walrus in Day 3)
-- [ ] Form state management (React state or useReducer)
+- [x] Form builder layout (2-column: editor + preview)
+- [x] Title and description inputs
+- [x] Field list with drag-to-reorder
+- [x] Add field button + type selector
+- [x] Field editor: label, placeholder, required toggle, sensitive toggle
+- [x] Options editor (for dropdown/checkbox)
+- [x] Upload field settings (max size, allowed types)
+- [x] Storage policy UI (duration selectors)
+- [x] Sponsored submission settings (toggle, budget, max count, max file size)
+- [x] Live preview panel
+- [x] Zod validation on form config before publish
+- [x] Publish button (wired to Walrus in Day 3)
+- [x] Form state management (React state or useReducer)
 
-## Day 3 — Walrus Storage
+## Day 3 — Walrus Storage ✅
 
-- [ ] Walrus aggregator/publisher URL config
-- [ ] Lightweight download module (`src/lazy/walrus-download.ts`)
-- [ ] Lazy upload module (`src/lazy/walrus-upload.ts`)
-- [ ] Upload form schema JSON to Walrus
-- [ ] Capture blob ID from upload response
-- [ ] Capture object ID if available
-- [ ] Capture expiry epoch
-- [ ] Generate public link: `form.html?formId=<blobId>`
-- [ ] Load schema in form page (download + JSON parse)
-- [ ] Error handling for failed uploads/downloads
-- [ ] Mock mode for offline development
+- [x] Walrus aggregator/publisher URL config
+- [x] Lightweight download module (`src/lazy/walrus-download.ts`)
+- [x] Lazy upload module (`src/lazy/walrus-upload.ts`)
+- [x] Upload form schema JSON to Walrus
+- [x] Capture blob ID from upload response
+- [x] Capture object ID if available
+- [x] Capture expiry epoch
+- [x] Generate public link: `form.html?formId=<blobId>`
+- [ ] Load schema in form page (download + JSON parse) — moved to Day 4
+- [ ] Error handling for failed uploads/downloads — upload done, download pending Day 4
+- [ ] Mock mode for offline development — skipped (nice-to-have, not needed for MVP)
 
 ## Day 4 — Public Form
 

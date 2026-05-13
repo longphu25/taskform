@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { FormField, StoragePolicy, SponsorSettings, FormSchema } from '../../../types/form'
 import { formSchemaValidator } from '../../../schemas/form'
 import { pagePath } from '../../../utils/paths'
-import { useWalletAddress } from './WalletConnect'
+import { useWalletAddress } from '../hooks/useWalletAddress'
 
 interface PublishButtonProps {
   title: string
@@ -10,6 +10,8 @@ interface PublishButtonProps {
   fields: FormField[]
   storagePolicy: StoragePolicy
   sponsorSettings: SponsorSettings
+  onPublishingChange?: (publishing: boolean) => void
+  onStepChange?: (step: number) => void
 }
 
 type PublishState = 'idle' | 'validating' | 'uploading' | 'success' | 'error'
@@ -20,6 +22,8 @@ export function PublishButton({
   fields,
   storagePolicy,
   sponsorSettings,
+  onPublishingChange,
+  onStepChange,
 }: PublishButtonProps) {
   const [state, setState] = useState<PublishState>('idle')
   const [error, setError] = useState<string | null>(null)
@@ -36,6 +40,8 @@ export function PublishButton({
     }
 
     setState('validating')
+    onPublishingChange?.(true)
+    onStepChange?.(1)
 
     // Build schema object
     const schema: FormSchema = {
@@ -66,16 +72,22 @@ export function PublishButton({
       const uploadResult = await uploadToWalrus({
         data: jsonData,
         epochs: storagePolicy.schemaDuration,
+        onStep: (step) => {
+          const stepMap = { swap: 2, encode: 3, register: 4, upload: 5, certify: 6 }
+          onStepChange?.(stepMap[step])
+        },
       })
 
       // Generate public link
       const baseUrl = window.location.origin + pagePath('/form.html')
-      const link = `${baseUrl}?formId=${uploadResult.blobId}`
+      const link = `${baseUrl}?formId=${uploadResult.downloadId}`
       setPublicLink(link)
       setState('success')
+      onPublishingChange?.(false)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed')
       setState('error')
+      onPublishingChange?.(false)
     }
   }
 
