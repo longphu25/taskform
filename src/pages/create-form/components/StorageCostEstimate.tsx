@@ -35,18 +35,18 @@ export function StorageCostEstimate({ dataSize, epochs }: StorageCostEstimatePro
   if (!cost) return null
 
   return (
-    <div className="rounded-lg border border-white/10 bg-zinc-800/50 px-3 py-2">
+    <div className="rounded-lg border border-[rgba(190,255,234,0.16)] bg-[rgba(12,34,35,0.58)] px-3 py-2">
       <div className="flex items-center gap-1.5 mb-1.5">
-        <Coins className="size-3 text-zinc-500" />
-        <span className="text-xs font-medium text-zinc-400">Estimated cost</span>
+        <Coins className="size-3 text-[#9fb9b1]/70" />
+        <span className="text-xs font-medium text-[#9fb9b1]">Estimated cost</span>
       </div>
       <div className="flex items-center justify-between text-xs">
-        <span className="text-zinc-500">Storage</span>
-        <span className="font-mono text-zinc-300">{cost.storage} WAL</span>
+        <span className="text-[#9fb9b1]/70">Storage</span>
+        <span className="font-mono text-[#effff8]/85">{cost.storage} WAL</span>
       </div>
       <div className="flex items-center justify-between text-xs mt-1">
-        <span className="text-zinc-500">Total</span>
-        <span className="font-mono text-white">{cost.total} WAL</span>
+        <span className="text-[#9fb9b1]/70">Total</span>
+        <span className="font-mono text-[#effff8]">{cost.total} WAL</span>
       </div>
     </div>
   )

@@ -115,7 +115,7 @@ export function PublicFormPage() {
       <Shell>
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <h2 className="mb-2 text-xl font-semibold">No form specified</h2>
-          <p className="text-slate-400">Please use a valid form link.</p>
+          <p className="text-[#9fb9b1]">Please use a valid form link.</p>
         </div>
       </Shell>
     )
@@ -124,10 +124,10 @@ export function PublicFormPage() {
   if (loading) {
     return (
       <Shell>
-        <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8">
+        <div className="rounded-2xl border border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.82)] p-8">
           <div className="flex items-center gap-3">
-            <div className="size-5 animate-spin rounded-full border-2 border-indigo-500/20 border-t-indigo-500" />
-            <p className="text-sm text-slate-400">Loading form...</p>
+            <div className="size-5 animate-spin rounded-full border-2 border-[#80ffd5]/20 border-t-[#80ffd5]" />
+            <p className="text-sm text-[#9fb9b1]">Loading form...</p>
           </div>
         </div>
       </Shell>
@@ -147,10 +147,10 @@ export function PublicFormPage() {
   if (submitted) {
     return (
       <Shell>
-        <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 text-center">
-          <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-green-500/10">
+        <div className="rounded-2xl border border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.82)] p-8 text-center">
+          <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-[#80ffd5]/10">
             <svg
-              className="size-6 text-green-400"
+              className="size-6 text-[#80ffd5]"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -160,7 +160,7 @@ export function PublicFormPage() {
             </svg>
           </div>
           <h2 className="mb-2 text-xl font-semibold">Submitted!</h2>
-          <p className="text-slate-400">Your response has been recorded on Walrus.</p>
+          <p className="text-[#9fb9b1]">Your response has been recorded on Walrus.</p>
         </div>
       </Shell>
     )
@@ -170,9 +170,9 @@ export function PublicFormPage() {
 
   return (
     <Shell>
-      <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8">
+      <div className="rounded-2xl border border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.82)] p-8">
         <h2 className="mb-2 text-2xl font-semibold">{schema.title}</h2>
-        {schema.description && <p className="mb-8 text-slate-400">{schema.description}</p>}
+        {schema.description && <p className="mb-8 text-[#9fb9b1]">{schema.description}</p>}
 
         {error && (
           <div className="mb-6 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-2">
@@ -196,7 +196,7 @@ export function PublicFormPage() {
           type="button"
           onClick={handleSubmit}
           disabled={submitting}
-          className="mt-8 w-full cursor-pointer rounded-lg bg-indigo-600 px-4 py-3 font-medium transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+          className="mt-8 w-full cursor-pointer rounded-lg bg-[#80ffd5] px-4 py-3 font-medium text-[#06231d] transition-colors hover:bg-[#28d8c1] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting ? 'Submitting...' : 'Submit'}
         </button>
@@ -207,11 +207,11 @@ export function PublicFormPage() {
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      <nav className="fixed top-4 left-4 right-4 z-50 mx-auto max-w-2xl rounded-2xl border border-white/10 bg-slate-900/80 px-6 py-3 backdrop-blur-xl">
+    <div className="min-h-screen bg-[#071011] text-[#effff8]">
+      <nav className="fixed top-4 left-4 right-4 z-50 mx-auto max-w-2xl rounded-2xl border border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.82)] px-6 py-3 backdrop-blur-xl">
         <div className="flex items-center justify-between">
           <span className="text-lg font-bold tracking-tight">TaskForm</span>
-          <span className="text-xs text-slate-500">Powered by Walrus</span>
+          <span className="text-xs text-[#9fb9b1]/70">Powered by Walrus</span>
         </div>
       </nav>
       <main className="mx-auto max-w-2xl px-4 pt-24 pb-12">{children}</main>
@@ -231,15 +231,15 @@ function FieldRenderer({
   error?: string
 }) {
   const label = (
-    <label className="mb-1.5 block text-sm font-medium text-slate-300">
+    <label className="mb-1.5 block text-sm font-medium text-[#effff8]/85">
       {field.label}
       {field.required && <span className="ml-1 text-red-400">*</span>}
-      {field.sensitive && <span className="ml-2 text-xs text-amber-400">(encrypted)</span>}
+      {field.sensitive && <span className="ml-2 text-xs text-[#ffc46b]">(encrypted)</span>}
     </label>
   )
 
   const errorEl = error ? <p className="mt-1 text-xs text-red-400">{error}</p> : null
-  const inputClass = `w-full rounded-lg border bg-slate-800 px-4 py-2.5 text-white placeholder-slate-600 outline-none focus:border-indigo-500 ${error ? 'border-red-500/50' : 'border-white/10'}`
+  const inputClass = `w-full rounded-lg border bg-[#0d1c1d] px-4 py-2.5 text-[#effff8] placeholder-[#9fb9b1]/55 outline-none focus:border-[#80ffd5] ${error ? 'border-red-500/50' : 'border-[rgba(190,255,234,0.16)]'}`
 
   switch (field.type) {
     case 'short-text':
@@ -308,9 +308,9 @@ function FieldRenderer({
                       e.target.checked ? [...arr, opt.value] : arr.filter((v) => v !== opt.value),
                     )
                   }}
-                  className="size-4 rounded accent-indigo-500"
+                  className="size-4 rounded accent-[#80ffd5]"
                 />
-                <span className="text-sm text-slate-300">{opt.label}</span>
+                <span className="text-sm text-[#effff8]/85">{opt.label}</span>
               </label>
             ))}
           </div>
@@ -327,7 +327,7 @@ function FieldRenderer({
                 key={n}
                 type="button"
                 onClick={() => onChange(n)}
-                className={`cursor-pointer text-2xl transition-colors ${n <= (value as number) ? 'text-yellow-400' : 'text-slate-600 hover:text-yellow-400/50'}`}
+                className={`cursor-pointer text-2xl transition-colors ${n <= (value as number) ? 'text-[#ffc46b]' : 'text-[#9fb9b1]/55 hover:text-[#ffc46b]/50'}`}
               >
                 ★
               </button>
@@ -345,17 +345,17 @@ function FieldRenderer({
         <div>
           {label}
           <div
-            className={`relative rounded-lg border border-dashed bg-slate-800/50 transition-colors ${error ? 'border-red-500/50' : 'border-white/10 hover:border-indigo-500/50'}`}
+            className={`relative rounded-lg border border-dashed bg-[rgba(12,34,35,0.58)] transition-colors ${error ? 'border-red-500/50' : 'border-[rgba(190,255,234,0.16)] hover:border-[#80ffd5]/50'}`}
             onDragOver={(e) => {
               e.preventDefault()
-              e.currentTarget.classList.add('border-indigo-500/50')
+              e.currentTarget.classList.add('border-[#80ffd5]/50')
             }}
             onDragLeave={(e) => {
-              e.currentTarget.classList.remove('border-indigo-500/50')
+              e.currentTarget.classList.remove('border-[#80ffd5]/50')
             }}
             onDrop={(e) => {
               e.preventDefault()
-              e.currentTarget.classList.remove('border-indigo-500/50')
+              e.currentTarget.classList.remove('border-[#80ffd5]/50')
               const dropped = Array.from(e.dataTransfer.files).filter((f) =>
                 f.type.startsWith(isVideo ? 'video/' : 'image/'),
               )
@@ -374,9 +374,9 @@ function FieldRenderer({
                       />
                     )}
                     {isVideo && (
-                      <div className="flex aspect-square w-full items-center justify-center rounded-lg bg-slate-700">
+                      <div className="flex aspect-square w-full items-center justify-center rounded-lg bg-[#0d1c1d]">
                         <svg
-                          className="size-8 text-slate-400"
+                          className="size-8 text-[#9fb9b1]"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -393,18 +393,18 @@ function FieldRenderer({
                     <button
                       type="button"
                       onClick={() => onChange(files.filter((_, idx) => idx !== i))}
-                      className="absolute -right-1.5 -top-1.5 cursor-pointer rounded-full bg-red-500 p-0.5 text-white opacity-0 transition-opacity group-hover:opacity-100 size-5 flex items-center justify-center text-xs"
+                      className="absolute -right-1.5 -top-1.5 cursor-pointer rounded-full bg-red-500 p-0.5 text-[#effff8] opacity-0 transition-opacity group-hover:opacity-100 size-5 flex items-center justify-center text-xs"
                     >
                       ✕
                     </button>
-                    <p className="mt-1 truncate text-[10px] text-slate-500">{file.name}</p>
+                    <p className="mt-1 truncate text-[10px] text-[#9fb9b1]/70">{file.name}</p>
                   </div>
                 ))}
               </div>
             )}
             <label className="flex cursor-pointer flex-col items-center justify-center py-4">
               <svg
-                className="mb-1 size-6 text-slate-500"
+                className="mb-1 size-6 text-[#9fb9b1]/70"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -416,14 +416,14 @@ function FieldRenderer({
                   d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
                 />
               </svg>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-[#9fb9b1]/70">
                 {files.length > 0
                   ? 'Add more files'
                   : isVideo
                     ? 'Drop video or click to upload'
                     : 'Drop images or click to upload'}
               </p>
-              <p className="mt-0.5 text-xs text-slate-600">
+              <p className="mt-0.5 text-xs text-[#9fb9b1]/55">
                 {isVideo ? 'MP4, WebM, MOV' : 'PNG, JPG, GIF, WebP'}
               </p>
               <input
@@ -450,9 +450,9 @@ function FieldRenderer({
               type="checkbox"
               checked={value as boolean}
               onChange={(e) => onChange(e.target.checked)}
-              className="size-4 rounded accent-indigo-500"
+              className="size-4 rounded accent-[#80ffd5]"
             />
-            <span className="text-sm text-slate-300">
+            <span className="text-sm text-[#effff8]/85">
               {field.label}
               {field.required && <span className="ml-1 text-red-400">*</span>}
             </span>

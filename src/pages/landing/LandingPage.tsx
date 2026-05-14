@@ -1,42 +1,91 @@
-import { useEffect, useRef } from 'react'
 import { pagePath } from '../../utils/paths'
 
-const stackNodes = [
-  {
-    name: 'Builder',
-    label: 'Form schema',
-    detail: 'Templates, fields, validation, storage policy',
-    icon: pagePath('/logo-mark.svg'),
-    tone: 'mint',
-  },
+const rails = [
   {
     name: 'Walrus',
     label: 'Blob storage',
-    detail: 'Schemas, submissions, screenshots, video proof',
+    description:
+      'Schemas, submissions, screenshots, video attachments, and demo artifacts stay off-chain as inspectable blobs.',
     icon: pagePath('/walrus-icon.png'),
     tone: 'walrus',
   },
   {
     name: 'Seal',
     label: 'Private fields',
-    detail: 'Sensitive answers encrypted before upload',
+    description:
+      'Sensitive answers are encrypted client-side before upload and opened only from the creator dashboard.',
     icon: pagePath('/seal-logo.svg'),
     tone: 'seal',
   },
   {
     name: 'Sui',
-    label: 'Onchain index',
-    detail: 'Ownership, publish state, submission pointers',
+    label: 'Ownership index',
+    description:
+      'Creator ownership, published state, submission pointers, status, priority, and events are anchored on-chain.',
     icon: pagePath('/sui-icon.png'),
     tone: 'sui',
   },
-  {
-    name: 'Dashboard',
-    label: 'Review table',
-    detail: 'Filter, prioritize, decrypt, notes, CSV export',
-    icon: pagePath('/logo-mark.svg'),
-    tone: 'amber',
-  },
+]
+
+const pipeline = [
+  [
+    '01',
+    'Build',
+    'Create a form from feedback, bug report, survey, application, or Walrus Builder templates.',
+  ],
+  [
+    '02',
+    'Publish',
+    'Upload the schema to Walrus and anchor the public form pointer through Sui metadata.',
+  ],
+  [
+    '03',
+    'Collect',
+    'Receive public submissions, attachments, and optional encrypted answers without a server database.',
+  ],
+  [
+    '04',
+    'Review',
+    'Filter, prioritize, decrypt, note, and export responses from the creator dashboard.',
+  ],
+]
+
+const features = [
+  [
+    'Blob-first storage',
+    'Large form data never goes on-chain. Walrus stores schemas, responses, screenshots, and video proof.',
+  ],
+  [
+    'Move-backed ownership',
+    'Sui tracks creators, publication state, submission pointers, review status, priority, and events.',
+  ],
+  [
+    'Privacy by field',
+    'Seal protects sensitive responses while keeping normal feedback fast and easy to submit.',
+  ],
+  [
+    'Review table output',
+    'Dashboard workflows cover filtering, status, priority, internal notes, decrypt, CSV, and JSON backup.',
+  ],
+  [
+    'Ultra-light public form',
+    'The submit page stays small and fast, with SDKs loaded only when a submission actually needs them.',
+  ],
+  [
+    'Sponsored submission path',
+    'Creators can sponsor gas so public submitters get Web2-like UX with Web3 ownership underneath.',
+  ],
+]
+
+const useCases = [
+  'Walrus Tools Builder feedback',
+  'Hackathon judging intake',
+  'Bug reports',
+  'Feature requests',
+  'Grant applications',
+  'DAO surveys',
+  'Private security feedback',
+  'Open-source maintainer triage',
 ]
 
 const proofRows = [
@@ -46,229 +95,224 @@ const proofRows = [
   ['Metadata pointer', 'Sui Move event/object', 'Ownership and review state are verifiable'],
 ]
 
-const stackStats = [
-  ['Walrus', 'Blob IDs'],
-  ['Seal', 'Encrypted fields'],
-  ['Sui', 'Move events'],
-]
-
 export function LandingPage() {
-  const bentoRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const handleMouseMove = (event: MouseEvent) => {
-      if (!bentoRef.current) return
-
-      const cards = bentoRef.current.querySelectorAll('.bento-card')
-      for (const card of cards) {
-        const rect = card.getBoundingClientRect()
-        const x = event.clientX - rect.left
-        const y = event.clientY - rect.top
-        ;(card as HTMLElement).style.setProperty('--mouse-x', `${x}px`)
-        ;(card as HTMLElement).style.setProperty('--mouse-y', `${y}px`)
-      }
-    }
-
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [])
-
   return (
     <div className="landing-shell">
-      <nav className="premium-nav reveal-up">
-        <a href={pagePath('/')} className="premium-nav-logo">
-          <img src={pagePath('/logo-mark.svg')} alt="TaskForm" />
-          TaskForm
+      <header className="site-header reveal-up">
+        <a href={pagePath('/')} className="brand-link" aria-label="TaskForm home">
+          <img src={pagePath('/logo-mark.svg')} alt="" />
+          <span>TaskForm</span>
         </a>
-        <div className="premium-nav-links">
+
+        <nav className="nav-links" aria-label="Primary navigation">
+          <a href="#product">Product</a>
           <a href="#architecture">Architecture</a>
           <a href="#proof">Proof</a>
-        </div>
-        <a href={pagePath('/dashboard.html')} className="premium-nav-cta">
+          <a href={pagePath('/dashboard.html')}>Dashboard</a>
+        </nav>
+
+        <a href={pagePath('/dashboard.html')} className="nav-cta">
           Launch App
         </a>
-      </nav>
+      </header>
 
       <main>
-        <section className="hero-section" id="hero">
-          <div className="hero-glow-bg" />
-          <div className="hero-grid-bg" />
+        <section className="hero-section" id="product">
+          <div className="hero-grid" aria-hidden="true" />
+          <div className="hero-layout">
+            <div className="hero-copy reveal-up">
+              <p className="eyebrow">Walrus-native feedback OS</p>
+              <h1>Build forms. Store on Walrus. Own on Sui.</h1>
+              <p className="hero-lede">
+                TaskForm helps builders collect structured feedback, protect sensitive fields,
+                verify storage and ownership, then review everything from a practical dashboard.
+              </p>
 
-          <div className="hero-content reveal-up" data-delay="0.1">
-            <div className="badge">
-              <span className="badge-dot" />
-              Walrus Tools Builder
-            </div>
-            <h1 className="hero-title">
-              Walrus-native form builder for structured community feedback.
-            </h1>
-            <p className="hero-subtitle">
-              TaskForm turns every feedback form into a verifiable data pipeline:
-              schemas and submissions live on Walrus, sensitive fields are protected
-              with Seal, and Sui anchors ownership plus review state.
-            </p>
-            <div className="hero-cta-group">
-              <a href={pagePath('/create-form.html')} className="btn-primary">
-                Create Form
-                <span aria-hidden="true">→</span>
-              </a>
-              <a href="#architecture" className="btn-secondary">
-                View Architecture
-              </a>
-            </div>
-          </div>
-
-          <div className="stack-stage reveal-up" data-delay="0.25" aria-label="TaskForm technical architecture animation">
-            <div className="stack-stage-header">
-              <div>
-                <span className="eyebrow">Live architecture</span>
-                <h2>From form design to reviewable proof</h2>
+              <div className="hero-actions">
+                <a href={pagePath('/create-form.html')} className="button button-primary">
+                  Create Form
+                  <span aria-hidden="true">-&gt;</span>
+                </a>
+                <a href="#architecture" className="button button-secondary">
+                  View Architecture
+                </a>
               </div>
-              <div className="stack-logos" aria-label="Sui, Walrus, and Seal logos">
-                <img src={pagePath('/sui-logo.svg')} alt="Sui" />
-                <img src={pagePath('/walrus-icon.png')} alt="Walrus" />
-                <img src={pagePath('/seal-logo.svg')} alt="Seal" />
+
+              <div className="hero-meta" aria-label="TaskForm capabilities">
+                <span>Walrus storage</span>
+                <span>Seal privacy</span>
+                <span>Sui metadata</span>
+                <span>CSV export</span>
               </div>
             </div>
 
-            <div className="architecture-board">
-              <aside className="architecture-brief">
-                <span className="brief-index">01</span>
-                <h3>One form becomes a verifiable data product.</h3>
-                <p>
-                  The creator edits a schema once. TaskForm routes every later action
-                  through the correct rail: Walrus for content, Seal for privacy, and
-                  Sui for ownership plus review state.
-                </p>
-                <div className="architecture-stats">
-                  {stackStats.map(([name, label]) => (
-                    <div key={name}>
-                      <strong>{name}</strong>
-                      <span>{label}</span>
+            <div
+              className="product-frame reveal-up"
+              data-delay="0.12"
+              aria-label="TaskForm dashboard preview"
+            >
+              <div className="frame-topbar">
+                <span />
+                <span />
+                <span />
+                <strong>taskform.live/proof</strong>
+              </div>
+
+              <div className="dashboard-preview">
+                <aside className="preview-sidebar">
+                  <div className="sidebar-logo">
+                    <img src={pagePath('/logo-mark.svg')} alt="" />
+                    <span>TaskForm</span>
+                  </div>
+                  {['My Forms', 'Submissions', 'Decrypt', 'Export'].map((item, index) => (
+                    <div
+                      className={index === 1 ? 'sidebar-item active' : 'sidebar-item'}
+                      key={item}
+                    >
+                      {item}
                     </div>
                   ))}
-                </div>
-              </aside>
+                </aside>
 
-              <div className="pipeline-map" aria-label="TaskForm data pipeline">
-                <div className="pipeline-spine" />
-                <div className="pipeline-pulse pulse-one">schema</div>
-                <div className="pipeline-pulse pulse-two">ciphertext</div>
-                <div className="pipeline-pulse pulse-three">pointer</div>
-
-                {stackNodes.map((node, index) => (
-                  <article className={`pipeline-node node-${index + 1} tone-${node.tone}`} key={node.name}>
-                    <div className="pipeline-node-icon">
-                      <img src={node.icon} alt="" />
+                <section className="preview-main">
+                  <div className="preview-toolbar">
+                    <div>
+                      <span className="tiny-label">Walrus Builder Feedback</span>
+                      <h2>Submission Inbox</h2>
                     </div>
-                    <span>{node.label}</span>
-                    <h3>{node.name}</h3>
-                    <p>{node.detail}</p>
-                  </article>
-                ))}
-              </div>
+                    <span className="status-pill">Live</span>
+                  </div>
 
-              <aside className="proof-console" aria-label="Technical proof console">
-                <div className="console-topbar">
-                  <span />
-                  <span />
-                  <span />
-                </div>
-                <div className="console-body">
-                  <p>
-                    <span>tx</span> create_form(schema_blob_id)
-                  </p>
-                  <p>
-                    <span>walrus</span> submit.json + attachments
-                  </p>
-                  <p>
-                    <span>seal</span> private fields encrypted client-side
-                  </p>
-                  <p>
-                    <span>sui</span> status, priority, events
-                  </p>
-                </div>
-              </aside>
+                  <div className="rail-status">
+                    {rails.map((rail) => (
+                      <article className={`rail-chip tone-${rail.tone}`} key={rail.name}>
+                        <img src={rail.icon} alt="" />
+                        <div>
+                          <strong>{rail.name}</strong>
+                          <span>{rail.label}</span>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+
+                  <div className="submission-table">
+                    <div className="table-head">
+                      <span>Type</span>
+                      <span>Rail</span>
+                      <span>Status</span>
+                    </div>
+                    {[
+                      ['Bug report', 'Walrus + Sui', 'Priority'],
+                      ['Private note', 'Seal encrypted', 'Decrypt'],
+                      ['Builder feedback', 'Blob proof', 'Reviewed'],
+                    ].map(([type, rail, status]) => (
+                      <div className="table-row" key={type}>
+                        <span>{type}</span>
+                        <span>{rail}</span>
+                        <strong>{status}</strong>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </div>
             </div>
           </div>
         </section>
 
-        <section className="story-section" id="architecture">
-          <div className="section-header reveal-up">
-            <div className="section-tag">Architecture</div>
-            <h2 className="section-title">A builder tool, not a Web2 form clone.</h2>
-            <p className="section-copy">
-              The landing page is structured as a pitch deck: problem, pipeline,
-              proof model, and demo path are all visible without switching slides.
+        <section className="rail-section">
+          <div className="section-heading reveal-up">
+            <p className="eyebrow">Three rails</p>
+            <h2>Content, privacy, and ownership are separated by design.</h2>
+          </div>
+          <div className="rail-grid">
+            {rails.map((rail) => (
+              <article className={`rail-card tone-${rail.tone} reveal-up`} key={rail.name}>
+                <div className="rail-icon">
+                  <img src={rail.icon} alt="" />
+                </div>
+                <span>{rail.label}</span>
+                <h3>{rail.name}</h3>
+                <p>{rail.description}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="architecture-section" id="architecture">
+          <div className="section-heading reveal-up">
+            <p className="eyebrow">Architecture</p>
+            <h2>From form design to reviewable proof.</h2>
+            <p>
+              One creator action produces a visible chain of artifacts: form schema, submission
+              blob, encrypted private values, and on-chain review state.
             </p>
           </div>
 
-          <div className="bento-grid" ref={bentoRef}>
-            <article className="bento-card bento-col-6 reveal-up">
-              <div className="brand-lockup">
-                <img src={pagePath('/walrus-icon.png')} alt="Walrus" />
-                <span>Walrus</span>
-              </div>
-              <h3 className="bento-title">Blob-first storage</h3>
-              <p className="bento-desc">
-                Large data never goes on-chain. Form JSON, responses, screenshots,
-                and demo artifacts are stored as Walrus blobs with visible proof IDs.
-              </p>
-            </article>
+          <div className="pipeline">
+            {pipeline.map(([step, title, detail]) => (
+              <article className="pipeline-step reveal-up" key={step}>
+                <span>{step}</span>
+                <h3>{title}</h3>
+                <p>{detail}</p>
+              </article>
+            ))}
+          </div>
 
-            <article className="bento-card bento-col-6 reveal-up" data-delay="0.05">
-              <div className="brand-lockup">
-                <img src={pagePath('/sui-icon.png')} alt="Sui" />
-                <span>Sui</span>
-              </div>
-              <h3 className="bento-title">Move-backed ownership</h3>
-              <p className="bento-desc">
-                Sui stores the durable control plane: creator ownership, published
-                state, submission pointers, status, priority, and events for indexing.
-              </p>
-            </article>
+          <div className="trace-block reveal-up">
+            <div className="trace-line">
+              <span className="tag tag-walrus">walrus</span>
+              <code>schema.json + submit.json + attachments -&gt; blob_id</code>
+            </div>
+            <div className="trace-line">
+              <span className="tag tag-seal">seal</span>
+              <code>private_fields -&gt; encrypted_payload</code>
+            </div>
+            <div className="trace-line">
+              <span className="tag tag-sui">sui</span>
+              <code>form_owner + submission_pointer + status + priority -&gt; event</code>
+            </div>
+          </div>
+        </section>
 
-            <article className="bento-card bento-col-4 reveal-up" data-delay="0.1">
-              <div className="brand-lockup">
-                <img src={pagePath('/seal-logo.svg')} alt="Seal" />
-                <span>Seal</span>
-              </div>
-              <h3 className="bento-title">Privacy when it matters</h3>
-              <p className="bento-desc">
-                Sensitive answers are encrypted before upload and unlocked only from
-                the creator dashboard.
-              </p>
-            </article>
+        <section className="feature-section">
+          <div className="section-heading reveal-up">
+            <p className="eyebrow">Product surface</p>
+            <h2>A builder tool, not a Web2 form clone.</h2>
+          </div>
 
-            <article className="bento-card bento-col-4 reveal-up" data-delay="0.15">
-              <div className="bento-number">09</div>
-              <h3 className="bento-title">Fields for real feedback</h3>
-              <p className="bento-desc">
-                Text, textarea, dropdown, checkbox, rating, URL, confirmation,
-                screenshot, and video upload fields cover the judging use case.
-              </p>
-            </article>
+          <div className="feature-grid">
+            {features.map(([title, detail]) => (
+              <article className="feature-card reveal-up" key={title}>
+                <h3>{title}</h3>
+                <p>{detail}</p>
+              </article>
+            ))}
+          </div>
+        </section>
 
-            <article className="bento-card bento-col-4 reveal-up" data-delay="0.2">
-              <div className="bento-number">CSV</div>
-              <h3 className="bento-title">Review table output</h3>
-              <p className="bento-desc">
-                Dashboard submissions become a usable table with filters, internal
-                notes, priority, status, decrypt, JSON backup, and CSV export.
-              </p>
-            </article>
+        <section className="use-case-section">
+          <div className="section-heading reveal-up">
+            <p className="eyebrow">Use cases</p>
+            <h2>Built for real intake workflows.</h2>
+          </div>
+
+          <div className="use-case-grid">
+            {useCases.map((useCase) => (
+              <span className="use-case-pill reveal-up" key={useCase}>
+                {useCase}
+              </span>
+            ))}
           </div>
         </section>
 
         <section className="proof-section" id="proof">
           <div className="proof-panel reveal-up">
-            <div className="proof-copy">
-              <div className="section-tag">Proof model</div>
-              <h2 className="section-title">Every demo claim maps to a technical artifact.</h2>
-              <p className="section-copy">
-                Judges can inspect the same pipeline the creator uses: Walrus blob
-                IDs for content, Seal for sensitive values, and Sui for ownership
-                and review metadata.
+            <div>
+              <p className="eyebrow">Proof model</p>
+              <h2>Every claim maps to a technical artifact.</h2>
+              <p>
+                Judges and creators inspect the same pipeline: Walrus blob IDs for content, Seal for
+                sensitive values, and Sui for ownership plus review metadata.
               </p>
             </div>
 
@@ -284,43 +328,40 @@ export function LandingPage() {
           </div>
         </section>
 
-        <div className="closing-cta reveal-up">
+        <section className="final-cta reveal-up">
           <div>
-            <span className="eyebrow">TaskForm</span>
+            <p className="eyebrow">TaskForm</p>
             <h2>Collect, protect, verify, and review feedback on Walrus-native rails.</h2>
           </div>
-          <a href={pagePath('/dashboard.html')} className="btn-primary">
-            Open Dashboard
-            <span aria-hidden="true">→</span>
-          </a>
-        </div>
+          <div className="hero-actions">
+            <a href={pagePath('/dashboard.html')} className="button button-primary">
+              Open Dashboard
+              <span aria-hidden="true">-&gt;</span>
+            </a>
+            <a href={pagePath('/create-form.html')} className="button button-secondary">
+              Create a form
+            </a>
+          </div>
+        </section>
       </main>
 
-      <footer className="premium-footer reveal-up">
-        <div className="footer-content">
-          <div className="footer-main">
-            <a href={pagePath('/')} className="footer-logo" aria-label="TaskForm home">
-              <img src={pagePath('/logo-mark.svg')} alt="" />
-              <span>TaskForm</span>
-            </a>
-            <p className="footer-text">
-              Walrus-native forms for collecting, protecting, verifying, and reviewing
-              structured community feedback.
-            </p>
-          </div>
-
-          <div className="footer-links" aria-label="Footer links">
-            <a href="#architecture">Architecture</a>
-            <a href="#proof">Proof model</a>
-            <a href={pagePath('/create-form.html')}>Create form</a>
-            <a href={pagePath('/dashboard.html')}>Dashboard</a>
-          </div>
-
-          <div className="footer-meta">
-            <span>Walrus Tools Builder</span>
-            <span>Walrus storage · Seal privacy · Sui ownership</span>
-          </div>
+      <footer className="site-footer">
+        <div>
+          <a href={pagePath('/')} className="brand-link">
+            <img src={pagePath('/logo-mark.svg')} alt="" />
+            <span>TaskForm</span>
+          </a>
+          <p>
+            Walrus-native forms for collecting, protecting, verifying, and reviewing structured
+            community feedback.
+          </p>
         </div>
+        <nav aria-label="Footer navigation">
+          <a href="#architecture">Architecture</a>
+          <a href="#proof">Proof model</a>
+          <a href={pagePath('/create-form.html')}>Create form</a>
+          <a href={pagePath('/dashboard.html')}>Dashboard</a>
+        </nav>
       </footer>
     </div>
   )

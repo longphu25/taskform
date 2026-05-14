@@ -7,9 +7,9 @@ export function DesignerSidebar() {
   const { addElement, elements } = useDesigner()
 
   return (
-    <aside className="w-[220px] shrink-0 border-r border-white/10 bg-zinc-900/50 overflow-y-auto">
+    <aside className="w-[220px] shrink-0 border-r border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.82)] overflow-y-auto">
       <div className="p-4">
-        <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-500">
+        <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-[#9fb9b1]/70">
           Elements
         </h3>
         <div className="grid grid-cols-1 gap-1.5">
@@ -54,12 +54,12 @@ function SidebarDraggableBtn({
       {...listeners}
       {...attributes}
       onClick={onClick}
-      className={`flex items-center gap-2.5 rounded-lg border border-white/5 px-3 py-2.5 text-left text-sm transition-all cursor-grab active:cursor-grabbing hover:border-indigo-500/30 hover:bg-indigo-500/5 ${
-        isDragging ? 'opacity-50 border-indigo-500/50' : ''
+      className={`flex items-center gap-2.5 rounded-lg border border-[rgba(190,255,234,0.10)] px-3 py-2.5 text-left text-sm transition-all cursor-grab active:cursor-grabbing hover:border-[#80ffd5]/30 hover:bg-[#80ffd5]/5 ${
+        isDragging ? 'opacity-50 border-[#80ffd5]/50' : ''
       }`}
     >
-      <span className="text-zinc-400">{icon}</span>
-      <span className="text-zinc-300">{label}</span>
+      <span className="text-[#9fb9b1]">{icon}</span>
+      <span className="text-[#effff8]/85">{label}</span>
     </button>
   )
 }

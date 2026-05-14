@@ -9,12 +9,12 @@ interface FormPreviewProps {
 export function FormPreview({ title, description, fields }: FormPreviewProps) {
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="rounded-2xl border border-white/10 bg-zinc-900/50 p-8">
+      <div className="rounded-2xl border border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.82)] p-8">
         <h2 className="mb-2 text-2xl font-semibold">{title || 'Untitled Form'}</h2>
-        {description && <p className="mb-8 text-zinc-400">{description}</p>}
+        {description && <p className="mb-8 text-[#9fb9b1]">{description}</p>}
 
         {fields.length === 0 ? (
-          <p className="text-center text-zinc-600">No fields added yet</p>
+          <p className="text-center text-[#9fb9b1]/55">No fields added yet</p>
         ) : (
           <div className="space-y-6">
             {fields.map((field) => (
@@ -26,7 +26,7 @@ export function FormPreview({ title, description, fields }: FormPreviewProps) {
         <button
           type="button"
           disabled
-          className="mt-8 w-full rounded-lg bg-indigo-600 px-4 py-3 font-medium opacity-50 cursor-not-allowed"
+          className="mt-8 w-full cursor-not-allowed rounded-lg bg-[#80ffd5] px-4 py-3 font-medium text-[#06231d] opacity-50"
         >
           Submit (preview only)
         </button>
@@ -37,10 +37,10 @@ export function FormPreview({ title, description, fields }: FormPreviewProps) {
 
 function PreviewField({ field }: { field: FormField }) {
   const label = (
-    <label className="mb-1.5 block text-sm font-medium text-zinc-300">
+    <label className="mb-1.5 block text-sm font-medium text-[#effff8]/85">
       {field.label || 'Untitled'}
       {field.required && <span className="ml-1 text-red-400">*</span>}
-      {field.sensitive && <span className="ml-2 text-xs text-amber-400">(encrypted)</span>}
+      {field.sensitive && <span className="ml-2 text-xs text-[#ffc46b]">(encrypted)</span>}
     </label>
   )
 
@@ -54,7 +54,7 @@ function PreviewField({ field }: { field: FormField }) {
             type={field.type === 'url' ? 'url' : 'text'}
             disabled
             placeholder={field.placeholder}
-            className="w-full rounded-lg border border-white/10 bg-zinc-800 px-4 py-2.5 text-white placeholder-zinc-600"
+            className="w-full rounded-lg border border-[rgba(190,255,234,0.16)] bg-[#0d1c1d] px-4 py-2.5 text-[#effff8] placeholder-[#9fb9b1]/55"
           />
         </div>
       )
@@ -66,7 +66,7 @@ function PreviewField({ field }: { field: FormField }) {
             disabled
             placeholder={field.placeholder}
             rows={4}
-            className="w-full resize-none rounded-lg border border-white/10 bg-zinc-800 px-4 py-2.5 text-white placeholder-zinc-600"
+            className="w-full resize-none rounded-lg border border-[rgba(190,255,234,0.16)] bg-[#0d1c1d] px-4 py-2.5 text-[#effff8] placeholder-[#9fb9b1]/55"
           />
         </div>
       )
@@ -76,7 +76,7 @@ function PreviewField({ field }: { field: FormField }) {
           {label}
           <select
             disabled
-            className="w-full rounded-lg border border-white/10 bg-zinc-800 px-4 py-2.5 text-zinc-500"
+            className="w-full rounded-lg border border-[rgba(190,255,234,0.16)] bg-[#0d1c1d] px-4 py-2.5 text-[#9fb9b1]/70"
           >
             <option>{field.placeholder || 'Select...'}</option>
             {field.options?.map((opt) => (
@@ -92,8 +92,8 @@ function PreviewField({ field }: { field: FormField }) {
           <div className="space-y-2">
             {field.options?.map((opt) => (
               <label key={opt.value} className="flex items-center gap-2">
-                <input type="checkbox" disabled className="size-4 rounded accent-indigo-500" />
-                <span className="text-sm text-zinc-300">{opt.label || 'Option'}</span>
+                <input type="checkbox" disabled className="size-4 rounded accent-[#80ffd5]" />
+                <span className="text-sm text-[#effff8]/85">{opt.label || 'Option'}</span>
               </label>
             ))}
           </div>
@@ -105,7 +105,7 @@ function PreviewField({ field }: { field: FormField }) {
           {label}
           <div className="flex gap-1">
             {[1, 2, 3, 4, 5].map((n) => (
-              <span key={n} className="text-2xl text-zinc-600">
+              <span key={n} className="text-2xl text-[#9fb9b1]/55">
                 ★
               </span>
             ))}
@@ -117,8 +117,8 @@ function PreviewField({ field }: { field: FormField }) {
       return (
         <div>
           {label}
-          <div className="flex items-center justify-center rounded-lg border border-dashed border-white/10 bg-zinc-800/50 py-8">
-            <p className="text-sm text-zinc-500">
+          <div className="flex items-center justify-center rounded-lg border border-dashed border-[rgba(190,255,234,0.16)] bg-[rgba(12,34,35,0.58)] py-8">
+            <p className="text-sm text-[#9fb9b1]/70">
               {field.type === 'video-upload'
                 ? 'Drop video or click to upload'
                 : 'Drop image or click to upload'}
@@ -129,8 +129,8 @@ function PreviewField({ field }: { field: FormField }) {
     case 'confirmation':
       return (
         <label className="flex items-center gap-3">
-          <input type="checkbox" disabled className="size-4 rounded accent-indigo-500" />
-          <span className="text-sm text-zinc-300">{field.label || 'I confirm'}</span>
+          <input type="checkbox" disabled className="size-4 rounded accent-[#80ffd5]" />
+          <span className="text-sm text-[#effff8]/85">{field.label || 'I confirm'}</span>
           {field.required && <span className="text-red-400">*</span>}
         </label>
       )

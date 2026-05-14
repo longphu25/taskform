@@ -40,7 +40,7 @@ export function Designer() {
     const { active, over } = e
     if (!over) return
 
-    // Drop from sidebar → add new element
+    // Drop from sidebar -> add new element
     if (active.data.current?.isSidebarBtn) {
       const type = active.data.current.type as FieldType
       const config = formElementMap[type]
@@ -88,12 +88,12 @@ export function Designer() {
       {/* Drag overlay */}
       <DragOverlay>
         {activeItem && !activeItem.element && (
-          <div className="rounded-xl border border-indigo-500/50 bg-zinc-900/95 px-4 py-3 text-sm font-medium shadow-xl">
+          <div className="rounded-xl border border-[#80ffd5]/50 bg-[rgba(12,34,35,0.94)] px-4 py-3 text-sm font-medium shadow-xl">
             {formElementMap[activeItem.type]?.label}
           </div>
         )}
         {activeItem?.element && (
-          <div className="w-[500px] rounded-xl border-2 border-indigo-500 bg-zinc-900/95 px-12 py-3 shadow-2xl">
+          <div className="w-[500px] rounded-xl border-2 border-[#80ffd5] bg-[rgba(12,34,35,0.94)] px-12 py-3 shadow-2xl">
             <p className="text-sm font-medium">
               {activeItem.element.label || activeItem.element.type}
             </p>
@@ -114,21 +114,21 @@ function DesignerCanvas() {
   return (
     <div
       ref={setNodeRef}
-      className={`flex-1 overflow-auto bg-zinc-950 ${isOver ? 'bg-indigo-950/20' : ''}`}
+      className={`flex-1 overflow-auto bg-[#071011] ${isOver ? 'bg-[#80ffd5]/10' : ''}`}
       onClick={() => setSelectedElement(null)}
     >
       {/* Grid background */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(190,255,234,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(190,255,234,0.045)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
 
       <div className="relative min-h-full p-6 lg:p-8">
         {elements.length === 0 ? (
           <div
             className={`flex flex-col items-center justify-center h-[60vh] border-2 border-dashed rounded-2xl transition-colors ${
-              isOver ? 'border-indigo-500/50 bg-indigo-500/5' : 'border-white/10'
+              isOver ? 'border-[#80ffd5]/50 bg-[#80ffd5]/5' : 'border-[rgba(190,255,234,0.16)]'
             }`}
           >
-            <p className="text-lg font-medium text-zinc-500">Drag elements here</p>
-            <p className="mt-1 text-sm text-zinc-600">or click an element in the sidebar</p>
+            <p className="text-lg font-medium text-[#9fb9b1]/70">Drag elements here</p>
+            <p className="mt-1 text-sm text-[#9fb9b1]/55">or click an element in the sidebar</p>
           </div>
         ) : (
           <SortableContext items={elements.map((e) => e.id)} strategy={verticalListSortingStrategy}>
@@ -164,8 +164,8 @@ function SortableFieldElement({ element }: { element: FormField }) {
       style={style}
       className={`group relative rounded-xl border transition-all duration-200 cursor-pointer ${
         isSelected
-          ? 'border-indigo-500/50 bg-indigo-500/5 shadow-lg shadow-indigo-500/10'
-          : 'border-white/10 bg-zinc-900/50 hover:border-white/20 hover:bg-zinc-900/80'
+          ? 'border-[#80ffd5]/50 bg-[#80ffd5]/5 shadow-lg shadow-[#80ffd5]/10'
+          : 'border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.82)] hover:border-[rgba(190,255,234,0.34)] hover:bg-[rgba(8,24,25,0.82)]'
       }`}
       onClick={(e) => {
         e.stopPropagation()
@@ -177,7 +177,7 @@ function SortableFieldElement({ element }: { element: FormField }) {
         type="button"
         {...attributes}
         {...listeners}
-        className="absolute left-3 top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing text-zinc-600 hover:text-zinc-400 p-1"
+        className="absolute left-3 top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing text-[#9fb9b1]/55 hover:text-[#9fb9b1] p-1"
         onClick={(e) => e.stopPropagation()}
       >
         <GripVertical className="size-4" />
@@ -185,13 +185,13 @@ function SortableFieldElement({ element }: { element: FormField }) {
 
       {/* Content */}
       <div className="flex items-center gap-3 px-12 py-4 min-h-[56px]">
-        <span className="text-zinc-500">{config?.icon}</span>
+        <span className="text-[#9fb9b1]/70">{config?.icon}</span>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium truncate">
             {element.label || `Untitled ${element.type}`}
             {element.required && <span className="ml-1 text-red-400">*</span>}
           </p>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-[#9fb9b1]/70">
             {element.type}
             {element.sensitive ? ' · encrypted' : ''}
           </p>
@@ -207,7 +207,7 @@ function SortableFieldElement({ element }: { element: FormField }) {
             setSelectedElement(element)
             duplicateElement()
           }}
-          className="cursor-pointer rounded-lg p-1.5 text-zinc-500 hover:bg-white/10 hover:text-zinc-300"
+          className="cursor-pointer rounded-lg p-1.5 text-[#9fb9b1]/70 hover:bg-[#80ffd5]/10 hover:text-[#effff8]/85"
         >
           <Copy className="size-3.5" />
         </button>
@@ -217,7 +217,7 @@ function SortableFieldElement({ element }: { element: FormField }) {
             e.stopPropagation()
             removeElement(element.id)
           }}
-          className="cursor-pointer rounded-lg p-1.5 text-zinc-500 hover:bg-red-500/10 hover:text-red-400"
+          className="cursor-pointer rounded-lg p-1.5 text-[#9fb9b1]/70 hover:bg-red-500/10 hover:text-red-400"
         >
           <Trash2 className="size-3.5" />
         </button>

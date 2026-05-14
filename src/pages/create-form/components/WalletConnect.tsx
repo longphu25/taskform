@@ -126,7 +126,7 @@ export function WalletConnect() {
         <button
           type="button"
           onClick={() => setShowMenu(!showMenu)}
-          className="flex items-center gap-2 cursor-pointer rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-sm text-emerald-400 transition-colors hover:bg-emerald-500/20"
+          className="flex items-center gap-2 cursor-pointer rounded-lg border border-[#80ffd5]/30 bg-[#80ffd5]/10 px-3 py-1.5 text-sm text-[#80ffd5] transition-colors hover:bg-[#80ffd5]/20"
         >
           <Wallet className="size-3.5" />
           <span className="font-mono text-xs">{short}</span>
@@ -134,42 +134,42 @@ export function WalletConnect() {
         </button>
 
         {showMenu && (
-          <div className="absolute right-0 top-full mt-1 z-50 min-w-[200px] rounded-lg border border-white/10 bg-zinc-900 p-2 shadow-xl">
+          <div className="absolute right-0 top-full mt-1 z-50 min-w-[200px] rounded-lg border border-[rgba(190,255,234,0.16)] bg-[#0d1c1d] p-2 shadow-xl">
             {/* Wallet name */}
-            <div className="px-2 py-1 mb-2 border-b border-white/10">
-              <p className="text-xs text-zinc-400">{wallet.name}</p>
-              <p className="font-mono text-xs text-zinc-300">{short}</p>
+            <div className="px-2 py-1 mb-2 border-b border-[rgba(190,255,234,0.16)]">
+              <p className="text-xs text-[#9fb9b1]">{wallet.name}</p>
+              <p className="font-mono text-xs text-[#effff8]/85">{short}</p>
             </div>
 
             {/* Balances */}
             {balances && (
               <div className="px-2 py-2 mb-2 space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-xs text-zinc-400">
+                  <span className="flex items-center gap-1.5 text-xs text-[#9fb9b1]">
                     <Coins className="size-3" />
                     SUI
                   </span>
-                  <span className="font-mono text-xs text-white">{balances.sui}</span>
+                  <span className="font-mono text-xs text-[#effff8]">{balances.sui}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-xs text-zinc-400">
+                  <span className="flex items-center gap-1.5 text-xs text-[#9fb9b1]">
                     <Coins className="size-3" />
                     WAL
                   </span>
                   <span
-                    className={`font-mono text-xs ${Number(balances.wal) > 0 ? 'text-white' : 'text-red-400'}`}
+                    className={`font-mono text-xs ${Number(balances.wal) > 0 ? 'text-[#effff8]' : 'text-red-400'}`}
                   >
                     {balances.wal}
                   </span>
                 </div>
                 {Number(balances.wal) === 0 && (
-                  <p className="text-[10px] text-amber-400 mt-1">
+                  <p className="text-[10px] text-[#ffc46b] mt-1">
                     Need WAL to upload. Get from{' '}
                     <a
                       href="https://faucet.walrus.site"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="underline hover:text-amber-300"
+                      className="underline hover:text-[#fbffea]"
                     >
                       Walrus Faucet
                     </a>
@@ -199,20 +199,20 @@ export function WalletConnect() {
         type="button"
         onClick={() => (wallets.length > 1 ? setShowMenu(!showMenu) : connect())}
         disabled={connecting}
-        className="flex items-center gap-2 cursor-pointer rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-3 py-1.5 text-sm text-indigo-400 transition-colors hover:bg-indigo-500/20 disabled:opacity-50"
+        className="flex items-center gap-2 cursor-pointer rounded-lg border border-[#80ffd5]/30 bg-[#80ffd5]/10 px-3 py-1.5 text-sm text-[#80ffd5] transition-colors hover:bg-[#80ffd5]/20 disabled:opacity-50"
       >
         <Wallet className="size-3.5" />
         {connecting ? 'Connecting...' : 'Connect Wallet'}
       </button>
 
       {showMenu && wallets.length > 1 && (
-        <div className="absolute right-0 top-full mt-1 z-50 rounded-lg border border-white/10 bg-zinc-900 p-1 shadow-xl min-w-[160px]">
+        <div className="absolute right-0 top-full mt-1 z-50 rounded-lg border border-[rgba(190,255,234,0.16)] bg-[#0d1c1d] p-1 shadow-xl min-w-[160px]">
           {wallets.map((w) => (
             <button
               key={w.name}
               type="button"
               onClick={() => connect(w.name)}
-              className="flex w-full items-center gap-2 cursor-pointer rounded-md px-3 py-2 text-sm text-zinc-300 hover:bg-white/5"
+              className="flex w-full items-center gap-2 cursor-pointer rounded-md px-3 py-2 text-sm text-[#effff8]/85 hover:bg-[#80ffd5]/10"
             >
               {w.name}
             </button>
