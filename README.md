@@ -134,15 +134,15 @@ taskform/
 
 ## MVP Success Criteria
 
-- [ ] Creator can create and publish form
+- [x] Creator can create and publish form
 - [ ] Submitter can submit feedback via public link
-- [ ] Schema stored on Walrus
+- [x] Schema stored on Walrus
 - [ ] Submission stored on Walrus
 - [ ] Sensitive field encryption demonstrated
 - [ ] Creator can triage submissions (status/priority)
 - [ ] Storage expiry visible
 - [ ] Sponsored submission story demo-ready
-- [ ] form.html loads quickly
+- [x] form.html loads quickly
 
 ## Deployment
 
@@ -161,10 +161,13 @@ VITE_BASE_PATH=/ bun run build
 
 ## Status
 
-**Day 5 complete** — Move contract deployed to testnet, codegen TypeScript bindings generated.
+**Day 4 in progress** — Public form page rendering from Walrus, upload flow with auto-swap working.
 
 Completed:
 - Day 1: Foundation (multi-page build, CDN externals, types, schemas, page shells)
+- Day 2: Form Builder (DnD canvas, field editor, preview, publish to Walrus)
+- Day 3: Walrus Storage (PTB upload with auto-swap SUI→WAL, aggregator download, cost estimate)
+- Day 4: Public Form (schema loading, field rendering, Zod validation, file upload UI) — in progress
 - Day 5: Move contract (Registry, Form, Caps, SubmissionMeta, events, tests, testnet deploy, codegen)
 
 See `docs/ROADMAP.md` for full progress.

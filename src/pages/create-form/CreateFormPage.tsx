@@ -6,6 +6,7 @@ import { FormPreview } from './components/FormPreview'
 import { StoragePolicyPanel } from './components/StoragePolicyPanel'
 import { SponsorPanel } from './components/SponsorPanel'
 import { PublishButton } from './components/PublishButton'
+import { StorageCostEstimate } from './components/StorageCostEstimate'
 import { WalletConnect } from './components/WalletConnect'
 import type { StoragePolicy, SponsorSettings } from '../../types/form'
 import { DEFAULT_STORAGE_POLICY, DEFAULT_SPONSOR_SETTINGS } from '../../schemas/form'
@@ -20,6 +21,9 @@ function FormBuilderInner() {
     ...DEFAULT_SPONSOR_SETTINGS,
   })
   const [showPreview, setShowPreview] = useState(false)
+  const [publishing, setPublishing] = useState(false)
+  const [publishStep, setPublishStep] = useState(0)
+  const [didSwap, setDidSwap] = useState(false)
 
   return (
     <div className="flex h-screen flex-col bg-zinc-950 text-white">
@@ -84,6 +88,48 @@ function FormBuilderInner() {
       </nav>
 
       {/* Main content */}
+      {publishing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/50 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-6 rounded-2xl border border-white/10 bg-zinc-900 p-10 shadow-2xl">
+            <div className="relative size-16">
+              <div className="absolute inset-0 animate-spin rounded-full border-4 border-indigo-500/20 border-t-indigo-500" />
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-semibold text-white">Publishing your form</p>
+              <p className="mt-1 text-sm text-zinc-400">
+                {publishStep === 1 && 'Checking WAL balance...'}
+                {publishStep === 2 && 'Swapping SUI → WAL...'}
+                {publishStep === 3 && 'Encoding blob...'}
+                {publishStep === 4 && 'Sign transaction to register blob...'}
+                {publishStep === 5 && 'Uploading to storage nodes...'}
+                {publishStep === 6 && 'Sign transaction to certify...'}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              {(didSwap
+                ? ['Swap', 'Encode', 'Register', 'Upload', 'Certify']
+                : ['Encode', 'Register', 'Upload', 'Certify']
+              ).map((label, i) => {
+                const stepNum = didSwap ? i + 2 : i + 3
+                return (
+                  <div key={label} className="flex items-center gap-2">
+                    <span
+                      className={`flex items-center gap-1 ${stepNum <= publishStep ? 'text-indigo-400' : 'text-zinc-600'}`}
+                    >
+                      <span
+                        className={`size-2 rounded-full ${stepNum < publishStep ? 'bg-green-400' : stepNum === publishStep ? 'bg-indigo-400 animate-pulse' : 'bg-zinc-700'}`}
+                      />
+                      {label}
+                    </span>
+                    {i < (didSwap ? 4 : 3) && <span className="text-zinc-700">→</span>}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       {showPreview ? (
         <div className="flex-1 overflow-auto p-8">
           <FormPreview title={title} description={description} fields={elements} />
@@ -115,12 +161,31 @@ function FormBuilderInner() {
               <StoragePolicyPanel policy={storagePolicy} onChange={setStoragePolicy} />
               <SponsorPanel settings={sponsorSettings} onChange={setSponsorSettings} />
 
+              {title.trim() && elements.length > 0 && (
+                <StorageCostEstimate
+                  dataSize={
+                    new TextEncoder().encode(
+                      JSON.stringify({ title, description, fields: elements }),
+                    ).length
+                  }
+                  epochs={storagePolicy.schemaDuration}
+                />
+              )}
+
               <PublishButton
                 title={title}
                 description={description}
                 fields={elements}
                 storagePolicy={storagePolicy}
                 sponsorSettings={sponsorSettings}
+                onPublishingChange={(p) => {
+                  setPublishing(p)
+                  if (p) setDidSwap(false)
+                }}
+                onStepChange={(step) => {
+                  setPublishStep(step)
+                  if (step === 2) setDidSwap(true)
+                }}
               />
             </div>
           </div>

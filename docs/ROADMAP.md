@@ -18,56 +18,56 @@
 - [x] TypeScript compiles clean
 - [x] Build passes, dist ~47 KB
 
-## Day 2 — Form Builder
+## Day 2 — Form Builder ✅
 
-- [ ] Form builder layout (2-column: editor + preview)
-- [ ] Title and description inputs
-- [ ] Field list with drag-to-reorder
-- [ ] Add field button + type selector
-- [ ] Field editor: label, placeholder, required toggle, sensitive toggle
-- [ ] Options editor (for dropdown/checkbox)
-- [ ] Upload field settings (max size, allowed types)
-- [ ] Storage policy UI (duration selectors)
-- [ ] Sponsored submission settings (toggle, budget, max count, max file size)
-- [ ] Live preview panel
-- [ ] Zod validation on form config before publish
-- [ ] Publish button (wired to Walrus in Day 3)
-- [ ] Form state management (React state or useReducer)
+- [x] Form builder layout (2-column: editor + preview)
+- [x] Title and description inputs
+- [x] Field list with drag-to-reorder
+- [x] Add field button + type selector
+- [x] Field editor: label, placeholder, required toggle, sensitive toggle
+- [x] Options editor (for dropdown/checkbox)
+- [x] Upload field settings (max size, allowed types)
+- [x] Storage policy UI (duration selectors)
+- [x] Sponsored submission settings (toggle, budget, max count, max file size)
+- [x] Live preview panel
+- [x] Zod validation on form config before publish
+- [x] Publish button (wired to Walrus in Day 3)
+- [x] Form state management (React state or useReducer)
 
-## Day 3 — Walrus Storage
+## Day 3 — Walrus Storage ✅
 
-- [ ] Walrus aggregator/publisher URL config
-- [ ] Lightweight download module (`src/lazy/walrus-download.ts`)
-- [ ] Lazy upload module (`src/lazy/walrus-upload.ts`)
-- [ ] Upload form schema JSON to Walrus
-- [ ] Capture blob ID from upload response
-- [ ] Capture object ID if available
-- [ ] Capture expiry epoch
-- [ ] Generate public link: `form.html?formId=<blobId>`
-- [ ] Load schema in form page (download + JSON parse)
-- [ ] Error handling for failed uploads/downloads
-- [ ] Mock mode for offline development
+- [x] Walrus aggregator/publisher URL config
+- [x] Lightweight download module (`src/lazy/walrus-download.ts`)
+- [x] Lazy upload module (`src/lazy/walrus-upload.ts`)
+- [x] Upload form schema JSON to Walrus
+- [x] Capture blob ID from upload response
+- [x] Capture object ID if available
+- [x] Capture expiry epoch
+- [x] Generate public link: `form.html?formId=<blobId>`
+- [ ] Load schema in form page (download + JSON parse) — moved to Day 4
+- [ ] Error handling for failed uploads/downloads — upload done, download pending Day 4
+- [ ] Mock mode for offline development — skipped (nice-to-have, not needed for MVP)
 
 ## Day 4 — Public Form
 
-- [ ] Ultra-light form renderer (reads schema, renders fields)
-- [ ] Native text input component
-- [ ] Native textarea component
-- [ ] Native select/dropdown component
-- [ ] Checkbox component
-- [ ] Star rating component (custom, no deps)
-- [ ] File upload component (screenshot + video)
-- [ ] URL input component
-- [ ] Confirmation checkbox component
-- [ ] Required field validation (Zod runtime)
-- [ ] Submit progress UI (loading state)
-- [ ] Lazy-load Walrus upload client on submit
+- [x] Ultra-light form renderer (reads schema, renders fields)
+- [x] Native text input component
+- [x] Native textarea component
+- [x] Native select/dropdown component
+- [x] Checkbox component
+- [x] Star rating component (custom, no deps)
+- [x] File upload component (screenshot + video) — UI done, upload pending wallet
+- [x] URL input component
+- [x] Confirmation checkbox component
+- [x] Required field validation (Zod runtime)
+- [x] Submit progress UI (loading state)
+- [x] Lazy-load Walrus upload client on submit
 - [ ] Lazy-load Seal encrypt only if sensitive fields exist
-- [ ] Lazy-load Sui/wallet only if required by form
+- [ ] Lazy-load Sui/wallet only if required by form — wallet always needed currently
 - [ ] Encrypt sensitive field values before upload
-- [ ] Upload submission JSON to Walrus
+- [x] Upload submission JSON to Walrus — requires wallet connect
 - [ ] Upload attachments to Walrus
-- [ ] Success screen with confirmation
+- [ ] Success screen with confirmation — pending wallet connect for submit
 
 ## Day 5 — Move Contract
 

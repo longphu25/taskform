@@ -1,2 +1,2 @@
-bunx react-doctor@latest
+bunx react-doctor@latest --fail-on error
 bunx lint-staged
