@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import * as z from 'zod'
 import type { FormSchema, FormField } from '../../types/form'
 
@@ -35,8 +35,44 @@ export function PublicFormPage() {
   const [loading, setLoading] = useState(!!formId)
   const [values, setValues] = useState<Record<string, unknown>>({})
   const [submitting, setSubmitting] = useState(false)
+  const [submitProgress, setSubmitProgress] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
+  const [walletAddress, setWalletAddress] = useState<string | null>(null)
+  const [walletConnecting, setWalletConnecting] = useState(false)
+
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined
+    import('../../lazy/sui-client').then(({ dAppKit }) => {
+      const conn = dAppKit.stores.$connection.get()
+      if (conn.isConnected && conn.account) setWalletAddress(conn.account.address)
+      unsubscribe = dAppKit.stores.$connection.subscribe(
+        (c: { isConnected: boolean; account: { address: string } | null }) => {
+          setWalletAddress(c.isConnected && c.account ? c.account.address : null)
+        },
+      )
+    })
+    return () => {
+      unsubscribe?.()
+    }
+  }, [])
+
+  const connectWallet = useCallback(async () => {
+    setWalletConnecting(true)
+    try {
+      const { dAppKit } = await import('../../lazy/sui-client')
+      const wallets = dAppKit.stores.$wallets.get()
+      if (!wallets.length) {
+        alert('No Sui wallet detected.')
+        return
+      }
+      await dAppKit.connectWallet({ wallet: wallets[0] })
+    } catch (err) {
+      console.error('Connect failed:', err)
+    } finally {
+      setWalletConnecting(false)
+    }
+  }, [])
 
   useEffect(() => {
     if (!formId) return
@@ -87,21 +123,40 @@ export function PublicFormPage() {
   const handleSubmit = async () => {
     if (!validate() || !schema) return
     setSubmitting(true)
+    setError(null)
     try {
+      const { uploadToWalrus } = await import('../../lazy/walrus-upload')
+      const epochs = schema.storagePolicy.submissionDuration
+
+      // Upload attachments first
+      const attachments: Record<string, string[]> = {}
+      for (const field of schema.fields) {
+        if (field.type !== 'screenshot-upload' && field.type !== 'video-upload') continue
+        const files = values[field.id] as File[]
+        if (!files?.length) continue
+        const label = field.type === 'video-upload' ? 'video' : 'image'
+        const blobIds: string[] = []
+        for (let i = 0; i < files.length; i++) {
+          setSubmitProgress(`Uploading ${label} ${i + 1}/${files.length}...`)
+          const buf = await files[i].arrayBuffer()
+          const result = await uploadToWalrus({ data: new Uint8Array(buf), epochs })
+          blobIds.push(result.downloadId)
+        }
+        attachments[field.id] = blobIds
+      }
+
+      // Build submission
+      setSubmitProgress('Submitting response...')
       const submission = {
         formId,
         fields: schema.fields.map((f) => ({
           fieldId: f.id,
-          value: values[f.id],
+          value: attachments[f.id] ?? values[f.id],
           encrypted: false,
         })),
         submittedAt: Date.now(),
       }
-      const { uploadToWalrus } = await import('../../lazy/walrus-upload')
-      await uploadToWalrus({
-        data: JSON.stringify(submission),
-        epochs: schema.storagePolicy.submissionDuration,
-      })
+      await uploadToWalrus({ data: JSON.stringify(submission), epochs })
       setSubmitted(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Submission failed')
@@ -169,7 +224,11 @@ export function PublicFormPage() {
   if (!schema) return null
 
   return (
-    <Shell>
+    <Shell
+      walletAddress={walletAddress}
+      onConnect={connectWallet}
+      walletConnecting={walletConnecting}
+    >
       <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8">
         <h2 className="mb-2 text-2xl font-semibold">{schema.title}</h2>
         {schema.description && <p className="mb-8 text-slate-400">{schema.description}</p>}
@@ -192,26 +251,60 @@ export function PublicFormPage() {
           ))}
         </div>
 
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={submitting}
-          className="mt-8 w-full cursor-pointer rounded-lg bg-indigo-600 px-4 py-3 font-medium transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {submitting ? 'Submitting...' : 'Submit'}
-        </button>
+        {!walletAddress ? (
+          <button
+            type="button"
+            onClick={connectWallet}
+            disabled={walletConnecting}
+            className="mt-8 w-full cursor-pointer rounded-lg bg-emerald-600 px-4 py-3 font-medium transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {walletConnecting ? 'Connecting...' : 'Connect Wallet to Submit'}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="mt-8 w-full cursor-pointer rounded-lg bg-indigo-600 px-4 py-3 font-medium transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {submitting ? submitProgress || 'Submitting...' : 'Submit'}
+          </button>
+        )}
       </div>
     </Shell>
   )
 }
 
-function Shell({ children }: { children: React.ReactNode }) {
+function Shell({
+  children,
+  walletAddress,
+  onConnect,
+  walletConnecting,
+}: {
+  children: React.ReactNode
+  walletAddress?: string | null
+  onConnect?: () => void
+  walletConnecting?: boolean
+}) {
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       <nav className="fixed top-4 left-4 right-4 z-50 mx-auto max-w-2xl rounded-2xl border border-white/10 bg-slate-900/80 px-6 py-3 backdrop-blur-xl">
         <div className="flex items-center justify-between">
           <span className="text-lg font-bold tracking-tight">TaskForm</span>
-          <span className="text-xs text-slate-500">Powered by Walrus</span>
+          {walletAddress ? (
+            <span className="rounded-lg bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-400">
+              {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={onConnect}
+              disabled={walletConnecting}
+              className="cursor-pointer rounded-lg bg-slate-800 px-3 py-1 text-xs text-slate-400 transition-colors hover:bg-slate-700 disabled:opacity-50"
+            >
+              {walletConnecting ? '...' : 'Connect'}
+            </button>
+          )}
         </div>
       </nav>
       <main className="mx-auto max-w-2xl px-4 pt-24 pb-12">{children}</main>
@@ -344,8 +437,8 @@ function FieldRenderer({
       return (
         <div>
           {label}
-          <div
-            className={`relative rounded-lg border border-dashed bg-slate-800/50 transition-colors ${error ? 'border-red-500/50' : 'border-white/10 hover:border-indigo-500/50'}`}
+          <label
+            className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed bg-slate-800/50 py-4 transition-colors ${error ? 'border-red-500/50' : 'border-white/10 hover:border-indigo-500/50'}`}
             onDragOver={(e) => {
               e.preventDefault()
               e.currentTarget.classList.add('border-indigo-500/50')
@@ -362,82 +455,76 @@ function FieldRenderer({
               if (dropped.length) onChange([...files, ...dropped])
             }}
           >
-            {files.length > 0 && (
-              <div className="grid grid-cols-4 gap-2 p-3 sm:grid-cols-5">
-                {files.map((file, i) => (
-                  <div key={`${file.name}-${i}`} className="group relative">
-                    {!isVideo && (
-                      <img
-                        src={URL.createObjectURL(file)}
-                        alt="preview"
-                        className="aspect-square w-full rounded-lg object-cover"
-                      />
-                    )}
-                    {isVideo && (
-                      <div className="flex aspect-square w-full items-center justify-center rounded-lg bg-slate-700">
-                        <svg
-                          className="size-8 text-slate-400"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={1.5}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z"
-                          />
-                        </svg>
-                      </div>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => onChange(files.filter((_, idx) => idx !== i))}
-                      className="absolute -right-1.5 -top-1.5 cursor-pointer rounded-full bg-red-500 p-0.5 text-white opacity-0 transition-opacity group-hover:opacity-100 size-5 flex items-center justify-center text-xs"
-                    >
-                      ✕
-                    </button>
-                    <p className="mt-1 truncate text-[10px] text-slate-500">{file.name}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-            <label className="flex cursor-pointer flex-col items-center justify-center py-4">
-              <svg
-                className="mb-1 size-6 text-slate-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
-                />
-              </svg>
-              <p className="text-sm text-slate-500">
-                {files.length > 0
-                  ? 'Add more files'
-                  : isVideo
-                    ? 'Drop video or click to upload'
-                    : 'Drop images or click to upload'}
-              </p>
-              <p className="mt-0.5 text-xs text-slate-600">
-                {isVideo ? 'MP4, WebM, MOV' : 'PNG, JPG, GIF, WebP'}
-              </p>
-              <input
-                type="file"
-                accept={accept}
-                multiple
-                className="hidden"
-                onChange={(e) => {
-                  const added = Array.from(e.target.files || [])
-                  if (added.length) onChange([...files, ...added])
-                }}
+            <svg
+              className="mb-1 size-5 text-slate-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
               />
-            </label>
-          </div>
+            </svg>
+            <p className="text-sm text-slate-500">
+              {isVideo ? 'Drop video or click to upload' : 'Drop images or click to upload'}
+            </p>
+            <p className="mt-0.5 text-xs text-slate-600">
+              {isVideo ? 'MP4, WebM, MOV' : 'PNG, JPG, GIF, WebP'}
+            </p>
+            <input
+              type="file"
+              accept={accept}
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                const added = Array.from(e.target.files || [])
+                if (added.length) onChange([...files, ...added])
+              }}
+            />
+          </label>
+          {files.length > 0 && (
+            <div className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-5">
+              {files.map((file, i) => (
+                <div key={`${file.name}-${i}`} className="group relative">
+                  {!isVideo && (
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt="preview"
+                      className="aspect-square w-full rounded-lg object-cover"
+                    />
+                  )}
+                  {isVideo && (
+                    <div className="flex aspect-square w-full items-center justify-center rounded-lg bg-slate-800">
+                      <svg
+                        className="size-6 text-slate-400"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={1.5}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z"
+                        />
+                      </svg>
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => onChange(files.filter((_, idx) => idx !== i))}
+                    className="absolute -right-1.5 -top-1.5 flex size-5 cursor-pointer items-center justify-center rounded-full bg-red-500 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100"
+                  >
+                    ✕
+                  </button>
+                  <p className="mt-1 truncate text-[10px] text-slate-500">{file.name}</p>
+                </div>
+              ))}
+            </div>
+          )}
           {errorEl}
         </div>
       )

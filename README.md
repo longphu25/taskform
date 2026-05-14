@@ -153,9 +153,9 @@ taskform/
 ## MVP Success Criteria
 
 - [x] Creator can create and publish form
-- [ ] Submitter can submit feedback via public link
+- [x] Submitter can submit feedback via public link
 - [x] Schema stored on Walrus
-- [ ] Submission stored on Walrus
+- [x] Submission stored on Walrus
 - [ ] Submission metadata anchored on Sui
 - [ ] Sensitive field encryption demonstrated
 - [ ] Creator can filter, triage, prioritize, and export CSV

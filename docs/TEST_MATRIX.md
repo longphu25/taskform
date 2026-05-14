@@ -20,7 +20,7 @@ This file maps product behavior to proof.
 | E02 Landing | Hero, features, CTA, responsive | no | no | no | build passes | implemented | Page renders at /index.html |
 | E03 Form Builder | Field builder, preview, validation, publish | no | no | no | build passes | implemented | DnD canvas, 9 field types, publish to Walrus |
 | E04 Walrus Storage | Upload/download schema, auto-swap | no | manual | no | no | implemented | Upload tested, download via aggregator verified |
-| E05 Public Form | Ultra-light renderer, Zod validation | no | no | manual | no | in_progress | Schema loads from Walrus, fields render, validation works |
+| E05 Public Form | Ultra-light renderer, Zod validation, submit | no | manual | manual | no | implemented | Schema loads, fields render, validation works, submission uploaded to Walrus |
 | E06 Move Contract | Registry, Form, Caps, entry fns | planned | planned | no | no | implemented | Deployed to testnet, codegen bindings generated |
 | E07 Dashboard | Wallet, forms, submissions, filters, review, priority, CSV export | no | no | planned | no | planned | none |
 | E08 Seal | Encrypt/decrypt sensitive fields | planned | planned | no | no | planned | none |

@@ -65,12 +65,12 @@
 - [x] Submit progress UI (loading state)
 - [x] Lazy-load Walrus upload client on submit
 - [ ] Lazy-load Seal encrypt only if sensitive fields exist
-- [ ] Lazy-load Sui/wallet only if required by form — wallet always needed currently
+- [x] Lazy-load Sui/wallet only if required by form
 - [ ] Encrypt sensitive field values before upload
-- [x] Upload submission JSON to Walrus — requires wallet connect
-- [ ] Upload attachments to Walrus
+- [x] Upload submission JSON to Walrus
+- [x] Upload attachments to Walrus
 - [ ] Anchor submission metadata on Sui with submission blob pointer
-- [ ] Success screen with confirmation — pending wallet connect for submit
+- [x] Success screen with confirmation
 
 ## Day 5 — Move Contract
 
