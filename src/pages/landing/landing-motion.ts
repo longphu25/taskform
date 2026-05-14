@@ -64,15 +64,28 @@ function waitForGsap(): Promise<{ gsap: Gsap; scrollTrigger: unknown } | null> {
   })
 }
 
+function showAllArchCards() {
+  document.querySelectorAll<HTMLElement>('.arch-card').forEach((card) => {
+    card.classList.add('is-visible')
+  })
+  const fill = document.querySelector<HTMLElement>('.arch-progress-fill')
+  if (fill) fill.style.height = '100%'
+  document.querySelectorAll<HTMLElement>('.arch-progress-dot').forEach((dot) => {
+    dot.classList.add('is-active')
+  })
+}
+
 async function initLandingMotion() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.documentElement.classList.remove('motion-enabled')
+    showAllArchCards()
     return
   }
 
   const motion = await waitForGsap()
   if (!motion) {
     document.documentElement.classList.remove('motion-enabled')
+    showAllArchCards()
     return
   }
 
@@ -87,26 +100,39 @@ async function initLandingMotion() {
 
     const delay = parseFloat(el.dataset.delay || '0')
     gsap.from(el, {
-      y: 60,
+      y: 48,
       opacity: 0,
-      duration: 1,
+      duration: 0.9,
       delay,
       ease: 'power3.out',
       scrollTrigger: {
         trigger: el,
-        start: 'top 85%',
+        start: 'top 88%',
         once: true,
       },
     })
   })
 
-  // Hero Mockup Parallax
-  const mockup = document.querySelector<HTMLElement>('.hero-mockup')
-  if (mockup) {
-    gsap.to(mockup, {
-      rotateX: 0,
-      scale: 1,
-      y: -20,
+  // Marquee speed change on scroll
+  const marquee = document.querySelector<HTMLElement>('.marquee-track')
+  if (marquee) {
+    gsap.to(marquee, {
+      animationDuration: '14s',
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '.marquee-strip',
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: true,
+      },
+    })
+  }
+
+  // Hero terminal parallax
+  const terminal = document.querySelector<HTMLElement>('.hero-terminal')
+  if (terminal) {
+    gsap.to(terminal, {
+      y: -30,
       ease: 'none',
       scrollTrigger: {
         trigger: '.hero-section',
@@ -119,7 +145,7 @@ async function initLandingMotion() {
 
   // Pin features section in the center
   const bentoSection = document.querySelector('.bento-section')
-  const bentoHeader = document.querySelector('.section-header')
+  const bentoHeader = document.querySelector('.bento-section .section-header')
   const bentoCards = gsap.utils.toArray<HTMLElement>('.bento-card')
 
   if (bentoSection && bentoHeader && bentoCards.length > 0) {
@@ -138,13 +164,80 @@ async function initLandingMotion() {
       y: -30,
       duration: 1,
       ease: 'power2.out',
-    })
-    .from(bentoCards, {
+    }).from(bentoCards, {
       opacity: 0,
       y: 100,
       stagger: 0.5,
       duration: 2,
       ease: 'power3.out',
+    })
+  }
+
+  // Architecture pipeline stagger
+  const archCards = gsap.utils.toArray<HTMLElement>('.arch-card')
+  const progressFill = document.querySelector<HTMLElement>('.arch-progress-fill')
+  const progressDots = gsap.utils.toArray<HTMLElement>('.arch-progress-dot')
+
+  if (archCards.length > 0) {
+    // Reveal all cards with stagger when section enters viewport
+    const revealArchCards = () => {
+      archCards.forEach((card, i) => {
+        setTimeout(() => {
+          card.classList.add('is-visible')
+
+          if (progressFill) {
+            const pct = ((i + 1) / archCards.length) * 100
+            progressFill.style.height = `${pct}%`
+          }
+          if (progressDots[i]) {
+            progressDots[i].classList.add('is-active')
+          }
+        }, i * 150)
+      })
+    }
+
+    gsap.from('.arch-cards', {
+      opacity: 1,
+      duration: 0.01,
+      scrollTrigger: {
+        trigger: '.arch-cards',
+        start: 'top 90%',
+        once: true,
+        onEnter: revealArchCards,
+      },
+    })
+
+    // Safety: if cards haven't revealed after 3s, force show
+    setTimeout(() => {
+      if (!archCards[0]?.classList.contains('is-visible')) {
+        revealArchCards()
+      }
+    }, 3000)
+
+    // Intro fade in
+    gsap.from('.arch-intro', {
+      y: 40,
+      opacity: 0,
+      duration: 0.9,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: '.arch-section',
+        start: 'top 80%',
+        once: true,
+      },
+    })
+
+    // Console fade in
+    gsap.from('.arch-console', {
+      y: 30,
+      opacity: 0,
+      duration: 0.8,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: '.arch-console',
+        start: 'top 85%',
+        once: true,
+      },
     })
   }
 
