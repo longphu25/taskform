@@ -2,19 +2,22 @@
  * Walrus upload via @mysten/walrus SDK + Sui PTB (no publisher dependency).
  *
  * Flow:
- * 1. Encode blob locally (WASM)
- * 2. Register blob on-chain (Sui TX — user signs via wallet)
- * 3. Upload slivers to storage nodes (via upload relay)
- * 4. Certify blob on-chain (Sui TX — user signs via wallet)
+ * 1. Check WAL balance — auto-swap SUI → WAL if insufficient
+ * 2. Encode blob locally (WASM)
+ * 3. Register blob on-chain (Sui TX — user signs via wallet)
+ * 4. Upload slivers to storage nodes (via upload relay)
+ * 5. Certify blob on-chain (Sui TX — user signs via wallet)
  *
- * User pays for storage directly with their SUI + WAL.
+ * User pays for storage with SUI (auto-swapped to WAL) or WAL directly.
  */
 import { SuiGrpcClient } from '@mysten/sui/grpc'
 import { walrus, WalrusFile } from '@mysten/walrus'
+import { Transaction } from '@mysten/sui/transactions'
 import walrusWasmUrl from '@mysten/walrus-wasm/web/walrus_wasm_bg.wasm?url'
 
 export interface WalrusUploadResult {
   blobId: string
+  downloadId: string
   objectId?: string
   expiryEpoch: number
 }
@@ -22,7 +25,13 @@ export interface WalrusUploadResult {
 export interface WalrusUploadOptions {
   data: Uint8Array | string
   epochs: number
+  onStep?: (step: 'swap' | 'encode' | 'register' | 'upload' | 'certify') => void
 }
+
+// Walrus Exchange on testnet (SUI ↔ WAL)
+const WAL_EXCHANGE_PACKAGE = '0x82593828ed3fcb8c6a235eac9abd0adbe9c5f9bbffa9b1e7a45cdd884481ef9f'
+const WAL_EXCHANGE_ID = '0xf4d164ea2def5fe07dc573992a029e010dba09b1a8dcbc44c5c2e79567f39073'
+const WAL_COIN_TYPE = '0x8270feb7375eee355e64fdb69c50abb6b5f9393a722883c1cf45f8e26048810a::wal::WAL'
 
 let walrusClient: ReturnType<typeof createWalrusClient> | null = null
 
@@ -41,7 +50,7 @@ function createWalrusClient() {
   )
 }
 
-function getWalrusClient() {
+export function getWalrusClient() {
   if (!walrusClient) {
     walrusClient = createWalrusClient()
   }
@@ -49,11 +58,59 @@ function getWalrusClient() {
 }
 
 /**
+ * Check WAL balance vs estimated storage cost.
+ * Auto-swap SUI → WAL if insufficient.
+ */
+async function ensureWalBalance(
+  ownerAddress: string,
+  dataSize: number,
+  epochs: number,
+  onStep?: (step: 'swap' | 'encode' | 'register' | 'upload' | 'certify') => void,
+): Promise<void> {
+  const { dAppKit, getSuiClient } = await import('./sui-client')
+  const client = getSuiClient()
+  const walrusClient = getWalrusClient()
+
+  // Estimate storage cost in WAL
+  const { totalCost } = await walrusClient.walrus.storageCost(dataSize, epochs)
+
+  // Check current WAL balance
+  let walBalance = 0n
+  try {
+    const resp = await client.core.getBalance({ owner: ownerAddress, coinType: WAL_COIN_TYPE })
+    walBalance = BigInt(resp.balance?.balance ?? resp.balance?.coinBalance ?? 0n)
+  } catch {
+    // No WAL coins
+  }
+
+  if (walBalance >= totalCost) return
+
+  // Swap exact needed amount of SUI → WAL
+  onStep?.('swap')
+  const needed = totalCost - walBalance
+  const tx = new Transaction()
+  tx.setSender(ownerAddress)
+  const [suiCoin] = tx.splitCoins(tx.gas, [tx.pure.u64(needed)])
+  const walCoin = tx.moveCall({
+    target: `${WAL_EXCHANGE_PACKAGE}::wal_exchange::exchange_all_for_wal`,
+    arguments: [tx.object(WAL_EXCHANGE_ID), suiCoin],
+  })
+  tx.transferObjects([walCoin], ownerAddress)
+
+  const result = await dAppKit.signAndExecuteTransaction({ transaction: tx })
+  const txResult = result.Transaction ?? result.FailedTransaction
+  if (!txResult || ('status' in txResult && txResult.status?.error)) {
+    throw new Error('SUI → WAL swap failed. Please ensure you have enough SUI.')
+  }
+}
+
+/**
  * Upload data to Walrus using PTB (user signs transactions via wallet).
  * Uses writeFilesFlow for browser-compatible multi-step signing.
+ * Auto-swaps SUI → WAL if user lacks WAL balance.
  */
 export async function uploadToWalrus(options: WalrusUploadOptions): Promise<WalrusUploadResult> {
-  const { data, epochs } = options
+  const { data, epochs, onStep } = options
 
   const bytes = typeof data === 'string' ? new TextEncoder().encode(data) : data
   const client = getWalrusClient()
@@ -67,15 +124,20 @@ export async function uploadToWalrus(options: WalrusUploadOptions): Promise<Walr
 
   const ownerAddress = connection.account.address
 
+  // Step 0: Ensure user has WAL (auto-swap if needed)
+  await ensureWalBalance(ownerAddress, bytes.length, epochs, onStep)
+
   // Create the write flow
   const flow = client.walrus.writeFilesFlow({
     files: [WalrusFile.from({ contents: bytes, identifier: 'schema.json' })],
   })
 
   // Step 1: Encode
+  onStep?.('encode')
   await flow.encode()
 
   // Step 2: Register (user signs TX)
+  onStep?.('register')
   const registerTx = flow.register({
     epochs,
     owner: ownerAddress,
@@ -89,11 +151,13 @@ export async function uploadToWalrus(options: WalrusUploadOptions): Promise<Walr
   }
 
   // Step 3: Upload slivers to storage nodes (via upload relay)
+  onStep?.('upload')
   await flow.upload({
     digest: (registerResult.Transaction ?? registerResult.FailedTransaction)!.digest,
   })
 
   // Step 4: Certify (user signs TX)
+  onStep?.('certify')
   const certifyTx = flow.certify()
   const certifyResult = await dAppKit.signAndExecuteTransaction({ transaction: certifyTx })
   const certTx = certifyResult.Transaction ?? certifyResult.FailedTransaction
@@ -107,7 +171,8 @@ export async function uploadToWalrus(options: WalrusUploadOptions): Promise<Walr
 
   return {
     blobId: file?.blobId ?? '',
-    objectId: file?.id,
+    downloadId: file?.id ?? '',
+    objectId: file?.blobObject?.id,
     expiryEpoch: epochs,
   }
 }
