@@ -96,6 +96,7 @@ export async function submitFormOnChain(params: {
   formObjectId: string
   submissionBlobId: string
   submissionBlobObjectId: string
+  submissionDownloadId: string
   expiryEpoch: number
 }): Promise<void> {
   const tx = new Transaction()
@@ -108,6 +109,7 @@ export async function submitFormOnChain(params: {
       tx.object(params.formObjectId),
       tx.pure('vector<u8>', Array.from(new TextEncoder().encode(params.submissionBlobId))),
       tx.pure.id(params.submissionBlobObjectId),
+      tx.pure('vector<u8>', Array.from(new TextEncoder().encode(params.submissionDownloadId))),
       tx.pure.u64(params.expiryEpoch),
       tx.object(CLOCK_ID),
     ],

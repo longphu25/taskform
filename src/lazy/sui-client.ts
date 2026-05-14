@@ -4,8 +4,8 @@
 import { SuiGrpcClient } from '@mysten/sui/grpc'
 import { createDAppKit } from '@mysten/dapp-kit-core'
 
-export const PACKAGE_ID = '0x618af641c9284ec83110455fecca162ee74d62af37ee3b279f6780e4a29d6d2b'
-export const REGISTRY_ID = '0x5b7c1c11736440be1ab102270277458cbeea6ae7f53131180ebb42fc4fb3de7b'
+export const PACKAGE_ID = '0xe7e49878b1c67977bc7904a3d519e54616e7e336b9f93bd27ef8c662d1604803'
+export const REGISTRY_ID = '0x934082e7f9b2f07da0c1ca21162974c83a5c1fd9fd4864b55c089c9c5504aa36'
 
 const GRPC_URLS: Record<string, string> = {
   mainnet: 'https://fullnode.mainnet.sui.io:443',
