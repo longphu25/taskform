@@ -74,25 +74,25 @@
 
 ## Day 5 — Move Contract
 
-- [ ] Create `taskform_move/` Sui Move package
-- [ ] Implement TaskFormRegistry (shared object)
-- [ ] Implement Form object (shared)
-- [ ] Implement CreatorCap (owned)
-- [ ] Implement AdminCap (owned)
-- [ ] Implement SubmissionMeta (dynamic field on Form)
-- [ ] Implement error module
-- [ ] Implement event module
-- [ ] Entry: `create_form` — create form + mint CreatorCap
-- [ ] Entry: `publish_form` — set form as public
-- [ ] Entry: `unpublish_form` — remove from public
-- [ ] Entry: `submit_form` — record submission metadata
-- [ ] Entry: `add_admin` — delegate AdminCap
-- [ ] Entry: `update_submission_status`
-- [ ] Entry: `update_submission_priority`
-- [ ] Entry: `update_form_storage_expiry`
-- [ ] Write unit tests (`sui move test`)
-- [ ] Publish to testnet
-- [ ] Save package ID and registry object ID
+- [x] Create `taskform_move/` Sui Move package
+- [x] Implement TaskFormRegistry (shared object)
+- [x] Implement Form object (shared)
+- [x] Implement CreatorCap (owned)
+- [x] Implement AdminCap (owned)
+- [x] Implement SubmissionMeta (dynamic field on Form)
+- [x] Implement error module
+- [x] Implement event module
+- [x] Entry: `create_form` — create form + mint CreatorCap
+- [x] Entry: `publish_form` — set form as public
+- [x] Entry: `unpublish_form` — remove from public
+- [x] Entry: `submit_form` — record submission metadata
+- [x] Entry: `add_admin` — delegate AdminCap
+- [x] Entry: `update_submission_status`
+- [x] Entry: `update_submission_priority`
+- [x] Entry: `update_form_storage_expiry`
+- [x] Write unit tests (`sui move test`)
+- [x] Publish to testnet
+- [x] Save package ID and registry object ID
 
 ## Day 6 — Dashboard + Seal
 

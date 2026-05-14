@@ -220,13 +220,13 @@ VITE_BASE_PATH=/ bun run build
 
 ## Status
 
-**Day 4 in progress** — Public form page rendering from Walrus, upload flow with auto-swap working.
+**Day 4 complete, Day 5 contract refactored** — Public form submit working, contract updated to dynamic field model.
 
 Completed:
 - Day 1: Foundation (multi-page build, CDN externals, types, schemas, page shells)
 - Day 2: Form Builder (DnD canvas, field editor, preview, publish to Walrus)
 - Day 3: Walrus Storage (PTB upload with auto-swap SUI→WAL, aggregator download, cost estimate)
-- Day 4: Public Form (schema loading, field rendering, Zod validation, file upload UI) — in progress
-- Day 5: Move contract (Registry, Form, Caps, SubmissionMeta, events, tests, testnet deploy, codegen)
+- Day 4: Public Form (schema loading, field rendering, Zod validation, file upload, wallet connect, submit to Walrus)
+- Day 5: Move contract (Registry, Form, Caps, SubmissionMeta as dynamic field, events, tests, testnet deploy)
 
 See `docs/ROADMAP.md` for full progress.
