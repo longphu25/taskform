@@ -69,7 +69,7 @@
 - [ ] Encrypt sensitive field values before upload
 - [x] Upload submission JSON to Walrus
 - [x] Upload attachments to Walrus
-- [ ] Anchor submission metadata on Sui with submission blob pointer
+- [x] Anchor submission metadata on Sui with submission blob pointer
 - [x] Success screen with confirmation
 
 ## Day 5 — Move Contract
