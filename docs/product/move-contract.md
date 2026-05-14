@@ -6,6 +6,10 @@ Move is the permission layer + lifecycle layer + metadata pointer layer + event 
 
 Move is **not** a database. Large data lives on Walrus.
 
+TaskForm submissions are "on-chain" through Sui metadata pointers and structured events, not
+by storing raw submission bodies on-chain. Form schemas, submission bodies, screenshots,
+videos, and encrypted payloads live on Walrus.
+
 ## Objects
 
 | Object | Type | Purpose |
@@ -27,10 +31,15 @@ Move is **not** a database. Large data lives on Walrus.
 - `update_submission_status` — Change status (new/in-review/accepted/rejected/archived)
 - `update_submission_priority` — Change priority (low/medium/high/critical)
 - `update_form_storage_expiry` — Update expiry tracking
+- `configure_sponsored_mode` — Toggle sponsored submissions (stretch)
 
 ## Events
 
 All state changes emit structured events for indexing.
+
+Events must include only metadata needed for indexing and dashboard filters. Events must not
+include raw feedback content, private fields, screenshots, videos, emails, phone numbers, or
+other sensitive data.
 
 ## Errors
 

@@ -18,3 +18,4 @@ Derived from TaskForm_Docs_Package_v3_cdn_optimized spec intake.
 | E10 | Storage Lifecycle — Expiry tracking, health UI, export backup | unsliced |
 | E11 | Optimization — Bundle check, sourcemaps off, perf budget | unsliced |
 | E12 | Deployment — Walrus Site deploy, ws-resources.json, smoke test | unsliced |
+| E13 | Hackathon Proof — real submission, Walrus demo video, mainnet links, one-pager, X post, CSV evidence | unsliced |

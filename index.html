@@ -2,9 +2,67 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TaskForm — Feedback Operating System</title>
+    <title>TaskForm — Walrus Tools Builder Feedback Platform</title>
+    <meta
+      name="description"
+      content="TaskForm helps Walrus Tools Builder teams collect structured feedback with Walrus storage, optional Seal encryption, Sui metadata, dashboard filters, and CSV export."
+    />
+    <meta
+      name="keywords"
+      content="TaskForm, Walrus forms, Sui forms, decentralized feedback, private feedback forms, Seal encryption, sponsored submissions"
+    />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#071011" />
+    <meta name="application-name" content="TaskForm" />
+    <link rel="canonical" href="https://longphu25.github.io/taskform/" />
+    <link rel="icon" href="./favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
+    <link rel="manifest" href="./site.webmanifest" />
+    <script>
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.classList.add('motion-enabled')
+      }
+    </script>
+    <meta property="og:site_name" content="TaskForm" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://longphu25.github.io/taskform/" />
+    <meta property="og:title" content="TaskForm — Walrus Tools Builder Feedback Platform" />
+    <meta
+      property="og:description"
+      content="Create shareable feedback forms, store responses on Walrus, anchor metadata on Sui, and review submissions from a practical dashboard."
+    />
+    <meta property="og:image" content="https://longphu25.github.io/taskform/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="TaskForm private feedback forms on decentralized rails" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="TaskForm — Walrus Tools Builder Feedback Platform" />
+    <meta
+      name="twitter:description"
+      content="Structured feedback forms with Walrus storage, optional Seal privacy, Sui metadata, dashboard filters, and CSV export."
+    />
+    <meta name="twitter:image" content="https://longphu25.github.io/taskform/og-image.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "TaskForm",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "url": "https://longphu25.github.io/taskform/",
+        "image": "https://longphu25.github.io/taskform/og-image.png",
+        "description": "Walrus Tools Builder feedback platform with Walrus storage, optional Seal encryption, Sui metadata, dashboard filters, and CSV export.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
@@ -17,6 +75,8 @@
         }
       }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" defer></script>
     <script type="module" src="/src/pages/landing/main.tsx"></script>
   </body>
 </html>

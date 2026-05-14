@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard.html
+Disallow: /create-form.html
+Disallow: /form.html
+
+Sitemap: https://longphu25.github.io/taskform/sitemap.xml
