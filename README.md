@@ -1,12 +1,15 @@
 # TaskForm
 
-**Walrus-native feedback operating system for decentralized teams.**
+**Walrus-native feedback operating system for Walrus Tools Builder, teams, and communities.**
 
-Collect private feedback, sponsor user submissions, and manage storage lifecycle — all powered by Walrus storage and Seal encryption on Sui.
+Collect structured feedback, bug reports, feature requests, surveys, and applications with
+Walrus storage, optional Seal encryption, and Sui on-chain metadata.
 
 ## Product Vision
 
-TaskForm lets anyone create a form, publish a public link, collect feedback, store submissions on Walrus, encrypt sensitive responses with Seal, sponsor submitter fees, and manage feedback in a private dashboard.
+TaskForm lets anyone create a form, publish a public link, collect structured feedback,
+store submissions on Walrus, optionally encrypt sensitive responses with Seal, anchor
+submission metadata on Sui, and manage feedback in a private dashboard.
 
 > Web2 UX, Web3 ownership.
 
@@ -14,13 +17,18 @@ TaskForm lets anyone create a form, publish a public link, collect feedback, sto
 
 - **Walrus-native storage** — Form schemas and submissions stored on decentralized, epoch-based Walrus blobs
 - **Seal-powered field-level privacy** — Sensitive data encrypted before upload, decryptable only by authorized admins
+- **Sui metadata and events** — Form ownership, publication, submission status, and priority anchored on-chain
+- **Admin review workflow** — Filter, prioritize, review, and export feedback as CSV
+- **CDN-first lightweight Walrus Site** — Ultra-fast public form loading
+
+Stretch differentiators:
+
 - **Sponsored submissions** — Creators sponsor gas fees so submitters never need a wallet
 - **Storage lifecycle management** — Epoch-based expiry tracking with health indicators
-- **CDN-first lightweight Walrus Site** — Ultra-fast public form loading
 
 ## Target Users
 
-**Primary:** Hackathon organizers, Walrus Sessions organizers, Web3 protocol teams, DAO communities, open-source projects, product teams.
+**Primary:** Walrus Tools Builder organizers, hackathon organizers, Web3 protocol teams, DAO communities, open-source projects, product teams.
 
 **Secondary:** Bug bounty teams, grant/application teams, internal anonymous feedback teams, security reporting teams.
 
@@ -33,16 +41,17 @@ Landing → Dashboard → Create Form → Public Form → Dashboard (review)
 1. Creator connects wallet on Dashboard
 2. Creator builds and publishes a form
 3. Public link is shared — submitter fills out form (fast, no wallet needed if sponsored)
-4. Submission stored on Walrus, sensitive fields encrypted with Seal
-5. Creator triages submissions in Dashboard (status, priority, decrypt, export)
+4. Submission body and attachments stored on Walrus; metadata anchored on Sui
+5. Sensitive fields are encrypted with Seal when enabled
+6. Creator filters, prioritizes, reviews, decrypts, and exports feedback in Dashboard
 
 ## Pages
 
 | Page | URL | Purpose |
 |------|-----|---------|
 | Landing | `/` | Product intro, Walrus/Seal/Sui value, Launch App CTA |
-| Dashboard | `/dashboard.html` | Wallet connect, My Forms, submissions, triage, export |
-| Create Form | `/create-form.html` | Form builder with fields, storage policy, sponsor settings |
+| Dashboard | `/dashboard.html` | Wallet connect, My Forms, filtering, review, priority, CSV export |
+| Create Form | `/create-form.html` | Form builder with fields, categories, storage policy, sponsor settings |
 | Public Form | `/form.html?formId=...` | Ultra-light submit page (fastest load) |
 
 ## Supported Field Types
@@ -56,6 +65,15 @@ Landing → Dashboard → Create Form → Public Form → Dashboard (review)
 - Video upload
 - URL
 - Confirmation checkbox
+
+## Default Feedback Categories
+
+- Best feedback regarding building on Walrus
+- Bug report
+- Feature request
+- Survey
+- Application
+- General feedback
 
 ## Tech Stack
 
@@ -138,11 +156,50 @@ taskform/
 - [ ] Submitter can submit feedback via public link
 - [ ] Schema stored on Walrus
 - [ ] Submission stored on Walrus
+- [ ] Submission metadata anchored on Sui
 - [ ] Sensitive field encryption demonstrated
-- [ ] Creator can triage submissions (status/priority)
-- [ ] Storage expiry visible
-- [ ] Sponsored submission story demo-ready
+- [ ] Creator can filter, triage, prioritize, and export CSV
+- [ ] At least one real feedback submission created using TaskForm
+- [ ] Demo video under 3 minutes uploaded on Walrus
 - [ ] form.html loads quickly
+
+## Hackathon Submission Checklist
+
+- [ ] Public app link
+- [ ] Public repository link
+- [ ] Short explanation of what was built
+- [ ] Screenshot thread or screenshot set
+- [ ] Demo video under 3 minutes uploaded on Walrus
+- [ ] At least one real feedback submission made using TaskForm
+- [ ] Public form link used for the real submission
+- [ ] Dashboard proof showing review/filter/priority/export for the real submission
+- [ ] CSV export containing the real submission
+- [ ] Registered through the official submission form: https://airtable.com/appoDAKpC74UOqoDa/shrN8UbJRdbkd5Lso
+
+Prize alignment:
+
+- Main product: real Walrus-native structured feedback platform
+- Special focus: collect "Best Feedback regarding building on Walrus" submissions for Walrus Tools Builder
+
+## Walrus Tools Builder Alignment
+
+TaskForm is built for the Walrus Tools Builder track. The submitted product should
+show strong product utility, meaningful Walrus/Sui usage, and complete technical execution.
+
+Judging focus:
+
+- Product Utility & UX: form creation, sharing, submission, dashboard review, filtering, and CSV export should work with low friction.
+- Onchain Innovation & Use of Walrus: schemas, submissions, attachments, and demo artifacts use Walrus; Sui metadata/events provide ownership, indexing, and review state.
+- Technical Execution & Completeness: the MVP should be stable, deployed, documented, and usable for a real feedback workflow.
+
+Additional event requirements:
+
+- [ ] Mainnet deployment target documented
+- [ ] One-pager prepared
+- [ ] Wallet dedicated to Walrus Tools Builder created
+- [ ] Demo, screenshot, or project link posted on X with hashtag `#Walrus`
+- [ ] Walrus Discord joined
+- [ ] DeepSurge registration fields ready: project name/logo, description, website, primary contact, public GitHub repo, and app store link if applicable
 
 ## Deployment
 

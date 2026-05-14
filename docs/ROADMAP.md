@@ -22,6 +22,7 @@
 
 - [ ] Form builder layout (2-column: editor + preview)
 - [ ] Title and description inputs
+- [ ] Feedback category/template selector (Walrus feedback, bug report, feature request, survey, application)
 - [ ] Field list with drag-to-reorder
 - [ ] Add field button + type selector
 - [ ] Field editor: label, placeholder, required toggle, sensitive toggle
@@ -44,6 +45,7 @@
 - [ ] Capture object ID if available
 - [ ] Capture expiry epoch
 - [ ] Generate public link: `form.html?formId=<blobId>`
+- [ ] Anchor form metadata on Sui with schema blob pointer
 - [ ] Load schema in form page (download + JSON parse)
 - [ ] Error handling for failed uploads/downloads
 - [ ] Mock mode for offline development
@@ -67,6 +69,7 @@
 - [ ] Encrypt sensitive field values before upload
 - [ ] Upload submission JSON to Walrus
 - [ ] Upload attachments to Walrus
+- [ ] Anchor submission metadata on Sui with submission blob pointer
 - [ ] Success screen with confirmation
 
 ## Day 5 — Move Contract
@@ -97,6 +100,7 @@
 - [ ] Load creator's forms from Move (query by CreatorCap)
 - [ ] Forms list UI with status indicators
 - [ ] Load submissions for selected form
+- [ ] Filter submissions by form, feedback type, status, priority, date, attachment presence, encrypted/private fields, and keyword search
 - [ ] Download submission data from Walrus
 - [ ] Validate submission with Zod
 - [ ] Submission list UI
@@ -109,6 +113,7 @@
 - [ ] Decrypt button in dashboard for sensitive fields
 - [ ] Locked field indicator for encrypted data
 - [ ] JSON export (download submissions as JSON)
+- [ ] CSV export for filtered submission list
 - [ ] Admin note field (optional)
 
 ## Day 7 — Sponsored + Storage Health + Deploy
@@ -142,3 +147,14 @@
 - [ ] Test query params work on form.html
 - [ ] Prepare fallback deployment URL
 - [ ] Demo rehearsal (end-to-end flow)
+- [ ] Create at least one real feedback submission using TaskForm
+- [ ] Record under-3-minute demo video using TaskForm
+- [ ] Upload demo video to Walrus
+- [ ] Prepare app, repository, screenshot thread, public form, demo video, and CSV export links for submission
+- [ ] Prepare one-pager explaining product, Walrus usage, UX, architecture, and demo flow
+- [ ] Document mainnet deployment target and final deployed URLs
+- [ ] Create wallet dedicated to Walrus Tools Builder
+- [ ] Post demo, screenshot, or project link on X with hashtag `#Walrus`
+- [ ] Join Walrus Discord
+- [ ] Prepare DeepSurge registration fields: project name/logo, description, website, primary contact, GitHub repo, and app store link if applicable
+- [ ] Register through official Airtable submission form
