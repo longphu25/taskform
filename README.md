@@ -157,7 +157,7 @@ taskform/
 - [x] Schema stored on Walrus
 - [x] Submission stored on Walrus
 - [x] Submission metadata anchored on Sui
-- [ ] Sensitive field encryption demonstrated
+- [x] Sensitive field encryption demonstrated
 - [ ] Creator can filter, triage, prioritize, and export CSV
 - [ ] Storage expiry visible
 - [ ] Sponsored submission story demo-ready

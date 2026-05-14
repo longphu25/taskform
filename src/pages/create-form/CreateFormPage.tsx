@@ -123,7 +123,7 @@ function FormBuilderInner() {
                       />
                       {label}
                     </span>
-                    {i < (didSwap ? 4 : 3) && <span className="text-[#9fb9b1]/55">-&gt;</span>}
+                    {i < (didSwap ? 6 : 5) && <span className="text-[#9fb9b1]/55">-&gt;</span>}
                   </div>
                 )
               })}

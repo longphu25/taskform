@@ -45,9 +45,9 @@
 - [x] Capture object ID if available
 - [x] Capture expiry epoch
 - [x] Generate public link: `form.html?formId=<blobId>`
-- [ ] Anchor form metadata on Sui with schema blob pointer
-- [ ] Load schema in form page (download + JSON parse) — moved to Day 4
-- [ ] Error handling for failed uploads/downloads — upload done, download pending Day 4
+- [x] Anchor form metadata on Sui with schema blob pointer
+- [x] Load schema in form page (download + JSON parse)
+- [x] Error handling for failed uploads/downloads
 - [ ] Mock mode for offline development — skipped (nice-to-have, not needed for MVP)
 
 ## Day 4 — Public Form
@@ -64,9 +64,9 @@
 - [x] Required field validation (Zod runtime)
 - [x] Submit progress UI (loading state)
 - [x] Lazy-load Walrus upload client on submit
-- [ ] Lazy-load Seal encrypt only if sensitive fields exist
+- [x] Lazy-load Seal encrypt only if sensitive fields exist
 - [x] Lazy-load Sui/wallet only if required by form
-- [ ] Encrypt sensitive field values before upload
+- [x] Encrypt sensitive field values before upload
 - [x] Upload submission JSON to Walrus
 - [x] Upload attachments to Walrus
 - [x] Anchor submission metadata on Sui with submission blob pointer
