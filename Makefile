@@ -3,16 +3,16 @@
 # === Frontend ===
 
 dev:
-	pnpm dev
+	bun run dev
 
 build:
-	pnpm build
+	bun run build
 
 lint:
-	pnpm lint
+	bun run lint
 
 format:
-	pnpm format
+	bun run format	
 
 # === Contract ===
 
