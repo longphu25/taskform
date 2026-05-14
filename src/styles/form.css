@@ -1,1 +1,39 @@
 @import 'tailwindcss';
+
+:root {
+  --ink: #071011;
+  --ink-2: #0d1c1d;
+  --panel: rgba(8, 24, 25, 0.82);
+  --line: rgba(190, 255, 234, 0.16);
+  --text: #effff8;
+  --muted: #9fb9b1;
+  --mint: #80ffd5;
+  --teal: #28d8c1;
+  --amber: #ffc46b;
+  --sui: #6fbcf0;
+  --walrus: #fbffea;
+  --seal: #c6d8ff;
+}
+
+html {
+  background: var(--ink);
+  color: var(--text);
+  font-family:
+    'Satoshi',
+    'Avenir Next',
+    'Avenir',
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(128, 255, 213, 0.1), transparent 26rem),
+    radial-gradient(circle at 85% 10%, rgba(111, 188, 240, 0.1), transparent 24rem),
+    linear-gradient(180deg, #071011 0%, #0a1819 52%, #071011 100%);
+}

@@ -109,20 +109,20 @@ export function PublishButton({
   const canPublish = title.trim().length > 0 && fields.length > 0
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-zinc-900/50 p-6">
+    <div className="rounded-2xl border border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.82)] p-6">
       {state === 'success' && publicLink ? (
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <span className="size-2 rounded-full bg-green-400" />
-            <span className="text-sm font-medium text-green-400">Published successfully</span>
+            <span className="size-2 rounded-full bg-[#80ffd5]" />
+            <span className="text-sm font-medium text-[#80ffd5]">Published successfully</span>
           </div>
-          <div className="rounded-lg border border-white/10 bg-zinc-800 p-3">
-            <p className="mb-1 text-xs text-zinc-500">Public form link:</p>
+          <div className="rounded-lg border border-[rgba(190,255,234,0.16)] bg-[#0d1c1d] p-3">
+            <p className="mb-1 text-xs text-[#9fb9b1]/70">Public form link:</p>
             <a
               href={publicLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="break-all text-sm text-indigo-400 hover:text-indigo-300"
+              className="break-all text-sm text-[#80ffd5] hover:text-[#28d8c1]"
             >
               {publicLink}
             </a>
@@ -130,7 +130,7 @@ export function PublishButton({
           <button
             type="button"
             onClick={() => navigator.clipboard.writeText(publicLink)}
-            className="cursor-pointer rounded-lg border border-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/5"
+            className="cursor-pointer rounded-lg border border-[rgba(190,255,234,0.16)] px-4 py-2 text-sm transition-colors hover:bg-[#80ffd5]/10"
           >
             Copy Link
           </button>
@@ -147,7 +147,7 @@ export function PublishButton({
             type="button"
             onClick={handlePublish}
             disabled={!canPublish || state === 'validating' || state === 'uploading'}
-            className="w-full cursor-pointer rounded-lg bg-indigo-600 px-4 py-3 font-medium transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full cursor-pointer rounded-lg bg-[#80ffd5] px-4 py-3 font-medium text-[#06231d] transition-colors hover:bg-[#28d8c1] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {state === 'validating' && 'Validating...'}
             {state === 'uploading' && 'Uploading to Walrus...'}
@@ -155,7 +155,7 @@ export function PublishButton({
           </button>
 
           {!canPublish && (
-            <p className="text-center text-xs text-zinc-600">
+            <p className="text-center text-xs text-[#9fb9b1]/55">
               Add a title and at least one field to publish
             </p>
           )}

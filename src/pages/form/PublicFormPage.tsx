@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import * as z from 'zod'
 import type { FormSchema, FormField } from '../../types/form'
 
@@ -35,44 +35,8 @@ export function PublicFormPage() {
   const [loading, setLoading] = useState(!!formId)
   const [values, setValues] = useState<Record<string, unknown>>({})
   const [submitting, setSubmitting] = useState(false)
-  const [submitProgress, setSubmitProgress] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
-  const [walletAddress, setWalletAddress] = useState<string | null>(null)
-  const [walletConnecting, setWalletConnecting] = useState(false)
-
-  useEffect(() => {
-    let unsubscribe: (() => void) | undefined
-    import('../../lazy/sui-client').then(({ dAppKit }) => {
-      const conn = dAppKit.stores.$connection.get()
-      if (conn.isConnected && conn.account) setWalletAddress(conn.account.address)
-      unsubscribe = dAppKit.stores.$connection.subscribe(
-        (c: { isConnected: boolean; account: { address: string } | null }) => {
-          setWalletAddress(c.isConnected && c.account ? c.account.address : null)
-        },
-      )
-    })
-    return () => {
-      unsubscribe?.()
-    }
-  }, [])
-
-  const connectWallet = useCallback(async () => {
-    setWalletConnecting(true)
-    try {
-      const { dAppKit } = await import('../../lazy/sui-client')
-      const wallets = dAppKit.stores.$wallets.get()
-      if (!wallets.length) {
-        alert('No Sui wallet detected.')
-        return
-      }
-      await dAppKit.connectWallet({ wallet: wallets[0] })
-    } catch (err) {
-      console.error('Connect failed:', err)
-    } finally {
-      setWalletConnecting(false)
-    }
-  }, [])
 
   useEffect(() => {
     if (!formId) return
@@ -123,55 +87,21 @@ export function PublicFormPage() {
   const handleSubmit = async () => {
     if (!validate() || !schema) return
     setSubmitting(true)
-    setError(null)
     try {
-      const { uploadToWalrus } = await import('../../lazy/walrus-upload')
-      const epochs = schema.storagePolicy.submissionDuration
-
-      // Upload attachments first
-      const attachments: Record<string, string[]> = {}
-      for (const field of schema.fields) {
-        if (field.type !== 'screenshot-upload' && field.type !== 'video-upload') continue
-        const files = values[field.id] as File[]
-        if (!files?.length) continue
-        const label = field.type === 'video-upload' ? 'video' : 'image'
-        const blobIds: string[] = []
-        for (let i = 0; i < files.length; i++) {
-          setSubmitProgress(`Uploading ${label} ${i + 1}/${files.length}...`)
-          const buf = await files[i].arrayBuffer()
-          const result = await uploadToWalrus({ data: new Uint8Array(buf), epochs })
-          blobIds.push(result.downloadId)
-        }
-        attachments[field.id] = blobIds
-      }
-
-      // Build submission
-      setSubmitProgress('Submitting response...')
       const submission = {
         formId,
         fields: schema.fields.map((f) => ({
           fieldId: f.id,
-          value: attachments[f.id] ?? values[f.id],
+          value: values[f.id],
           encrypted: false,
         })),
         submittedAt: Date.now(),
       }
-      const submissionResult = await uploadToWalrus({ data: JSON.stringify(submission), epochs })
-
-      // Anchor on-chain if formObjectId available
-      const formObjectId = new URLSearchParams(window.location.search).get('formObjectId')
-      if (formObjectId && submissionResult.objectId) {
-        setSubmitProgress('Recording submission...')
-        const { submitFormOnChain } = await import('../../lazy/contract')
-        await submitFormOnChain({
-          formObjectId,
-          submissionBlobId: submissionResult.blobId,
-          submissionBlobObjectId: submissionResult.objectId,
-          submissionDownloadId: submissionResult.downloadId,
-          expiryEpoch: epochs,
-        })
-      }
-
+      const { uploadToWalrus } = await import('../../lazy/walrus-upload')
+      await uploadToWalrus({
+        data: JSON.stringify(submission),
+        epochs: schema.storagePolicy.submissionDuration,
+      })
       setSubmitted(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Submission failed')
@@ -185,7 +115,7 @@ export function PublicFormPage() {
       <Shell>
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <h2 className="mb-2 text-xl font-semibold">No form specified</h2>
-          <p className="text-slate-400">Please use a valid form link.</p>
+          <p className="text-[#9fb9b1]">Please use a valid form link.</p>
         </div>
       </Shell>
     )
@@ -194,10 +124,10 @@ export function PublicFormPage() {
   if (loading) {
     return (
       <Shell>
-        <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8">
+        <div className="rounded-2xl border border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.82)] p-8">
           <div className="flex items-center gap-3">
-            <div className="size-5 animate-spin rounded-full border-2 border-indigo-500/20 border-t-indigo-500" />
-            <p className="text-sm text-slate-400">Loading form...</p>
+            <div className="size-5 animate-spin rounded-full border-2 border-[#80ffd5]/20 border-t-[#80ffd5]" />
+            <p className="text-sm text-[#9fb9b1]">Loading form...</p>
           </div>
         </div>
       </Shell>
@@ -217,10 +147,10 @@ export function PublicFormPage() {
   if (submitted) {
     return (
       <Shell>
-        <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8 text-center">
-          <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-green-500/10">
+        <div className="rounded-2xl border border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.82)] p-8 text-center">
+          <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-[#80ffd5]/10">
             <svg
-              className="size-6 text-green-400"
+              className="size-6 text-[#80ffd5]"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -230,7 +160,7 @@ export function PublicFormPage() {
             </svg>
           </div>
           <h2 className="mb-2 text-xl font-semibold">Submitted!</h2>
-          <p className="text-slate-400">Your response has been recorded on Walrus.</p>
+          <p className="text-[#9fb9b1]">Your response has been recorded on Walrus.</p>
         </div>
       </Shell>
     )
@@ -239,14 +169,10 @@ export function PublicFormPage() {
   if (!schema) return null
 
   return (
-    <Shell
-      walletAddress={walletAddress}
-      onConnect={connectWallet}
-      walletConnecting={walletConnecting}
-    >
-      <div className="rounded-2xl border border-white/10 bg-slate-900/50 p-8">
+    <Shell>
+      <div className="rounded-2xl border border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.82)] p-8">
         <h2 className="mb-2 text-2xl font-semibold">{schema.title}</h2>
-        {schema.description && <p className="mb-8 text-slate-400">{schema.description}</p>}
+        {schema.description && <p className="mb-8 text-[#9fb9b1]">{schema.description}</p>}
 
         {error && (
           <div className="mb-6 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-2">
@@ -266,60 +192,26 @@ export function PublicFormPage() {
           ))}
         </div>
 
-        {!walletAddress ? (
-          <button
-            type="button"
-            onClick={connectWallet}
-            disabled={walletConnecting}
-            className="mt-8 w-full cursor-pointer rounded-lg bg-emerald-600 px-4 py-3 font-medium transition-colors hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {walletConnecting ? 'Connecting...' : 'Connect Wallet to Submit'}
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={submitting}
-            className="mt-8 w-full cursor-pointer rounded-lg bg-indigo-600 px-4 py-3 font-medium transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {submitting ? submitProgress || 'Submitting...' : 'Submit'}
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={submitting}
+          className="mt-8 w-full cursor-pointer rounded-lg bg-[#80ffd5] px-4 py-3 font-medium text-[#06231d] transition-colors hover:bg-[#28d8c1] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {submitting ? 'Submitting...' : 'Submit'}
+        </button>
       </div>
     </Shell>
   )
 }
 
-function Shell({
-  children,
-  walletAddress,
-  onConnect,
-  walletConnecting,
-}: {
-  children: React.ReactNode
-  walletAddress?: string | null
-  onConnect?: () => void
-  walletConnecting?: boolean
-}) {
+function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      <nav className="fixed top-4 left-4 right-4 z-50 mx-auto max-w-2xl rounded-2xl border border-white/10 bg-slate-900/80 px-6 py-3 backdrop-blur-xl">
+    <div className="min-h-screen bg-[#071011] text-[#effff8]">
+      <nav className="fixed top-4 left-4 right-4 z-50 mx-auto max-w-2xl rounded-2xl border border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.82)] px-6 py-3 backdrop-blur-xl">
         <div className="flex items-center justify-between">
           <span className="text-lg font-bold tracking-tight">TaskForm</span>
-          {walletAddress ? (
-            <span className="rounded-lg bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-400">
-              {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
-            </span>
-          ) : (
-            <button
-              type="button"
-              onClick={onConnect}
-              disabled={walletConnecting}
-              className="cursor-pointer rounded-lg bg-slate-800 px-3 py-1 text-xs text-slate-400 transition-colors hover:bg-slate-700 disabled:opacity-50"
-            >
-              {walletConnecting ? '...' : 'Connect'}
-            </button>
-          )}
+          <span className="text-xs text-[#9fb9b1]/70">Powered by Walrus</span>
         </div>
       </nav>
       <main className="mx-auto max-w-2xl px-4 pt-24 pb-12">{children}</main>
@@ -339,15 +231,15 @@ function FieldRenderer({
   error?: string
 }) {
   const label = (
-    <label className="mb-1.5 block text-sm font-medium text-slate-300">
+    <label className="mb-1.5 block text-sm font-medium text-[#effff8]/85">
       {field.label}
       {field.required && <span className="ml-1 text-red-400">*</span>}
-      {field.sensitive && <span className="ml-2 text-xs text-amber-400">(encrypted)</span>}
+      {field.sensitive && <span className="ml-2 text-xs text-[#ffc46b]">(encrypted)</span>}
     </label>
   )
 
   const errorEl = error ? <p className="mt-1 text-xs text-red-400">{error}</p> : null
-  const inputClass = `w-full rounded-lg border bg-slate-800 px-4 py-2.5 text-white placeholder-slate-600 outline-none focus:border-indigo-500 ${error ? 'border-red-500/50' : 'border-white/10'}`
+  const inputClass = `w-full rounded-lg border bg-[#0d1c1d] px-4 py-2.5 text-[#effff8] placeholder-[#9fb9b1]/55 outline-none focus:border-[#80ffd5] ${error ? 'border-red-500/50' : 'border-[rgba(190,255,234,0.16)]'}`
 
   switch (field.type) {
     case 'short-text':
@@ -416,9 +308,9 @@ function FieldRenderer({
                       e.target.checked ? [...arr, opt.value] : arr.filter((v) => v !== opt.value),
                     )
                   }}
-                  className="size-4 rounded accent-indigo-500"
+                  className="size-4 rounded accent-[#80ffd5]"
                 />
-                <span className="text-sm text-slate-300">{opt.label}</span>
+                <span className="text-sm text-[#effff8]/85">{opt.label}</span>
               </label>
             ))}
           </div>
@@ -435,7 +327,7 @@ function FieldRenderer({
                 key={n}
                 type="button"
                 onClick={() => onChange(n)}
-                className={`cursor-pointer text-2xl transition-colors ${n <= (value as number) ? 'text-yellow-400' : 'text-slate-600 hover:text-yellow-400/50'}`}
+                className={`cursor-pointer text-2xl transition-colors ${n <= (value as number) ? 'text-[#ffc46b]' : 'text-[#9fb9b1]/55 hover:text-[#ffc46b]/50'}`}
               >
                 ★
               </button>
@@ -452,94 +344,100 @@ function FieldRenderer({
       return (
         <div>
           {label}
-          <label
-            className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed bg-slate-800/50 py-4 transition-colors ${error ? 'border-red-500/50' : 'border-white/10 hover:border-indigo-500/50'}`}
+          <div
+            className={`relative rounded-lg border border-dashed bg-[rgba(12,34,35,0.58)] transition-colors ${error ? 'border-red-500/50' : 'border-[rgba(190,255,234,0.16)] hover:border-[#80ffd5]/50'}`}
             onDragOver={(e) => {
               e.preventDefault()
-              e.currentTarget.classList.add('border-indigo-500/50')
+              e.currentTarget.classList.add('border-[#80ffd5]/50')
             }}
             onDragLeave={(e) => {
-              e.currentTarget.classList.remove('border-indigo-500/50')
+              e.currentTarget.classList.remove('border-[#80ffd5]/50')
             }}
             onDrop={(e) => {
               e.preventDefault()
-              e.currentTarget.classList.remove('border-indigo-500/50')
+              e.currentTarget.classList.remove('border-[#80ffd5]/50')
               const dropped = Array.from(e.dataTransfer.files).filter((f) =>
                 f.type.startsWith(isVideo ? 'video/' : 'image/'),
               )
               if (dropped.length) onChange([...files, ...dropped])
             }}
           >
-            <svg
-              className="mb-1 size-5 text-slate-500"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.5}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
+            {files.length > 0 && (
+              <div className="grid grid-cols-4 gap-2 p-3 sm:grid-cols-5">
+                {files.map((file, i) => (
+                  <div key={`${file.name}-${i}`} className="group relative">
+                    {!isVideo && (
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt="preview"
+                        className="aspect-square w-full rounded-lg object-cover"
+                      />
+                    )}
+                    {isVideo && (
+                      <div className="flex aspect-square w-full items-center justify-center rounded-lg bg-[#0d1c1d]">
+                        <svg
+                          className="size-8 text-[#9fb9b1]"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={1.5}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z"
+                          />
+                        </svg>
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => onChange(files.filter((_, idx) => idx !== i))}
+                      className="absolute -right-1.5 -top-1.5 cursor-pointer rounded-full bg-red-500 p-0.5 text-[#effff8] opacity-0 transition-opacity group-hover:opacity-100 size-5 flex items-center justify-center text-xs"
+                    >
+                      ✕
+                    </button>
+                    <p className="mt-1 truncate text-[10px] text-[#9fb9b1]/70">{file.name}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+            <label className="flex cursor-pointer flex-col items-center justify-center py-4">
+              <svg
+                className="mb-1 size-6 text-[#9fb9b1]/70"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
+                />
+              </svg>
+              <p className="text-sm text-[#9fb9b1]/70">
+                {files.length > 0
+                  ? 'Add more files'
+                  : isVideo
+                    ? 'Drop video or click to upload'
+                    : 'Drop images or click to upload'}
+              </p>
+              <p className="mt-0.5 text-xs text-[#9fb9b1]/55">
+                {isVideo ? 'MP4, WebM, MOV' : 'PNG, JPG, GIF, WebP'}
+              </p>
+              <input
+                type="file"
+                accept={accept}
+                multiple
+                className="hidden"
+                onChange={(e) => {
+                  const added = Array.from(e.target.files || [])
+                  if (added.length) onChange([...files, ...added])
+                }}
               />
-            </svg>
-            <p className="text-sm text-slate-500">
-              {isVideo ? 'Drop video or click to upload' : 'Drop images or click to upload'}
-            </p>
-            <p className="mt-0.5 text-xs text-slate-600">
-              {isVideo ? 'MP4, WebM, MOV' : 'PNG, JPG, GIF, WebP'}
-            </p>
-            <input
-              type="file"
-              accept={accept}
-              multiple
-              className="hidden"
-              onChange={(e) => {
-                const added = Array.from(e.target.files || [])
-                if (added.length) onChange([...files, ...added])
-              }}
-            />
-          </label>
-          {files.length > 0 && (
-            <div className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-5">
-              {files.map((file, i) => (
-                <div key={`${file.name}-${i}`} className="group relative">
-                  {!isVideo && (
-                    <img
-                      src={URL.createObjectURL(file)}
-                      alt="preview"
-                      className="aspect-square w-full rounded-lg object-cover"
-                    />
-                  )}
-                  {isVideo && (
-                    <div className="flex aspect-square w-full items-center justify-center rounded-lg bg-slate-800">
-                      <svg
-                        className="size-6 text-slate-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={1.5}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z"
-                        />
-                      </svg>
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => onChange(files.filter((_, idx) => idx !== i))}
-                    className="absolute -right-1.5 -top-1.5 flex size-5 cursor-pointer items-center justify-center rounded-full bg-red-500 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100"
-                  >
-                    ✕
-                  </button>
-                  <p className="mt-1 truncate text-[10px] text-slate-500">{file.name}</p>
-                </div>
-              ))}
-            </div>
-          )}
+            </label>
+          </div>
           {errorEl}
         </div>
       )
@@ -552,9 +450,9 @@ function FieldRenderer({
               type="checkbox"
               checked={value as boolean}
               onChange={(e) => onChange(e.target.checked)}
-              className="size-4 rounded accent-indigo-500"
+              className="size-4 rounded accent-[#80ffd5]"
             />
-            <span className="text-sm text-slate-300">
+            <span className="text-sm text-[#effff8]/85">
               {field.label}
               {field.required && <span className="ml-1 text-red-400">*</span>}
             </span>
