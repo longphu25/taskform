@@ -78,9 +78,24 @@ export function PublishButton({
         },
       })
 
+      // Create form on-chain
+      onStepChange?.(7)
+      const { createFormOnChain, publishFormOnChain } = await import('../../../lazy/contract')
+      const { formObjectId, creatorCapId } = await createFormOnChain({
+        title,
+        schemaBlobId: uploadResult.blobId,
+        schemaBlobObjectId: uploadResult.objectId ?? '',
+        schemaDownloadId: uploadResult.downloadId,
+        expiryEpoch: storagePolicy.schemaDuration,
+      })
+
+      // Publish form on-chain
+      onStepChange?.(8)
+      await publishFormOnChain({ formObjectId, creatorCapId })
+
       // Generate public link
       const baseUrl = window.location.origin + pagePath('/form.html')
-      const link = `${baseUrl}?formId=${uploadResult.downloadId}`
+      const link = `${baseUrl}?formId=${uploadResult.downloadId}&formObjectId=${formObjectId}`
       setPublicLink(link)
       setState('success')
       onPublishingChange?.(false)

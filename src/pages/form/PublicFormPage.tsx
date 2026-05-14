@@ -156,7 +156,21 @@ export function PublicFormPage() {
         })),
         submittedAt: Date.now(),
       }
-      await uploadToWalrus({ data: JSON.stringify(submission), epochs })
+      const submissionResult = await uploadToWalrus({ data: JSON.stringify(submission), epochs })
+
+      // Anchor on-chain if formObjectId available
+      const formObjectId = new URLSearchParams(window.location.search).get('formObjectId')
+      if (formObjectId && submissionResult.objectId) {
+        setSubmitProgress('Recording submission...')
+        const { submitFormOnChain } = await import('../../lazy/contract')
+        await submitFormOnChain({
+          formObjectId,
+          submissionBlobId: submissionResult.blobId,
+          submissionBlobObjectId: submissionResult.objectId,
+          expiryEpoch: epochs,
+        })
+      }
+
       setSubmitted(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Submission failed')

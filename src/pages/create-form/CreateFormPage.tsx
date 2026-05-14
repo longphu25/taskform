@@ -103,12 +103,14 @@ function FormBuilderInner() {
                 {publishStep === 4 && 'Sign transaction to register blob...'}
                 {publishStep === 5 && 'Uploading to storage nodes...'}
                 {publishStep === 6 && 'Sign transaction to certify...'}
+                {publishStep === 7 && 'Creating form on-chain...'}
+                {publishStep === 8 && 'Publishing form on-chain...'}
               </p>
             </div>
             <div className="flex items-center gap-2 text-xs">
               {(didSwap
-                ? ['Swap', 'Encode', 'Register', 'Upload', 'Certify']
-                : ['Encode', 'Register', 'Upload', 'Certify']
+                ? ['Swap', 'Encode', 'Register', 'Upload', 'Certify', 'Create', 'Publish']
+                : ['Encode', 'Register', 'Upload', 'Certify', 'Create', 'Publish']
               ).map((label, i) => {
                 const stepNum = didSwap ? i + 2 : i + 3
                 return (
