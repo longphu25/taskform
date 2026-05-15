@@ -96,22 +96,22 @@
 
 ## Day 6 — Dashboard + Seal
 
-- [ ] Wallet connection (dApp Kit or custom)
-- [ ] Load creator's forms from Move (query by CreatorCap)
-- [ ] Forms list UI with status indicators
-- [ ] Load submissions for selected form
+- [x] Wallet connection (dApp Kit or custom)
+- [x] Load creator's forms from Move (query by CreatorCap)
+- [x] Forms list UI with status indicators
+- [x] Load submissions for selected form
 - [ ] Filter submissions by form, feedback type, status, priority, date, attachment presence, encrypted/private fields, and keyword search
-- [ ] Download submission data from Walrus
+- [x] Download submission data from Walrus
 - [ ] Validate submission with Zod
-- [ ] Submission list UI
-- [ ] Submission detail view
+- [x] Submission list UI
+- [x] Submission detail view
 - [ ] Status update (Move transaction)
 - [ ] Priority update (Move transaction)
-- [ ] Seal encryption adapter (`src/lazy/seal-encrypt.ts`)
-- [ ] Integrate encrypt in public form submit flow
-- [ ] Seal decryption adapter (`src/lazy/seal-decrypt.ts`)
-- [ ] Decrypt button in dashboard for sensitive fields
-- [ ] Locked field indicator for encrypted data
+- [x] Seal encryption adapter (`src/lazy/seal-encrypt.ts`)
+- [x] Integrate encrypt in public form submit flow
+- [x] Seal decryption adapter (`src/lazy/seal-decrypt.ts`)
+- [x] Decrypt button in dashboard for sensitive fields
+- [x] Locked field indicator for encrypted data
 - [ ] JSON export (download submissions as JSON)
 - [ ] CSV export for filtered submission list
 - [ ] Admin note field (optional)

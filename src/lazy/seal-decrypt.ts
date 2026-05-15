@@ -1,52 +1,56 @@
 /**
- * Seal decryption — lazy-loaded only in dashboard for admin decrypt.
- * Requires CreatorCap ownership to decrypt.
+ * Seal decryption — lazy-loaded only in dashboard for creator decrypt.
+ * Account-based: only the creator address can decrypt.
  */
-import { SessionKey } from '@mysten/seal'
+import { SessionKey, EncryptedObject } from '@mysten/seal'
 import { Transaction } from '@mysten/sui/transactions'
 import { getSealClient } from './seal-encrypt'
 import { getSuiClient, PACKAGE_ID, dAppKit } from './sui-client'
 
 /**
  * Decrypt an encrypted field value.
- * Caller must own CreatorCap for the form.
+ * Caller must be the creator address used during encryption.
  */
-export async function decryptField(params: {
-  encryptedData: Uint8Array
-  creatorCapId: string
-}): Promise<string> {
+export async function decryptField(params: { encryptedData: Uint8Array }): Promise<string> {
+  const { fromHex } = await import('@mysten/sui/utils')
+
   const client = getSealClient()
   const suiClient = getSuiClient()
 
-  // Get current wallet address
   const connection = dAppKit.stores.$connection.get()
   if (!connection.isConnected || !connection.account) {
     throw new Error('Wallet not connected')
   }
+  const userAddress = connection.account.address
 
-  // Create ephemeral session key
-  const { Ed25519Keypair } = await import('@mysten/sui/keypairs/ed25519')
-  const sessionKp = new Ed25519Keypair()
+  const parsed = EncryptedObject.parse(params.encryptedData)
+  const idHex =
+    typeof parsed.id === 'string'
+      ? parsed.id
+      : Array.from(parsed.id as Uint8Array)
+          .map((b) => b.toString(16).padStart(2, '0'))
+          .join('')
+  const idBytes = [...fromHex(idHex)]
+
+  // Create session key with wallet address and sign with wallet
   const sessionKey = await SessionKey.create({
-    address: sessionKp.getPublicKey().toSuiAddress(),
+    address: userAddress,
     packageId: PACKAGE_ID,
     ttlMin: 10,
-    signer: sessionKp,
     suiClient,
   })
+  // Sign the session key personal message with wallet
+  const message = sessionKey.getPersonalMessage()
+  const { signature } = await dAppKit.signPersonalMessage({ message })
+  sessionKey.setPersonalMessageSignature(signature)
 
-  // Build approval TX — calls seal_approve with CreatorCap
-  const { EncryptedObject } = await import('@mysten/seal')
-  const parsed = EncryptedObject.parse(params.encryptedData)
-  const rawId = parsed.id as unknown
-  const idBytes: number[] = rawId instanceof Uint8Array ? [...rawId] : (rawId as number[])
-
+  // Build TX — account_based: seal_approve(id, ctx)
   const tx = new Transaction()
   tx.moveCall({
     package: PACKAGE_ID,
     module: 'seal_policy',
     function: 'seal_approve',
-    arguments: [tx.pure.vector('u8', idBytes), tx.object(params.creatorCapId)],
+    arguments: [tx.pure.vector('u8', idBytes)],
   })
   const txBytes = await tx.build({ client: suiClient, onlyTransactionKind: true })
 

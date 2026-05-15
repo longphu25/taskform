@@ -86,6 +86,17 @@ export function PublicFormPage() {
 
   const handleSubmit = async () => {
     if (!validate() || !schema) return
+    // Ensure wallet connected
+    const { dAppKit } = await import('../../lazy/sui-client')
+    const conn = dAppKit.stores.$connection.get()
+    if (!conn.isConnected) {
+      const wallets = dAppKit.stores.$wallets.get()
+      if (!wallets.length) {
+        setError('No Sui wallet detected.')
+        return
+      }
+      await dAppKit.connectWallet({ wallet: wallets[0] })
+    }
     setSubmitting(true)
     setError(null)
     try {
@@ -96,9 +107,9 @@ export function PublicFormPage() {
       // Setup encrypt if any sensitive fields
       const hasSensitive = schema.fields.some((f) => f.sensitive)
       let encryptFn:
-        | ((p: { formObjectId: string; plaintext: string }) => Promise<Uint8Array>)
+        | ((p: { creatorAddress: string; plaintext: string }) => Promise<Uint8Array>)
         | null = null
-      if (hasSensitive && formObjectId) {
+      if (hasSensitive && schema.creatorAddress) {
         const { encryptField } = await import('../../lazy/seal-encrypt')
         encryptFn = encryptField
       }
@@ -113,8 +124,11 @@ export function PublicFormPage() {
         for (let i = 0; i < files.length; i++) {
           let data: Uint8Array = new Uint8Array(await files[i].arrayBuffer())
           // Encrypt file if field is sensitive
-          if (field.sensitive && encryptFn && formObjectId) {
-            data = await encryptFn({ formObjectId, plaintext: btoa(String.fromCharCode(...data)) })
+          if (field.sensitive && encryptFn && schema.creatorAddress) {
+            data = await encryptFn({
+              creatorAddress: schema.creatorAddress,
+              plaintext: btoa(String.fromCharCode(...data)),
+            })
           }
           const result = await uploadToWalrus({ data, epochs })
           blobIds.push(result.downloadId)
@@ -126,10 +140,11 @@ export function PublicFormPage() {
       const fields = await Promise.all(
         schema.fields.map(async (f) => {
           if (attachments[f.id])
-            return { fieldId: f.id, value: attachments[f.id], encrypted: false }
+            return { fieldId: f.id, value: attachments[f.id], encrypted: f.sensitive }
           const val = values[f.id]
-          if (f.sensitive && encryptFn && formObjectId && typeof val === 'string' && val.trim()) {
-            const encrypted = await encryptFn({ formObjectId, plaintext: val })
+          if (f.sensitive && encryptFn && schema.creatorAddress && val != null && val !== '') {
+            const plaintext = typeof val === 'string' ? val : JSON.stringify(val)
+            const encrypted = await encryptFn({ creatorAddress: schema.creatorAddress, plaintext })
             return {
               fieldId: f.id,
               value: btoa(String.fromCharCode(...encrypted)),
