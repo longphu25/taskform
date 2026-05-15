@@ -12,7 +12,7 @@ Derived from TaskForm_Docs_Package_v3_cdn_optimized spec intake.
 | E04 | Walrus Storage — Upload/download abstraction, schema publish | done |
 | E05 | Public Form — Ultra-light renderer, lazy SDKs, submit | done |
 | E06 | Move Contract — Registry, Form, Caps, entry functions, tests | done |
-| E07 | Dashboard — Wallet connect, forms list, submissions, triage | unsliced |
+| E07 | Dashboard — Wallet connect, forms list, submissions, triage | in-progress |
 | E08 | Seal Encryption — Encrypt sensitive fields, decrypt in dashboard | unsliced |
 | E09 | Sponsored Submission — Sponsor toggle, demo flow, fallback | unsliced |
 | E10 | Storage Lifecycle — Expiry tracking, health UI, export backup | unsliced |

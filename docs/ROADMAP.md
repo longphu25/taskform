@@ -98,23 +98,51 @@
 
 - [ ] Wallet connection (dApp Kit or custom)
 - [ ] Load creator's forms from Move (query by CreatorCap)
-- [ ] Forms list UI with status indicators
+- [x] Forms list UI with status indicators
+- [x] Compact sidebar layout with truncated labels and inline form storage lifecycle
 - [ ] Load submissions for selected form
-- [ ] Filter submissions by form, feedback type, status, priority, date, attachment presence, encrypted/private fields, and keyword search
+- [x] Filter controls UI by form, status, keyword, attachment, encrypted/private fields
+- [ ] Implement live filters by feedback type, priority, date, attachment presence, encrypted/private
+      fields, and keyword search
 - [ ] Download submission data from Walrus
 - [ ] Validate submission with Zod
-- [ ] Submission list UI
-- [ ] Submission detail view
+- [x] Submission list UI
+- [x] Responsive full-width submission inbox UI
+- [x] Submission detail / review popup UI
 - [ ] Status update (Move transaction)
 - [ ] Priority update (Move transaction)
+- [x] Storage Health UI shell inside each form card (healthy / renew soon / expiry progress)
+- [ ] Fetch current Walrus epoch and real expiry values
 - [ ] Seal encryption adapter (`src/lazy/seal-encrypt.ts`)
 - [ ] Integrate encrypt in public form submit flow
 - [ ] Seal decryption adapter (`src/lazy/seal-decrypt.ts`)
-- [ ] Decrypt button in dashboard for sensitive fields
-- [ ] Locked field indicator for encrypted data
-- [ ] JSON export (download submissions as JSON)
-- [ ] CSV export for filtered submission list
+- [x] Decrypt button UI in dashboard for sensitive fields
+- [x] Locked/encrypted field indicator UI
+- [x] JSON export action UI
+- [x] CSV export action UI for filtered submission list
+- [x] Proof export popup UI
+- [ ] Implement JSON export download
+- [ ] Implement CSV export download
 - [ ] Admin note field (optional)
+
+Dashboard implementation status: `dashboard.html` now has a complete management UI using mock
+data: compact My Forms sidebar, inline storage lifecycle, full-width responsive submission inbox,
+status filters, search/export controls, submission review popup, decrypt/review actions, and proof
+export popup. Remaining work is data, export, encryption, storage, and transaction wiring.
+
+Dashboard next steps:
+
+1. Replace mock dashboard data with typed query state and loading/error/empty states.
+2. Connect wallet and gate creator-only dashboard data.
+3. Query creator forms from Sui and hydrate sidebar form cards from live form metadata.
+4. Query submission metadata from Sui without downloading full Walrus bodies upfront.
+5. Download and validate selected submission bodies from Walrus inside the review popup.
+6. Wire full filters and make export output follow the same filtered dataset.
+7. Submit status and priority updates through generated Move bindings.
+8. Lazy-load Seal decrypt only when the creator clicks decrypt.
+9. Implement CSV, JSON, and proof bundle downloads from the Proof exports popup.
+10. Fetch current Walrus epoch and compute real storage health inside each form card.
+11. Add unit/manual proof for filter logic and create -> submit -> review -> export flow.
 
 ## Day 7 — Sponsored + Storage Health + Deploy
 
