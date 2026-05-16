@@ -2,6 +2,7 @@ import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { compression } from 'vite-plugin-compression2'
 
 // CDN-externalized dependencies — not bundled into dist
 const externalDeps = [
@@ -19,7 +20,7 @@ export default defineConfig({
   // GitHub Pages: /taskform/ | Walrus Site: /
   // Set VITE_BASE_PATH=/ for Walrus Site builds
   base: process.env.VITE_BASE_PATH || '/taskform/',
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), compression({ algorithms: ['gzip', 'brotliCompress'] })],
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),

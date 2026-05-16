@@ -12,6 +12,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:walrus": "tsc -b && VITE_BASE_PATH=/ vite build && bun run scripts/gen-ws-resources.ts",
     "lint": "eslint .",
     "format": "biome format --write .",
     "format:check": "biome format .",
@@ -71,6 +72,7 @@
     "tailwindcss": "4.3.0",
     "typescript": "6.0.3",
     "typescript-eslint": "8.59.2",
-    "vite": "8.0.12"
+    "vite": "8.0.12",
+    "vite-plugin-compression2": "^2.5.3"
   }
 }
