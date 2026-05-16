@@ -1,9 +1,18 @@
 /**
  * On-chain contract interactions — lazy-loaded when TX needed.
+ *
+ * Uses codegen named-argument style. The codegen's normalizeMoveArguments
+ * handles BCS serialization (String, vector<u8>, ID, u64) and auto-injects
+ * Clock automatically — no manual tx.pure.* needed.
  */
 import { Transaction } from '@mysten/sui/transactions'
 import type { SuiClientTypes } from '@mysten/sui/client'
-import { createForm, publishForm, submitForm } from '../contract/taskform/taskform'
+import {
+  createForm,
+  publishForm,
+  submitForm,
+  configureSponsoredMode,
+} from '../contract/taskform/taskform'
 import { REGISTRY_ID, dAppKit } from './sui-client'
 
 /**
@@ -13,19 +22,21 @@ export async function createFormOnChain(params: {
   title: string
   schemaBlobId: string
   schemaBlobObjectId: string
+  schemaDownloadId: string
   expiryEpoch: number
 }): Promise<{ formObjectId: string; creatorCapId: string }> {
   const tx = new Transaction()
 
   tx.add(
     createForm({
-      arguments: [
-        tx.object(REGISTRY_ID),
-        tx.pure.string(params.title),
-        tx.pure('vector<u8>', Array.from(new TextEncoder().encode(params.schemaBlobId))),
-        tx.pure.id(params.schemaBlobObjectId),
-        tx.pure.u64(params.expiryEpoch),
-      ],
+      arguments: {
+        registry: REGISTRY_ID,
+        title: params.title,
+        schemaBlobId: Array.from(new TextEncoder().encode(params.schemaBlobId)),
+        schemaBlobObjectId: params.schemaBlobObjectId,
+        schemaDownloadId: Array.from(new TextEncoder().encode(params.schemaDownloadId)),
+        expiryEpoch: params.expiryEpoch,
+      },
     }),
   )
 
@@ -58,19 +69,37 @@ export async function createFormOnChain(params: {
 }
 
 /**
- * Publish form on-chain (make it publicly submittable).
+ * Publish form + optionally configure sponsored mode in a single PTB.
+ * Reduces wallet signatures by combining publish + sponsor into 1 TX.
  */
 export async function publishFormOnChain(params: {
   formObjectId: string
   creatorCapId: string
+  sponsoredEnabled?: boolean
 }): Promise<void> {
   const tx = new Transaction()
 
   tx.add(
     publishForm({
-      arguments: [tx.object(params.formObjectId), tx.object(params.creatorCapId)],
+      arguments: {
+        form: params.formObjectId,
+        cap: params.creatorCapId,
+      },
     }),
   )
+
+  // Append configure_sponsored_mode in same PTB if enabled
+  if (params.sponsoredEnabled) {
+    tx.add(
+      configureSponsoredMode({
+        arguments: {
+          form: params.formObjectId,
+          cap: params.creatorCapId,
+          sponsoredEnabled: true,
+        },
+      }),
+    )
+  }
 
   const result = await dAppKit.signAndExecuteTransaction({ transaction: tx })
   const txResult = result.Transaction ?? result.FailedTransaction
@@ -86,18 +115,20 @@ export async function submitFormOnChain(params: {
   formObjectId: string
   submissionBlobId: string
   submissionBlobObjectId: string
+  submissionDownloadId: string
   expiryEpoch: number
 }): Promise<void> {
   const tx = new Transaction()
 
   tx.add(
     submitForm({
-      arguments: [
-        tx.object(params.formObjectId),
-        tx.pure('vector<u8>', Array.from(new TextEncoder().encode(params.submissionBlobId))),
-        tx.pure.id(params.submissionBlobObjectId),
-        tx.pure.u64(params.expiryEpoch),
-      ],
+      arguments: {
+        form: params.formObjectId,
+        submissionBlobId: Array.from(new TextEncoder().encode(params.submissionBlobId)),
+        submissionBlobObjectId: params.submissionBlobObjectId,
+        submissionDownloadId: Array.from(new TextEncoder().encode(params.submissionDownloadId)),
+        expiryEpoch: params.expiryEpoch,
+      },
     }),
   )
 
@@ -105,5 +136,32 @@ export async function submitFormOnChain(params: {
   const txResult = result.Transaction ?? result.FailedTransaction
   if (!txResult || ('status' in txResult && txResult.status?.error)) {
     throw new Error('submit_form transaction failed')
+  }
+}
+
+/**
+ * Configure sponsored mode on-chain. Requires CreatorCap.
+ */
+export async function configureSponsoredModeOnChain(params: {
+  formObjectId: string
+  creatorCapId: string
+  sponsoredEnabled: boolean
+}): Promise<void> {
+  const tx = new Transaction()
+
+  tx.add(
+    configureSponsoredMode({
+      arguments: {
+        form: params.formObjectId,
+        cap: params.creatorCapId,
+        sponsoredEnabled: params.sponsoredEnabled,
+      },
+    }),
+  )
+
+  const result = await dAppKit.signAndExecuteTransaction({ transaction: tx })
+  const txResult = result.Transaction ?? result.FailedTransaction
+  if (!txResult || ('status' in txResult && txResult.status?.error)) {
+    throw new Error('configure_sponsored_mode transaction failed')
   }
 }

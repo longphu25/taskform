@@ -20,12 +20,18 @@ export interface WalrusUploadResult {
   downloadId: string
   objectId?: string
   expiryEpoch: number
+  /** Effects from the certify TX (includes any appended moveCalls). */
+  certifyEffects?: {
+    changedObjects?: Array<{ objectId: string; idOperation: string; outputOwner: unknown }>
+  }
 }
 
 export interface WalrusUploadOptions {
   data: Uint8Array | string
   epochs: number
   onStep?: (step: 'swap' | 'encode' | 'register' | 'upload' | 'certify') => void
+  /** Optional: append extra moveCall(s) to the certify TX to reduce total signatures. */
+  appendToCertify?: (tx: Transaction, meta: { blobId: string; objectId: string }) => void
 }
 
 // Walrus Exchange on testnet (SUI ↔ WAL)
@@ -108,9 +114,12 @@ async function ensureWalBalance(
  * Upload data to Walrus using PTB (user signs transactions via wallet).
  * Uses writeFilesFlow for browser-compatible multi-step signing.
  * Auto-swaps SUI → WAL if user lacks WAL balance.
+ *
+ * Optionally appends extra moveCall(s) to the certify TX via `appendToCertify`,
+ * reducing total wallet signatures (e.g. gộp certify + submit_form = 1 sign).
  */
 export async function uploadToWalrus(options: WalrusUploadOptions): Promise<WalrusUploadResult> {
-  const { data, epochs, onStep } = options
+  const { data, epochs, onStep, appendToCertify } = options
 
   const bytes = typeof data === 'string' ? new TextEncoder().encode(data) : data
   const client = getWalrusClient()
@@ -134,7 +143,7 @@ export async function uploadToWalrus(options: WalrusUploadOptions): Promise<Walr
 
   // Step 1: Encode
   onStep?.('encode')
-  await flow.encode()
+  const encoded = await flow.encode()
 
   // Step 2: Register (user signs TX)
   onStep?.('register')
@@ -150,15 +159,32 @@ export async function uploadToWalrus(options: WalrusUploadOptions): Promise<Walr
     throw new Error('Blob registration transaction failed')
   }
 
+  // Parse blobObjectId from register TX created objects
+  let blobObjectId = ''
+  const changedObjects = regTx.effects?.changedObjects ?? []
+  for (const obj of changedObjects) {
+    if (obj.idOperation !== 'Created') continue
+    const owner = obj.outputOwner
+    if (owner && 'AddressOwner' in owner) {
+      blobObjectId = obj.objectId
+    }
+  }
+
   // Step 3: Upload slivers to storage nodes (via upload relay)
   onStep?.('upload')
   await flow.upload({
     digest: (registerResult.Transaction ?? registerResult.FailedTransaction)!.digest,
   })
 
-  // Step 4: Certify (user signs TX)
+  // Step 4: Certify (user signs TX) — optionally with appended moveCall(s)
   onStep?.('certify')
   const certifyTx = flow.certify()
+
+  // Append extra operations to certify TX (e.g. submit_form) to save a signature
+  if (appendToCertify && blobObjectId) {
+    appendToCertify(certifyTx, { blobId: encoded.blobId, objectId: blobObjectId })
+  }
+
   const certifyResult = await dAppKit.signAndExecuteTransaction({ transaction: certifyTx })
   const certTx = certifyResult.Transaction ?? certifyResult.FailedTransaction
   if (!certTx || ('status' in certTx && certTx.status?.error)) {
@@ -170,9 +196,10 @@ export async function uploadToWalrus(options: WalrusUploadOptions): Promise<Walr
   const file = files[0]
 
   return {
-    blobId: file?.blobId ?? '',
+    blobId: file?.blobId ?? encoded.blobId,
     downloadId: file?.id ?? '',
-    objectId: file?.blobObject?.id,
+    objectId: file?.blobObject?.id ?? blobObjectId,
     expiryEpoch: epochs,
+    certifyEffects: certTx?.effects ? { changedObjects: certTx.effects.changedObjects } : undefined,
   }
 }

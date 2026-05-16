@@ -69,6 +69,10 @@ export function PublishButton({
     try {
       const jsonData = JSON.stringify(schema)
       const { uploadToWalrus } = await import('../../../lazy/walrus-upload')
+      const { createForm } = await import('../../../contract/taskform/taskform')
+      const { REGISTRY_ID } = await import('../../../lazy/sui-client')
+
+      // Upload schema + create_form in combined certify PTB (1 sign instead of 2)
       const uploadResult = await uploadToWalrus({
         data: jsonData,
         epochs: storagePolicy.schemaDuration,
@@ -76,25 +80,56 @@ export function PublishButton({
           const stepMap = { swap: 2, encode: 3, register: 4, upload: 5, certify: 6 }
           onStepChange?.(stepMap[step])
         },
+        appendToCertify: (tx, meta) => {
+          tx.add(
+            createForm({
+              arguments: {
+                registry: REGISTRY_ID,
+                title,
+                schemaBlobId: Array.from(new TextEncoder().encode(meta.blobId)),
+                schemaBlobObjectId: meta.objectId,
+                schemaDownloadId: Array.from(new TextEncoder().encode(meta.blobId)),
+                expiryEpoch: storagePolicy.schemaDuration,
+              },
+            }),
+          )
+        },
       })
 
-      // Create form on-chain
+      // Parse formObjectId + creatorCapId from combined certify+create TX effects
       onStepChange?.(7)
-      const { createFormOnChain, publishFormOnChain } = await import('../../../lazy/contract')
-      const { formObjectId, creatorCapId } = await createFormOnChain({
-        title,
-        schemaBlobId: uploadResult.blobId,
-        schemaBlobObjectId: uploadResult.objectId ?? '',
-        expiryEpoch: storagePolicy.schemaDuration,
+      let formObjectId = ''
+      let creatorCapId = ''
+      const changedObjects = uploadResult.certifyEffects?.changedObjects ?? []
+      for (const obj of changedObjects) {
+        if (obj.idOperation !== 'Created') continue
+        const owner = obj.outputOwner
+        if (owner && typeof owner === 'object' && 'Shared' in owner) {
+          formObjectId = obj.objectId
+        } else if (owner && typeof owner === 'object' && 'AddressOwner' in owner) {
+          // CreatorCap is the non-blob owned object (blob object was created in register)
+          if (obj.objectId !== uploadResult.objectId) {
+            creatorCapId = obj.objectId
+          }
+        }
+      }
+
+      if (!formObjectId || !creatorCapId) {
+        throw new Error('Failed to parse form/cap IDs from transaction')
+      }
+
+      // Publish form + configure sponsored mode in 1 PTB (1 sign)
+      onStepChange?.(8)
+      const { publishFormOnChain } = await import('../../../lazy/contract')
+      await publishFormOnChain({
+        formObjectId,
+        creatorCapId,
+        sponsoredEnabled: sponsorSettings.enabled,
       })
 
-      // Publish form on-chain
-      onStepChange?.(8)
-      await publishFormOnChain({ formObjectId, creatorCapId })
-
-      // Generate public link
+      // Generate public link (short URL — form.html reads schema_download_id from on-chain)
       const baseUrl = window.location.origin + pagePath('/form.html')
-      const link = `${baseUrl}?formId=${uploadResult.downloadId}&formObjectId=${formObjectId}`
+      const link = `${baseUrl}?id=${formObjectId}`
       setPublicLink(link)
       setState('success')
       onPublishingChange?.(false)
@@ -121,7 +156,7 @@ export function PublishButton({
               href={publicLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="break-all text-sm text-[#80ffd5] hover:text-[#28d8c1]"
+              className="text-sm break-all text-[#80ffd5] hover:text-[#28d8c1]"
             >
               {publicLink}
             </a>
