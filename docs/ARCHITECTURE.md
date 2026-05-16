@@ -67,6 +67,13 @@ taskform/
 ├── Makefile              # Orchestrates frontend + contract commands
 ├── sui-codegen.config.ts # Codegen configuration
 ├── vite.config.ts
+├── scripts/
+│   └── gen-ws-resources.ts  # Generates ws-resources.json for Walrus Site
+├── deploy/
+│   ├── Dockerfile           # Docker image with site-builder + walrus + sui
+│   ├── deploy.sh            # Build + start deploy container
+│   ├── entrypoint.sh        # SSH entrypoint
+│   └── sites-config.yaml    # Walrus mainnet config
 ├── src/
 │   ├── pages/
 │   │   ├── landing/
@@ -101,6 +108,16 @@ taskform/
 | form.html local JS | < 60 KB gzip |
 | Total dist (no vendor) | < 500 KB |
 | Hard cap MVP | < 1 MB |
+
+## Build & Compression
+
+Vite build produces gzip + brotli pre-compressed files via `vite-plugin-compression2`.
+For Walrus Site deployment, `ws-resources.json` is auto-generated with:
+- `Cache-Control: immutable` for hashed assets (1 year cache)
+- `Cache-Control: no-cache` for HTML entry points
+- Ignore patterns to skip `.gz`/`.br` from Walrus upload
+
+See [docs/DEPLOY.md](./DEPLOY.md) for full deployment workflow.
 
 ## Move Contract Role
 
