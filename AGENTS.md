@@ -26,11 +26,11 @@ Read in this order:
 
 | Item | Value |
 |------|-------|
-| Package ID | `0x657b4145e585ad305ac351170eb78c49ba8ba3099135e64ece43c02da1b69f0f` |
-| TaskFormRegistry | `0x4b6690f251dc18f19afd22f4f5dad0f00bb94971832386e225ab94332b67f405` |
-| UpgradeCap | `0xfb74655a33b008c81219113733260bc48ff7e126be929dd35970a4f223fb148c` |
+| Package ID | `0x168cecda7807f9e20e0a87611834d37583b7e7545a57fe0c92fab5b6477d5eff` |
+| TaskFormRegistry | `0x836a4776d73ceea1aeba030e11bd306825e2c2efc06f16bd6f1326bead8ad021` |
+| UpgradeCap | `0x60645d9ed5261457b57936ba501527909364161ca78a579c51a10db46fbc2da0` |
 | Network | Testnet |
-| Modules | `taskform`, `capabilities`, `events`, `submission`, `sponsor` |
+| Modules | `taskform`, `capabilities`, `events`, `submission`, `sponsor`, `seal_policy` |
 
 ### Codegen
 

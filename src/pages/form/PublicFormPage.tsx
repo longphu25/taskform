@@ -86,22 +86,90 @@ export function PublicFormPage() {
 
   const handleSubmit = async () => {
     if (!validate() || !schema) return
-    setSubmitting(true)
-    try {
-      const submission = {
-        formId,
-        fields: schema.fields.map((f) => ({
-          fieldId: f.id,
-          value: values[f.id],
-          encrypted: false,
-        })),
-        submittedAt: Date.now(),
+    // Ensure wallet connected
+    const { dAppKit } = await import('../../lazy/sui-client')
+    const conn = dAppKit.stores.$connection.get()
+    if (!conn.isConnected) {
+      const wallets = dAppKit.stores.$wallets.get()
+      if (!wallets.length) {
+        setError('No Sui wallet detected.')
+        return
       }
+      await dAppKit.connectWallet({ wallet: wallets[0] })
+    }
+    setSubmitting(true)
+    setError(null)
+    try {
       const { uploadToWalrus } = await import('../../lazy/walrus-upload')
-      await uploadToWalrus({
-        data: JSON.stringify(submission),
-        epochs: schema.storagePolicy.submissionDuration,
-      })
+      const epochs = schema.storagePolicy.submissionDuration
+      const formObjectId = new URLSearchParams(window.location.search).get('formObjectId')
+
+      // Setup encrypt if any sensitive fields
+      const hasSensitive = schema.fields.some((f) => f.sensitive)
+      let encryptFn:
+        | ((p: { creatorAddress: string; plaintext: string }) => Promise<Uint8Array>)
+        | null = null
+      if (hasSensitive && schema.creatorAddress) {
+        const { encryptField } = await import('../../lazy/seal-encrypt')
+        encryptFn = encryptField
+      }
+
+      // Upload attachments first
+      const attachments: Record<string, string[]> = {}
+      for (const field of schema.fields) {
+        if (field.type !== 'screenshot-upload' && field.type !== 'video-upload') continue
+        const files = values[field.id] as File[]
+        if (!files?.length) continue
+        const blobIds: string[] = []
+        for (let i = 0; i < files.length; i++) {
+          let data: Uint8Array = new Uint8Array(await files[i].arrayBuffer())
+          // Encrypt file if field is sensitive
+          if (field.sensitive && encryptFn && schema.creatorAddress) {
+            data = await encryptFn({
+              creatorAddress: schema.creatorAddress,
+              plaintext: btoa(String.fromCharCode(...data)),
+            })
+          }
+          const result = await uploadToWalrus({ data, epochs })
+          blobIds.push(result.downloadId)
+        }
+        attachments[field.id] = blobIds
+      }
+
+      // Build submission fields
+      const fields = await Promise.all(
+        schema.fields.map(async (f) => {
+          if (attachments[f.id])
+            return { fieldId: f.id, value: attachments[f.id], encrypted: f.sensitive }
+          const val = values[f.id]
+          if (f.sensitive && encryptFn && schema.creatorAddress && val != null && val !== '') {
+            const plaintext = typeof val === 'string' ? val : JSON.stringify(val)
+            const encrypted = await encryptFn({ creatorAddress: schema.creatorAddress, plaintext })
+            return {
+              fieldId: f.id,
+              value: btoa(String.fromCharCode(...encrypted)),
+              encrypted: true,
+            }
+          }
+          return { fieldId: f.id, value: val, encrypted: false }
+        }),
+      )
+
+      const submission = { formId, fields, submittedAt: Date.now() }
+      const submissionResult = await uploadToWalrus({ data: JSON.stringify(submission), epochs })
+
+      // Anchor on-chain
+      if (formObjectId && submissionResult.objectId) {
+        const { submitFormOnChain } = await import('../../lazy/contract')
+        await submitFormOnChain({
+          formObjectId,
+          submissionBlobId: submissionResult.blobId,
+          submissionBlobObjectId: submissionResult.objectId,
+          submissionDownloadId: submissionResult.downloadId,
+          expiryEpoch: epochs,
+        })
+      }
+
       setSubmitted(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Submission failed')
@@ -344,8 +412,8 @@ function FieldRenderer({
       return (
         <div>
           {label}
-          <div
-            className={`relative rounded-lg border border-dashed bg-[rgba(12,34,35,0.58)] transition-colors ${error ? 'border-red-500/50' : 'border-[rgba(190,255,234,0.16)] hover:border-[#80ffd5]/50'}`}
+          <label
+            className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed bg-[rgba(12,34,35,0.58)] py-4 transition-colors ${error ? 'border-red-500/50' : 'border-[rgba(190,255,234,0.16)] hover:border-[#80ffd5]/50'}`}
             onDragOver={(e) => {
               e.preventDefault()
               e.currentTarget.classList.add('border-[#80ffd5]/50')
@@ -362,82 +430,76 @@ function FieldRenderer({
               if (dropped.length) onChange([...files, ...dropped])
             }}
           >
-            {files.length > 0 && (
-              <div className="grid grid-cols-4 gap-2 p-3 sm:grid-cols-5">
-                {files.map((file, i) => (
-                  <div key={`${file.name}-${i}`} className="group relative">
-                    {!isVideo && (
-                      <img
-                        src={URL.createObjectURL(file)}
-                        alt="preview"
-                        className="aspect-square w-full rounded-lg object-cover"
-                      />
-                    )}
-                    {isVideo && (
-                      <div className="flex aspect-square w-full items-center justify-center rounded-lg bg-[#0d1c1d]">
-                        <svg
-                          className="size-8 text-[#9fb9b1]"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={1.5}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z"
-                          />
-                        </svg>
-                      </div>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => onChange(files.filter((_, idx) => idx !== i))}
-                      className="absolute -right-1.5 -top-1.5 cursor-pointer rounded-full bg-red-500 p-0.5 text-[#effff8] opacity-0 transition-opacity group-hover:opacity-100 size-5 flex items-center justify-center text-xs"
-                    >
-                      ✕
-                    </button>
-                    <p className="mt-1 truncate text-[10px] text-[#9fb9b1]/70">{file.name}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-            <label className="flex cursor-pointer flex-col items-center justify-center py-4">
-              <svg
-                className="mb-1 size-6 text-[#9fb9b1]/70"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
-                />
-              </svg>
-              <p className="text-sm text-[#9fb9b1]/70">
-                {files.length > 0
-                  ? 'Add more files'
-                  : isVideo
-                    ? 'Drop video or click to upload'
-                    : 'Drop images or click to upload'}
-              </p>
-              <p className="mt-0.5 text-xs text-[#9fb9b1]/55">
-                {isVideo ? 'MP4, WebM, MOV' : 'PNG, JPG, GIF, WebP'}
-              </p>
-              <input
-                type="file"
-                accept={accept}
-                multiple
-                className="hidden"
-                onChange={(e) => {
-                  const added = Array.from(e.target.files || [])
-                  if (added.length) onChange([...files, ...added])
-                }}
+            <svg
+              className="mb-1 size-5 text-[#9fb9b1]/70"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
               />
-            </label>
-          </div>
+            </svg>
+            <p className="text-sm text-[#9fb9b1]/70">
+              {isVideo ? 'Drop video or click to upload' : 'Drop images or click to upload'}
+            </p>
+            <p className="mt-0.5 text-xs text-[#9fb9b1]/55">
+              {isVideo ? 'MP4, WebM, MOV' : 'PNG, JPG, GIF, WebP'}
+            </p>
+            <input
+              type="file"
+              accept={accept}
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                const added = Array.from(e.target.files || [])
+                if (added.length) onChange([...files, ...added])
+              }}
+            />
+          </label>
+          {files.length > 0 && (
+            <div className="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-5">
+              {files.map((file, i) => (
+                <div key={`${file.name}-${i}`} className="group relative">
+                  {!isVideo && (
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt="preview"
+                      className="aspect-square w-full rounded-lg object-cover"
+                    />
+                  )}
+                  {isVideo && (
+                    <div className="flex aspect-square w-full items-center justify-center rounded-lg bg-[#0d1c1d]">
+                      <svg
+                        className="size-6 text-[#9fb9b1]"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={1.5}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z"
+                        />
+                      </svg>
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => onChange(files.filter((_, idx) => idx !== i))}
+                    className="absolute -right-1.5 -top-1.5 flex size-5 cursor-pointer items-center justify-center rounded-full bg-red-500 text-xs text-[#effff8] opacity-0 transition-opacity group-hover:opacity-100"
+                  >
+                    ✕
+                  </button>
+                  <p className="mt-1 truncate text-[10px] text-[#9fb9b1]/70">{file.name}</p>
+                </div>
+              ))}
+            </div>
+          )}
           {errorEl}
         </div>
       )

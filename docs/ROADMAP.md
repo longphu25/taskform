@@ -45,9 +45,9 @@
 - [x] Capture object ID if available
 - [x] Capture expiry epoch
 - [x] Generate public link: `form.html?formId=<blobId>`
-- [ ] Anchor form metadata on Sui with schema blob pointer
-- [ ] Load schema in form page (download + JSON parse) — moved to Day 4
-- [ ] Error handling for failed uploads/downloads — upload done, download pending Day 4
+- [x] Anchor form metadata on Sui with schema blob pointer
+- [x] Load schema in form page (download + JSON parse)
+- [x] Error handling for failed uploads/downloads
 - [ ] Mock mode for offline development — skipped (nice-to-have, not needed for MVP)
 
 ## Day 4 — Public Form
@@ -64,54 +64,54 @@
 - [x] Required field validation (Zod runtime)
 - [x] Submit progress UI (loading state)
 - [x] Lazy-load Walrus upload client on submit
-- [ ] Lazy-load Seal encrypt only if sensitive fields exist
-- [ ] Lazy-load Sui/wallet only if required by form — wallet always needed currently
-- [ ] Encrypt sensitive field values before upload
-- [x] Upload submission JSON to Walrus — requires wallet connect
-- [ ] Upload attachments to Walrus
-- [ ] Anchor submission metadata on Sui with submission blob pointer
-- [ ] Success screen with confirmation — pending wallet connect for submit
+- [x] Lazy-load Seal encrypt only if sensitive fields exist
+- [x] Lazy-load Sui/wallet only if required by form
+- [x] Encrypt sensitive field values before upload
+- [x] Upload submission JSON to Walrus
+- [x] Upload attachments to Walrus
+- [x] Anchor submission metadata on Sui with submission blob pointer
+- [x] Success screen with confirmation
 
 ## Day 5 — Move Contract
 
-- [ ] Create `taskform_move/` Sui Move package
-- [ ] Implement TaskFormRegistry (shared object)
-- [ ] Implement Form object (shared)
-- [ ] Implement CreatorCap (owned)
-- [ ] Implement AdminCap (owned)
-- [ ] Implement SubmissionMeta (dynamic field on Form)
-- [ ] Implement error module
-- [ ] Implement event module
-- [ ] Entry: `create_form` — create form + mint CreatorCap
-- [ ] Entry: `publish_form` — set form as public
-- [ ] Entry: `unpublish_form` — remove from public
-- [ ] Entry: `submit_form` — record submission metadata
-- [ ] Entry: `add_admin` — delegate AdminCap
-- [ ] Entry: `update_submission_status`
-- [ ] Entry: `update_submission_priority`
-- [ ] Entry: `update_form_storage_expiry`
-- [ ] Write unit tests (`sui move test`)
-- [ ] Publish to testnet
-- [ ] Save package ID and registry object ID
+- [x] Create `taskform_move/` Sui Move package
+- [x] Implement TaskFormRegistry (shared object)
+- [x] Implement Form object (shared)
+- [x] Implement CreatorCap (owned)
+- [x] Implement AdminCap (owned)
+- [x] Implement SubmissionMeta (dynamic field on Form)
+- [x] Implement error module
+- [x] Implement event module
+- [x] Entry: `create_form` — create form + mint CreatorCap
+- [x] Entry: `publish_form` — set form as public
+- [x] Entry: `unpublish_form` — remove from public
+- [x] Entry: `submit_form` — record submission metadata
+- [x] Entry: `add_admin` — delegate AdminCap
+- [x] Entry: `update_submission_status`
+- [x] Entry: `update_submission_priority`
+- [x] Entry: `update_form_storage_expiry`
+- [x] Write unit tests (`sui move test`)
+- [x] Publish to testnet
+- [x] Save package ID and registry object ID
 
 ## Day 6 — Dashboard + Seal
 
-- [ ] Wallet connection (dApp Kit or custom)
-- [ ] Load creator's forms from Move (query by CreatorCap)
-- [ ] Forms list UI with status indicators
-- [ ] Load submissions for selected form
+- [x] Wallet connection (dApp Kit or custom)
+- [x] Load creator's forms from Move (query by CreatorCap)
+- [x] Forms list UI with status indicators
+- [x] Load submissions for selected form
 - [ ] Filter submissions by form, feedback type, status, priority, date, attachment presence, encrypted/private fields, and keyword search
-- [ ] Download submission data from Walrus
+- [x] Download submission data from Walrus
 - [ ] Validate submission with Zod
-- [ ] Submission list UI
-- [ ] Submission detail view
+- [x] Submission list UI
+- [x] Submission detail view
 - [ ] Status update (Move transaction)
 - [ ] Priority update (Move transaction)
-- [ ] Seal encryption adapter (`src/lazy/seal-encrypt.ts`)
-- [ ] Integrate encrypt in public form submit flow
-- [ ] Seal decryption adapter (`src/lazy/seal-decrypt.ts`)
-- [ ] Decrypt button in dashboard for sensitive fields
-- [ ] Locked field indicator for encrypted data
+- [x] Seal encryption adapter (`src/lazy/seal-encrypt.ts`)
+- [x] Integrate encrypt in public form submit flow
+- [x] Seal decryption adapter (`src/lazy/seal-decrypt.ts`)
+- [x] Decrypt button in dashboard for sensitive fields
+- [x] Locked field indicator for encrypted data
 - [ ] JSON export (download submissions as JSON)
 - [ ] CSV export for filtered submission list
 - [ ] Admin note field (optional)

@@ -153,11 +153,11 @@ taskform/
 ## MVP Success Criteria
 
 - [x] Creator can create and publish form
-- [ ] Submitter can submit feedback via public link
+- [x] Submitter can submit feedback via public link
 - [x] Schema stored on Walrus
-- [ ] Submission stored on Walrus
-- [ ] Submission metadata anchored on Sui
-- [ ] Sensitive field encryption demonstrated
+- [x] Submission stored on Walrus
+- [x] Submission metadata anchored on Sui
+- [x] Sensitive field encryption demonstrated
 - [ ] Creator can filter, triage, prioritize, and export CSV
 - [ ] Storage expiry visible
 - [ ] Sponsored submission story demo-ready
@@ -220,13 +220,14 @@ VITE_BASE_PATH=/ bun run build
 
 ## Status
 
-**Day 4 in progress** — Public form page rendering from Walrus, upload flow with auto-swap working.
+**Day 6 in progress** — Dashboard with Seal encrypt/decrypt working, contract deployed with seal_policy.
 
 Completed:
 - Day 1: Foundation (multi-page build, CDN externals, types, schemas, page shells)
 - Day 2: Form Builder (DnD canvas, field editor, preview, publish to Walrus)
 - Day 3: Walrus Storage (PTB upload with auto-swap SUI→WAL, aggregator download, cost estimate)
-- Day 4: Public Form (schema loading, field rendering, Zod validation, file upload UI) — in progress
-- Day 5: Move contract (Registry, Form, Caps, SubmissionMeta, events, tests, testnet deploy, codegen)
+- Day 4: Public Form (schema loading, field rendering, Zod validation, file upload, wallet connect, submit to Walrus)
+- Day 5: Move contract (Registry, Form, Caps, SubmissionMeta as dynamic field, events, tests, testnet deploy)
+- Day 6: Dashboard + Seal (wallet connect, forms list, submissions, Seal encrypt/decrypt) — in progress
 
 See `docs/ROADMAP.md` for full progress.
