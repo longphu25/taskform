@@ -154,4 +154,45 @@ contract/ → sui move summary → package_summaries/ → sui-ts-codegen generat
 | Move contract | Testnet |
 | Frontend Sui interaction | Testnet |
 | Walrus Site hosting | Mainnet |
-| Walrus blob storage | Mainnet |
+| Walrus blob storage | Testnet |
+
+## Transaction Optimization (PTB Batching)
+
+Wallet popup fatigue is minimized by batching multiple Move calls into single PTBs:
+
+### Publish Form Flow
+
+```text
+[Sign 1] Register blob on Walrus (+ auto-swap SUI→WAL if needed)
+[Sign 2] Certify blob + create_form (combined PTB via appendToCertify)
+[Sign 3] publish_form + configure_sponsored_mode (combined PTB)
+```
+
+Total: **2-3 wallet signatures** (down from 5-6)
+
+### Submit Form Flow
+
+```text
+[Sign 1] Register blob on Walrus (+ auto-swap SUI→WAL if needed)
+[Sign 2] Certify blob + submit_form (combined PTB via appendToCertify)
+```
+
+Total: **2 wallet signatures** (down from 3-4)
+
+### Implementation
+
+- `walrus-upload.ts` accepts `appendToCertify: (tx, meta) => void` callback
+- Callback receives the certify `Transaction` + `{ blobId, objectId }` metadata
+- Caller appends additional Move calls before the TX is signed
+- `certifyEffects` returned for callers to parse created objects
+
+### Short Form URL
+
+Public form links use only the Sui object ID:
+
+```
+/form.html?id=0x<formObjectId>
+```
+
+`form.html` reads `schema_download_id` from the on-chain Form object, then fetches
+the schema JSON from Walrus. Legacy format `?formId=...&formObjectId=...` still supported.

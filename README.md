@@ -52,7 +52,7 @@ Landing → Dashboard → Create Form → Public Form → Dashboard (review)
 | Landing | `/` | Product intro, Walrus/Seal/Sui value, Launch App CTA |
 | Dashboard | `/dashboard.html` | Wallet connect, My Forms, filtering, review, priority, CSV export |
 | Create Form | `/create-form.html` | Form builder with fields, categories, storage policy, sponsor settings |
-| Public Form | `/form.html?formId=...` | Ultra-light submit page (fastest load) |
+| Public Form | `/form.html?id=<objectId>` | Ultra-light submit page (fastest load) |
 
 ## Supported Field Types
 
@@ -104,6 +104,20 @@ CDN-first dependencies + page-level lazy loading + local app logic only
 - Dist target < 500 KB without vendor
 
 See `docs/ARCHITECTURE.md` for full details.
+
+## Transaction Optimization (PTB Batching)
+
+TaskForm minimizes wallet popup fatigue by batching multiple Move calls into single Programmable Transaction Blocks:
+
+| Flow | Before | After |
+|------|--------|-------|
+| Publish form | 5 signs (swap, register, certify, create, publish) | 2-3 signs (register, certify+create, publish+sponsor) |
+| Submit form | 4 signs (swap, register, certify, submit) | 2 signs (register, certify+submit) |
+
+Key techniques:
+- `appendToCertify` callback appends Move calls to the Walrus certify TX
+- `publish_form` + `configure_sponsored_mode` combined in single PTB
+- Form URL uses only `?id=<objectId>` — schema download ID read from on-chain Form object
 
 ## Live URLs
 
@@ -221,7 +235,7 @@ VITE_BASE_PATH=/ bun run build
 
 ## Status
 
-**Day 6 in progress** — Dashboard with Seal encrypt/decrypt working, contract deployed with seal_policy.
+**Day 6 complete** — Contract v2 deployed, PTB batching for minimal wallet signatures, short form URLs.
 
 Completed:
 - Day 1: Foundation (multi-page build, CDN externals, types, schemas, page shells)
@@ -229,6 +243,6 @@ Completed:
 - Day 3: Walrus Storage (PTB upload with auto-swap SUI→WAL, aggregator download, cost estimate)
 - Day 4: Public Form (schema loading, field rendering, Zod validation, file upload, wallet connect, submit to Walrus)
 - Day 5: Move contract (Registry, Form, Caps, SubmissionMeta as dynamic field, events, tests, testnet deploy)
-- Day 6: Dashboard + Seal (wallet connect, forms list, submissions, Seal encrypt/decrypt) — in progress
+- Day 6: Dashboard + Seal (wallet connect, forms list, submissions, Seal encrypt/decrypt, contract v2 deploy, PTB optimization, short URLs)
 
 See `docs/ROADMAP.md` for full progress.

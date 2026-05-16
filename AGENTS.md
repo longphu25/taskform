@@ -76,6 +76,7 @@ tx.add(createForm({
     title: 'My Form',
     schemaBlobId: Array.from(blobIdBytes),
     schemaBlobObjectId: blobObjectId,
+    schemaDownloadId: Array.from(downloadIdBytes),
     expiryEpoch: 100n,
   },
 }));
