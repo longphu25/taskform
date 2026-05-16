@@ -10,8 +10,10 @@ export const SubmissionMeta = new MoveStruct({
   fields: {
     id: bcs.Address,
     form_id: bcs.Address,
+    submitter: bcs.Address,
     submission_blob_id: bcs.vector(bcs.u8()),
     submission_blob_object_id: bcs.Address,
+    submission_download_id: bcs.vector(bcs.u8()),
     expiry_epoch: bcs.u64(),
     created_at_ms: bcs.u64(),
     status: bcs.u8(),
@@ -56,6 +58,25 @@ export function formId(options: FormIdOptions) {
       package: packageAddress,
       module: 'submission',
       function: 'form_id',
+      arguments: normalizeMoveArguments(options.arguments, argumentsTypes, parameterNames),
+    })
+}
+export interface SubmitterArguments {
+  sub: RawTransactionArgument<string>
+}
+export interface SubmitterOptions {
+  package?: string
+  arguments: SubmitterArguments | [sub: RawTransactionArgument<string>]
+}
+export function submitter(options: SubmitterOptions) {
+  const packageAddress = options.package ?? '@local-pkg/taskform'
+  const argumentsTypes = [null] satisfies (string | null)[]
+  const parameterNames = ['sub']
+  return (tx: Transaction) =>
+    tx.moveCall({
+      package: packageAddress,
+      module: 'submission',
+      function: 'submitter',
       arguments: normalizeMoveArguments(options.arguments, argumentsTypes, parameterNames),
     })
 }
