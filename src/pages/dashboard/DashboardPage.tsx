@@ -19,12 +19,22 @@ import {
 } from 'lucide-react'
 import { pagePath } from '../../utils/paths'
 
-type SubmissionStatus = 'new' | 'reviewing' | 'resolved'
-type Priority = 'high' | 'medium' | 'low'
+type SubmissionStatus =
+  | 'new'
+  | 'reviewing'
+  | 'planned'
+  | 'in_progress'
+  | 'done'
+  | 'resolved'
+  | 'archived'
+type Priority = 'high' | 'medium' | 'low' | 'critical'
+type AttachmentKind = 'none' | 'screenshot' | 'video'
 
+// Mock dashboard rows mirror the live integration contract:
+// ids are Sui object IDs; descriptive fields are hydrated from Walrus schema/submission JSON.
 const forms = [
   {
-    id: 'walrus-builder',
+    id: '0x2f72b9575d7aa6fa57da3bb0c0b9914f983f8eb22ac5423dbf3e0b7c8a726101',
     title: 'Walrus Builder Feedback',
     category: 'Best feedback regarding building on Walrus',
     submissions: 24,
@@ -34,7 +44,7 @@ const forms = [
     expiry: '42 epochs',
   },
   {
-    id: 'bug-reports',
+    id: '0x8d31f6f07db8459434a2b856a33dc8ebc6ab83d4094d2d3fbcad75f9f1fb52c8',
     title: 'Protocol Bug Reports',
     category: 'Bug report',
     submissions: 12,
@@ -44,7 +54,7 @@ const forms = [
     expiry: '8 epochs',
   },
   {
-    id: 'grant-apps',
+    id: '0xb47b14d59d98be0ac5cf2d52e8b2924678451bf2b8c8c35041d4e51b8907a771',
     title: 'Mini Grant Applications',
     category: 'Application',
     submissions: 9,
@@ -57,8 +67,8 @@ const forms = [
 
 const submissions = [
   {
-    id: 'SUB-1048',
-    formId: 'walrus-builder',
+    id: '0x50d4a16fd2be4185b946bd69c8f5a7d26d7c5b5d8326708bb70bf9b6cf96f104',
+    formId: '0x2f72b9575d7aa6fa57da3bb0c0b9914f983f8eb22ac5423dbf3e0b7c8a726101',
     type: 'Builder feedback',
     title: 'Walrus upload retry messages need clearer progress states',
     author: '0x8e4a...91c2',
@@ -66,14 +76,14 @@ const submissions = [
     priority: 'high' as Priority,
     created: '12 min ago',
     encrypted: true,
-    attachment: 'screenshot',
+    attachment: 'screenshot' as AttachmentKind,
     blobId: 'wal://blob_7f32...a19c',
     summary:
       'Submitter reports the upload flow feels stuck between register and certify. They attached a screenshot showing no visible confirmation state.',
   },
   {
-    id: 'SUB-1047',
-    formId: 'bug-reports',
+    id: '0x127d03e6076642fb8395e8b1ac6937b5c1a3349072f2c151c34109703973903f',
+    formId: '0x8d31f6f07db8459434a2b856a33dc8ebc6ab83d4094d2d3fbcad75f9f1fb52c8',
     type: 'Bug report',
     title: 'CSV export drops private-field marker',
     author: '0x22bd...43f9',
@@ -81,37 +91,37 @@ const submissions = [
     priority: 'medium' as Priority,
     created: '38 min ago',
     encrypted: true,
-    attachment: 'none',
+    attachment: 'none' as AttachmentKind,
     blobId: 'wal://blob_4b12...8dda',
     summary:
       'Export keeps the encrypted value masked correctly, but the private column is not included in the generated CSV.',
   },
   {
-    id: 'SUB-1046',
-    formId: 'walrus-builder',
+    id: '0xd7bbdaaf52a27c84acdf8248a187aab19a4636f44709962bb558ff344a4e9502',
+    formId: '0x2f72b9575d7aa6fa57da3bb0c0b9914f983f8eb22ac5423dbf3e0b7c8a726101',
     type: 'Feature request',
     title: 'Add storage renewal warning to public links',
     author: '0x9a12...c701',
-    status: 'new' as SubmissionStatus,
+    status: 'planned' as SubmissionStatus,
     priority: 'medium' as Priority,
     created: '1 hr ago',
     encrypted: false,
-    attachment: 'none',
+    attachment: 'none' as AttachmentKind,
     blobId: 'wal://blob_c823...41ab',
     summary:
       'Creators want the shared form link to show a warning when schema or submission storage is close to expiry.',
   },
   {
-    id: 'SUB-1045',
-    formId: 'grant-apps',
+    id: '0x88b60e3f9e807ec86f42ae73093fa9c6602590fbc51334d1778f159f40664eed',
+    formId: '0xb47b14d59d98be0ac5cf2d52e8b2924678451bf2b8c8c35041d4e51b8907a771',
     type: 'Application',
     title: 'DAO tooling team requests private review',
     author: '0xfa31...64aa',
     status: 'resolved' as SubmissionStatus,
-    priority: 'low' as Priority,
+    priority: 'critical' as Priority,
     created: 'Yesterday',
     encrypted: true,
-    attachment: 'video',
+    attachment: 'video' as AttachmentKind,
     blobId: 'wal://blob_1ad0...e552',
     summary:
       'Application includes private contact details and a video walkthrough. Marked resolved after dashboard review.',
@@ -121,13 +131,45 @@ const submissions = [
 const statusLabels: Record<SubmissionStatus, string> = {
   new: 'New',
   reviewing: 'Reviewing',
+  planned: 'Planned',
+  in_progress: 'In progress',
+  done: 'Done',
   resolved: 'Resolved',
+  archived: 'Archived',
 }
 
 const priorityLabels: Record<Priority, string> = {
   high: 'High',
   medium: 'Medium',
   low: 'Low',
+  critical: 'Critical',
+}
+
+const statusOptions = [
+  'all',
+  'new',
+  'reviewing',
+  'planned',
+  'in_progress',
+  'done',
+  'resolved',
+  'archived',
+] as const
+
+function statusTone(status: SubmissionStatus) {
+  if (status === 'done' || status === 'resolved') return 'mint'
+  if (status === 'archived') return 'muted'
+  if (status === 'planned' || status === 'in_progress') return 'seal'
+  return 'muted'
+}
+
+function priorityTone(priority: Priority) {
+  if (priority === 'critical' || priority === 'high') return 'amber'
+  return 'muted'
+}
+
+function formatSubmissionLabel(submissionMetaId: string) {
+  return `SUB-${submissionMetaId.slice(-4).toUpperCase()}`
 }
 
 const storageProgress = {
@@ -332,7 +374,7 @@ export function DashboardPage() {
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
-                {(['all', 'new', 'reviewing', 'resolved'] as const).map((status) => (
+                {statusOptions.map((status) => (
                   <button
                     key={status}
                     type="button"
@@ -405,7 +447,8 @@ export function DashboardPage() {
                   <span className="min-w-0">
                     <span className="block text-sm font-bold">{submission.title}</span>
                     <span className="mt-1 block text-xs text-[#9fb9b1]">
-                      {submission.id} · {submission.type} · {submission.created}
+                      {formatSubmissionLabel(submission.id)} · {submission.type} ·{' '}
+                      {submission.created}
                     </span>
                   </span>
                   <span className="flex min-w-0 flex-wrap items-start gap-1">
@@ -421,10 +464,10 @@ export function DashboardPage() {
                     <span className="mb-1 block w-full text-[11px] font-bold text-[#9fb9b1] uppercase lg:hidden">
                       Review
                     </span>
-                    <Badge tone={submission.priority === 'high' ? 'amber' : 'muted'}>
+                    <Badge tone={priorityTone(submission.priority)}>
                       {priorityLabels[submission.priority]}
                     </Badge>
-                    <Badge tone={submission.status === 'resolved' ? 'mint' : 'muted'}>
+                    <Badge tone={statusTone(submission.status)}>
                       {statusLabels[submission.status]}
                     </Badge>
                   </span>
@@ -458,7 +501,7 @@ export function DashboardPage() {
                   id="submission-review-title"
                   className="mt-1 text-xl font-black tracking-[-0.02em]"
                 >
-                  {selectedSubmission.id}
+                  {formatSubmissionLabel(selectedSubmission.id)}
                 </h2>
               </div>
               <button
@@ -473,10 +516,10 @@ export function DashboardPage() {
 
             <div>
               <div className="mb-3 flex flex-wrap gap-2">
-                <Badge tone={selectedSubmission.priority === 'high' ? 'amber' : 'muted'}>
+                <Badge tone={priorityTone(selectedSubmission.priority)}>
                   {priorityLabels[selectedSubmission.priority]} priority
                 </Badge>
-                <Badge tone={selectedSubmission.status === 'resolved' ? 'mint' : 'muted'}>
+                <Badge tone={statusTone(selectedSubmission.status)}>
                   {statusLabels[selectedSubmission.status]}
                 </Badge>
                 {selectedSubmission.encrypted && <Badge tone="seal">Encrypted fields</Badge>}
@@ -490,10 +533,11 @@ export function DashboardPage() {
               </h3>
               <p className="mt-4 text-sm leading-6 text-[#9fb9b1]">{selectedSubmission.summary}</p>
 
-              <div className="mt-5 grid grid-cols-2 gap-2 md:grid-cols-4">
+              <div className="mt-5 grid grid-cols-2 gap-2 md:grid-cols-3">
                 <InfoTile label="Author" value={selectedSubmission.author} />
                 <InfoTile label="Created" value={selectedSubmission.created} />
                 <InfoTile label="Type" value={selectedSubmission.type} />
+                <InfoTile label="SubmissionMeta" value={selectedSubmission.id} />
                 <InfoTile label="Blob pointer" value={selectedSubmission.blobId} />
               </div>
 
