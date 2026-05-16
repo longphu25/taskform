@@ -49,6 +49,15 @@ export const SubmissionUpdatedEvent = new MoveStruct({
     updated_at_ms: bcs.u64(),
   },
 })
+export const SubmissionAdminNoteUpdatedEvent = new MoveStruct({
+  name: `${$moduleName}::SubmissionAdminNoteUpdatedEvent`,
+  fields: {
+    form_id: bcs.Address,
+    submission_id: bcs.Address,
+    note_blob_id: bcs.vector(bcs.u8()),
+    updated_at_ms: bcs.u64(),
+  },
+})
 export const AdminAddedEvent = new MoveStruct({
   name: `${$moduleName}::AdminAddedEvent`,
   fields: {

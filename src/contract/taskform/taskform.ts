@@ -22,6 +22,7 @@ export const Form = new MoveStruct({
     schema_blob_object_id: bcs.Address,
     expiry_epoch: bcs.u64(),
     submission_count: bcs.u64(),
+    latest_submission_id: bcs.Address,
     is_published: bcs.bool(),
     sponsored_enabled: bcs.bool(),
   },
@@ -159,6 +160,25 @@ export function submissionCount(options: SubmissionCountOptions) {
       arguments: normalizeMoveArguments(options.arguments, argumentsTypes, parameterNames),
     })
 }
+export interface LatestSubmissionIdArguments {
+  form: RawTransactionArgument<string>
+}
+export interface LatestSubmissionIdOptions {
+  package?: string
+  arguments: LatestSubmissionIdArguments | [form: RawTransactionArgument<string>]
+}
+export function latestSubmissionId(options: LatestSubmissionIdOptions) {
+  const packageAddress = options.package ?? '@local-pkg/taskform'
+  const argumentsTypes = [null] satisfies (string | null)[]
+  const parameterNames = ['form']
+  return (tx: Transaction) =>
+    tx.moveCall({
+      package: packageAddress,
+      module: 'taskform',
+      function: 'latest_submission_id',
+      arguments: normalizeMoveArguments(options.arguments, argumentsTypes, parameterNames),
+    })
+}
 export interface SponsoredEnabledArguments {
   form: RawTransactionArgument<string>
 }
@@ -175,6 +195,72 @@ export function sponsoredEnabled(options: SponsoredEnabledOptions) {
       package: packageAddress,
       module: 'taskform',
       function: 'sponsored_enabled',
+      arguments: normalizeMoveArguments(options.arguments, argumentsTypes, parameterNames),
+    })
+}
+export interface SubmissionStatusArguments {
+  form: RawTransactionArgument<string>
+  submissionId: RawTransactionArgument<string>
+}
+export interface SubmissionStatusOptions {
+  package?: string
+  arguments:
+    | SubmissionStatusArguments
+    | [form: RawTransactionArgument<string>, submissionId: RawTransactionArgument<string>]
+}
+export function submissionStatus(options: SubmissionStatusOptions) {
+  const packageAddress = options.package ?? '@local-pkg/taskform'
+  const argumentsTypes = [null, '0x2::object::ID'] satisfies (string | null)[]
+  const parameterNames = ['form', 'submissionId']
+  return (tx: Transaction) =>
+    tx.moveCall({
+      package: packageAddress,
+      module: 'taskform',
+      function: 'submission_status',
+      arguments: normalizeMoveArguments(options.arguments, argumentsTypes, parameterNames),
+    })
+}
+export interface SubmissionPriorityArguments {
+  form: RawTransactionArgument<string>
+  submissionId: RawTransactionArgument<string>
+}
+export interface SubmissionPriorityOptions {
+  package?: string
+  arguments:
+    | SubmissionPriorityArguments
+    | [form: RawTransactionArgument<string>, submissionId: RawTransactionArgument<string>]
+}
+export function submissionPriority(options: SubmissionPriorityOptions) {
+  const packageAddress = options.package ?? '@local-pkg/taskform'
+  const argumentsTypes = [null, '0x2::object::ID'] satisfies (string | null)[]
+  const parameterNames = ['form', 'submissionId']
+  return (tx: Transaction) =>
+    tx.moveCall({
+      package: packageAddress,
+      module: 'taskform',
+      function: 'submission_priority',
+      arguments: normalizeMoveArguments(options.arguments, argumentsTypes, parameterNames),
+    })
+}
+export interface SubmissionAdminNoteBlobIdArguments {
+  form: RawTransactionArgument<string>
+  submissionId: RawTransactionArgument<string>
+}
+export interface SubmissionAdminNoteBlobIdOptions {
+  package?: string
+  arguments:
+    | SubmissionAdminNoteBlobIdArguments
+    | [form: RawTransactionArgument<string>, submissionId: RawTransactionArgument<string>]
+}
+export function submissionAdminNoteBlobId(options: SubmissionAdminNoteBlobIdOptions) {
+  const packageAddress = options.package ?? '@local-pkg/taskform'
+  const argumentsTypes = [null, '0x2::object::ID'] satisfies (string | null)[]
+  const parameterNames = ['form', 'submissionId']
+  return (tx: Transaction) =>
+    tx.moveCall({
+      package: packageAddress,
+      module: 'taskform',
+      function: 'submission_admin_note_blob_id',
       arguments: normalizeMoveArguments(options.arguments, argumentsTypes, parameterNames),
     })
 }
@@ -280,7 +366,10 @@ export interface SubmitFormOptions {
         expiryEpoch: RawTransactionArgument<number | bigint>,
       ]
 }
-/** Submit to a published form. Creates a SubmissionMeta owned by the submitter. */
+/**
+ * Submit to a published form. Stores SubmissionMeta as a dynamic object field
+ * under Form.
+ */
 export function submitForm(options: SubmitFormOptions) {
   const packageAddress = options.package ?? '@local-pkg/taskform'
   const argumentsTypes = [
@@ -329,8 +418,8 @@ export function addAdmin(options: AddAdminOptions) {
 }
 export interface UpdateSubmissionStatusArguments {
   form: RawTransactionArgument<string>
-  submissionMeta: RawTransactionArgument<string>
   adminCap: RawTransactionArgument<string>
+  submissionId: RawTransactionArgument<string>
   status: RawTransactionArgument<number>
 }
 export interface UpdateSubmissionStatusOptions {
@@ -339,16 +428,19 @@ export interface UpdateSubmissionStatusOptions {
     | UpdateSubmissionStatusArguments
     | [
         form: RawTransactionArgument<string>,
-        submissionMeta: RawTransactionArgument<string>,
         adminCap: RawTransactionArgument<string>,
+        submissionId: RawTransactionArgument<string>,
         status: RawTransactionArgument<number>,
       ]
 }
 /** Update submission status. Requires AdminCap for the form. */
 export function updateSubmissionStatus(options: UpdateSubmissionStatusOptions) {
   const packageAddress = options.package ?? '@local-pkg/taskform'
-  const argumentsTypes = [null, null, null, 'u8', '0x2::clock::Clock'] satisfies (string | null)[]
-  const parameterNames = ['form', 'submissionMeta', 'adminCap', 'status']
+  const argumentsTypes = [null, null, '0x2::object::ID', 'u8', '0x2::clock::Clock'] satisfies (
+    | string
+    | null
+  )[]
+  const parameterNames = ['form', 'adminCap', 'submissionId', 'status']
   return (tx: Transaction) =>
     tx.moveCall({
       package: packageAddress,
@@ -359,8 +451,8 @@ export function updateSubmissionStatus(options: UpdateSubmissionStatusOptions) {
 }
 export interface UpdateSubmissionPriorityArguments {
   form: RawTransactionArgument<string>
-  submissionMeta: RawTransactionArgument<string>
   adminCap: RawTransactionArgument<string>
+  submissionId: RawTransactionArgument<string>
   priority: RawTransactionArgument<number>
 }
 export interface UpdateSubmissionPriorityOptions {
@@ -369,21 +461,63 @@ export interface UpdateSubmissionPriorityOptions {
     | UpdateSubmissionPriorityArguments
     | [
         form: RawTransactionArgument<string>,
-        submissionMeta: RawTransactionArgument<string>,
         adminCap: RawTransactionArgument<string>,
+        submissionId: RawTransactionArgument<string>,
         priority: RawTransactionArgument<number>,
       ]
 }
 /** Update submission priority. Requires AdminCap for the form. */
 export function updateSubmissionPriority(options: UpdateSubmissionPriorityOptions) {
   const packageAddress = options.package ?? '@local-pkg/taskform'
-  const argumentsTypes = [null, null, null, 'u8', '0x2::clock::Clock'] satisfies (string | null)[]
-  const parameterNames = ['form', 'submissionMeta', 'adminCap', 'priority']
+  const argumentsTypes = [null, null, '0x2::object::ID', 'u8', '0x2::clock::Clock'] satisfies (
+    | string
+    | null
+  )[]
+  const parameterNames = ['form', 'adminCap', 'submissionId', 'priority']
   return (tx: Transaction) =>
     tx.moveCall({
       package: packageAddress,
       module: 'taskform',
       function: 'update_submission_priority',
+      arguments: normalizeMoveArguments(options.arguments, argumentsTypes, parameterNames),
+    })
+}
+export interface UpdateSubmissionAdminNoteArguments {
+  form: RawTransactionArgument<string>
+  adminCap: RawTransactionArgument<string>
+  submissionId: RawTransactionArgument<string>
+  noteBlobId: RawTransactionArgument<Array<number>>
+  noteBlobObjectId: RawTransactionArgument<string>
+}
+export interface UpdateSubmissionAdminNoteOptions {
+  package?: string
+  arguments:
+    | UpdateSubmissionAdminNoteArguments
+    | [
+        form: RawTransactionArgument<string>,
+        adminCap: RawTransactionArgument<string>,
+        submissionId: RawTransactionArgument<string>,
+        noteBlobId: RawTransactionArgument<Array<number>>,
+        noteBlobObjectId: RawTransactionArgument<string>,
+      ]
+}
+/** Update admin note pointer. Requires AdminCap for the form. */
+export function updateSubmissionAdminNote(options: UpdateSubmissionAdminNoteOptions) {
+  const packageAddress = options.package ?? '@local-pkg/taskform'
+  const argumentsTypes = [
+    null,
+    null,
+    '0x2::object::ID',
+    'vector<u8>',
+    '0x2::object::ID',
+    '0x2::clock::Clock',
+  ] satisfies (string | null)[]
+  const parameterNames = ['form', 'adminCap', 'submissionId', 'noteBlobId', 'noteBlobObjectId']
+  return (tx: Transaction) =>
+    tx.moveCall({
+      package: packageAddress,
+      module: 'taskform',
+      function: 'update_submission_admin_note',
       arguments: normalizeMoveArguments(options.arguments, argumentsTypes, parameterNames),
     })
 }

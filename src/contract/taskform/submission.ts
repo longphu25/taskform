@@ -16,6 +16,9 @@ export const SubmissionMeta = new MoveStruct({
     created_at_ms: bcs.u64(),
     status: bcs.u8(),
     priority: bcs.u8(),
+    admin_note_blob_id: bcs.vector(bcs.u8()),
+    admin_note_blob_object_id: bcs.option(bcs.Address),
+    admin_note_updated_at_ms: bcs.u64(),
   },
 })
 export interface IdArguments {
@@ -110,6 +113,44 @@ export function submissionBlobId(options: SubmissionBlobIdOptions) {
       package: packageAddress,
       module: 'submission',
       function: 'submission_blob_id',
+      arguments: normalizeMoveArguments(options.arguments, argumentsTypes, parameterNames),
+    })
+}
+export interface AdminNoteBlobIdArguments {
+  sub: RawTransactionArgument<string>
+}
+export interface AdminNoteBlobIdOptions {
+  package?: string
+  arguments: AdminNoteBlobIdArguments | [sub: RawTransactionArgument<string>]
+}
+export function adminNoteBlobId(options: AdminNoteBlobIdOptions) {
+  const packageAddress = options.package ?? '@local-pkg/taskform'
+  const argumentsTypes = [null] satisfies (string | null)[]
+  const parameterNames = ['sub']
+  return (tx: Transaction) =>
+    tx.moveCall({
+      package: packageAddress,
+      module: 'submission',
+      function: 'admin_note_blob_id',
+      arguments: normalizeMoveArguments(options.arguments, argumentsTypes, parameterNames),
+    })
+}
+export interface AdminNoteUpdatedAtMsArguments {
+  sub: RawTransactionArgument<string>
+}
+export interface AdminNoteUpdatedAtMsOptions {
+  package?: string
+  arguments: AdminNoteUpdatedAtMsArguments | [sub: RawTransactionArgument<string>]
+}
+export function adminNoteUpdatedAtMs(options: AdminNoteUpdatedAtMsOptions) {
+  const packageAddress = options.package ?? '@local-pkg/taskform'
+  const argumentsTypes = [null] satisfies (string | null)[]
+  const parameterNames = ['sub']
+  return (tx: Transaction) =>
+    tx.moveCall({
+      package: packageAddress,
+      module: 'submission',
+      function: 'admin_note_updated_at_ms',
       arguments: normalizeMoveArguments(options.arguments, argumentsTypes, parameterNames),
     })
 }

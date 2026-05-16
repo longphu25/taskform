@@ -85,7 +85,6 @@ export function PublishButton({
         title,
         schemaBlobId: uploadResult.blobId,
         schemaBlobObjectId: uploadResult.objectId ?? '',
-        schemaDownloadId: uploadResult.downloadId,
         expiryEpoch: storagePolicy.schemaDuration,
       })
 
