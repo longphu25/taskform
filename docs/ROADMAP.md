@@ -45,9 +45,9 @@
 - [x] Capture object ID if available
 - [x] Capture expiry epoch
 - [x] Generate public link: `form.html?formId=<blobId>`
-- [ ] Anchor form metadata on Sui with schema blob pointer
-- [ ] Load schema in form page (download + JSON parse) — moved to Day 4
-- [ ] Error handling for failed uploads/downloads — upload done, download pending Day 4
+- [x] Anchor form metadata on Sui with schema blob pointer
+- [x] Load schema in form page (download + JSON parse)
+- [x] Error handling for failed uploads/downloads
 - [ ] Mock mode for offline development — skipped (nice-to-have, not needed for MVP)
 
 ## Day 4 — Public Form
@@ -64,9 +64,9 @@
 - [x] Required field validation (Zod runtime)
 - [x] Submit progress UI (loading state)
 - [x] Lazy-load Walrus upload client on submit
-- [ ] Lazy-load Seal encrypt only if sensitive fields exist
+- [x] Lazy-load Seal encrypt only if sensitive fields exist
 - [x] Lazy-load Sui/wallet only if required by form
-- [ ] Encrypt sensitive field values before upload
+- [x] Encrypt sensitive field values before upload
 - [x] Upload submission JSON to Walrus
 - [x] Upload attachments to Walrus
 - [x] Anchor submission metadata on Sui with submission blob pointer
@@ -96,15 +96,15 @@
 
 ## Day 6 — Dashboard + Seal
 
-- [ ] Wallet connection (dApp Kit or custom)
-- [ ] Load creator's forms from Move (query by CreatorCap)
+- [x] Wallet connection (dApp Kit or custom)
+- [x] Load creator's forms from Move (query by CreatorCap)
 - [x] Forms list UI with status indicators
 - [x] Compact sidebar layout with truncated labels and inline form storage lifecycle
-- [ ] Load submissions for selected form
+- [x] Load submissions for selected form
 - [x] Filter controls UI by form, status, keyword, attachment, encrypted/private fields
 - [ ] Implement live filters by feedback type, priority, date, attachment presence, encrypted/private
       fields, and keyword search
-- [ ] Download submission data from Walrus
+- [x] Download submission data from Walrus
 - [ ] Validate submission with Zod
 - [x] Submission list UI
 - [x] Responsive full-width submission inbox UI
@@ -113,9 +113,9 @@
 - [ ] Priority update (Move transaction)
 - [x] Storage Health UI shell inside each form card (healthy / renew soon / expiry progress)
 - [ ] Fetch current Walrus epoch and real expiry values
-- [ ] Seal encryption adapter (`src/lazy/seal-encrypt.ts`)
-- [ ] Integrate encrypt in public form submit flow
-- [ ] Seal decryption adapter (`src/lazy/seal-decrypt.ts`)
+- [x] Seal encryption adapter (`src/lazy/seal-encrypt.ts`)
+- [x] Integrate encrypt in public form submit flow
+- [x] Seal decryption adapter (`src/lazy/seal-decrypt.ts`)
 - [x] Decrypt button UI in dashboard for sensitive fields
 - [x] Locked/encrypted field indicator UI
 - [x] JSON export action UI
@@ -125,24 +125,24 @@
 - [ ] Implement CSV export download
 - [ ] Admin note field (optional)
 
-Dashboard implementation status: `dashboard.html` now has a complete management UI using mock
-data: compact My Forms sidebar, inline storage lifecycle, full-width responsive submission inbox,
-status filters, search/export controls, submission review popup, decrypt/review actions, and proof
-export popup. Remaining work is data, export, encryption, storage, and transaction wiring.
+Dashboard implementation status: `dashboard.html` now has a complete management UI with wallet,
+creator form loading, submission loading, Walrus download, Seal encrypt/decrypt adapters, compact My
+Forms sidebar, inline storage lifecycle, full-width responsive submission inbox, status filters,
+search/export controls, submission review popup, decrypt/review actions, and proof export popup.
+Remaining work is filter completeness, validation, export downloads, storage epoch wiring, and status
+/ priority transactions.
 
 Dashboard next steps:
 
-1. Replace mock dashboard data with typed query state and loading/error/empty states.
-2. Connect wallet and gate creator-only dashboard data.
-3. Query creator forms from Sui and hydrate sidebar form cards from live form metadata.
-4. Query submission metadata from Sui without downloading full Walrus bodies upfront.
-5. Download and validate selected submission bodies from Walrus inside the review popup.
-6. Wire full filters and make export output follow the same filtered dataset.
-7. Submit status and priority updates through generated Move bindings.
-8. Lazy-load Seal decrypt only when the creator clicks decrypt.
-9. Implement CSV, JSON, and proof bundle downloads from the Proof exports popup.
-10. Fetch current Walrus epoch and compute real storage health inside each form card.
-11. Add unit/manual proof for filter logic and create -> submit -> review -> export flow.
+1. Add loading, empty, and error states around wallet, Sui queries, Walrus downloads, and Seal decrypt.
+2. Validate downloaded submission bodies with Zod before rendering them in the review popup.
+3. Wire full filters for feedback type, priority, date, attachment presence, encrypted/private fields,
+   and keyword search.
+4. Make CSV, JSON, and proof bundle exports follow the same filtered dataset as the inbox.
+5. Submit status and priority updates through generated Move bindings.
+6. Fetch current Walrus epoch and compute real storage health inside each form card.
+7. Add storage renewal action if feasible for MVP.
+8. Add unit/manual proof for filter logic and create -> submit -> review -> export flow.
 
 ## Day 7 — Sponsored + Storage Health + Deploy
 

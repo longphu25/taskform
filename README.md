@@ -157,7 +157,7 @@ taskform/
 - [x] Schema stored on Walrus
 - [x] Submission stored on Walrus
 - [x] Submission metadata anchored on Sui
-- [ ] Sensitive field encryption demonstrated
+- [x] Sensitive field encryption demonstrated
 - [ ] Creator can filter, triage, prioritize, and export CSV
 - [ ] Storage expiry visible
 - [ ] Sponsored submission story demo-ready
@@ -220,7 +220,7 @@ VITE_BASE_PATH=/ bun run build
 
 ## Status
 
-**Day 4 complete, Day 5 contract refactored** — Public form submit working, contract updated to dynamic field model.
+**Day 6 in progress** — Dashboard with Seal encrypt/decrypt working, contract deployed with seal_policy.
 
 Completed:
 - Day 1: Foundation (multi-page build, CDN externals, types, schemas, page shells)
@@ -228,5 +228,6 @@ Completed:
 - Day 3: Walrus Storage (PTB upload with auto-swap SUI→WAL, aggregator download, cost estimate)
 - Day 4: Public Form (schema loading, field rendering, Zod validation, file upload, wallet connect, submit to Walrus)
 - Day 5: Move contract (Registry, Form, Caps, SubmissionMeta as dynamic field, events, tests, testnet deploy)
+- Day 6: Dashboard + Seal (wallet connect, forms list, submissions, Seal encrypt/decrypt) — in progress
 
 See `docs/ROADMAP.md` for full progress.
