@@ -130,6 +130,7 @@ Large data (schemas, submissions, attachments) lives on Walrus blobs.
 | `add_admin` | CreatorCap | Delegate AdminCap |
 | `update_submission_status` | AdminCap | Change status |
 | `update_submission_priority` | AdminCap | Change priority |
+| `update_submission_admin_note` | AdminCap | Store admin note Walrus pointer |
 | `update_form_storage_expiry` | CreatorCap | Update expiry tracking |
 | `configure_sponsored_mode` | CreatorCap | Toggle sponsored submissions |
 
