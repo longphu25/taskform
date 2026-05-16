@@ -1,4 +1,4 @@
-.PHONY: dev build lint format codegen contract-build contract-test contract-summary contract-publish
+.PHONY: dev build lint format codegen contract-build contract-test contract-summary contract-publish build-walrus deploy-walrus
 
 # === Frontend ===
 
@@ -7,6 +7,9 @@ dev:
 
 build:
 	bun run build
+
+build-walrus:
+	bun run build:walrus
 
 lint:
 	bun run lint
@@ -33,3 +36,8 @@ contract-publish:
 codegen: contract-summary
 	bunx sui-ts-codegen generate
 	bun biome format --write src/contract/
+
+# === Deploy ===
+
+deploy-walrus:
+	./deploy/deploy.sh

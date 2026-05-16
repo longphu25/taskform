@@ -2,6 +2,7 @@
   "files": {
     "includes": [
       "src/**/*.{ts,tsx,js,jsx}",
+      "scripts/**/*.ts",
       "vite.config.ts",
       "commitlint.config.ts",
       "eslint.config.js"
