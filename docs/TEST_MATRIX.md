@@ -22,7 +22,7 @@ This file maps product behavior to proof.
 | E04 Walrus Storage | Upload/download schema, auto-swap | no | manual | no | no | implemented | Upload tested, download via aggregator verified |
 | E05 Public Form | Ultra-light renderer, Zod validation, submit | no | manual | manual | no | implemented | Schema loads, fields render, validation works, submission uploaded to Walrus |
 | E06 Move Contract | Registry, Form, Caps, entry fns | planned | planned | no | no | implemented | Deployed to testnet, codegen bindings generated |
-| E07 Dashboard | Wallet, forms, submissions, filters, review, priority, CSV export | no | no | planned | no | planned | none |
+| E07 Dashboard | Wallet, forms, submissions, filters, review popup, priority, CSV/proof export | no | no | planned | build passes | partial | Compact sidebar, responsive inbox, submission popup, proof export popup implemented with mock data; data/transaction/export wiring pending |
 | E08 Seal | Encrypt/decrypt sensitive fields | planned | planned | no | no | planned | none |
 | E09 Sponsored | Sponsor toggle, demo flow | no | planned | no | no | planned | none |
 | E10 Storage Health | Expiry tracking, health UI | no | no | planned | no | planned | none |

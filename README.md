@@ -100,6 +100,7 @@ CDN-first dependencies + page-level lazy loading + local app logic only
 - Third-party libs (React, Zod, etc.) loaded from CDN via import maps — not bundled
 - SDKs (Walrus, Seal, Sui) lazy-loaded only on user action
 - form.html loads only React + Zod + local JS (no dashboard code)
+- Sui stores only metadata pointers: `SubmissionMeta` lives under each `Form` as a dynamic object field, while submission bodies, attachments, and admin notes live on Walrus.
 - Dist target < 500 KB without vendor
 
 See `docs/ARCHITECTURE.md` for full details.

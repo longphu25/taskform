@@ -99,22 +99,50 @@
 - [x] Wallet connection (dApp Kit or custom)
 - [x] Load creator's forms from Move (query by CreatorCap)
 - [x] Forms list UI with status indicators
+- [x] Compact sidebar layout with truncated labels and inline form storage lifecycle
 - [x] Load submissions for selected form
-- [ ] Filter submissions by form, feedback type, status, priority, date, attachment presence, encrypted/private fields, and keyword search
+- [x] Filter controls UI by form, status, keyword, attachment, encrypted/private fields
+- [ ] Implement live filters by feedback type, priority, date, attachment presence, encrypted/private
+      fields, and keyword search
 - [x] Download submission data from Walrus
 - [ ] Validate submission with Zod
 - [x] Submission list UI
-- [x] Submission detail view
+- [x] Responsive full-width submission inbox UI
+- [x] Submission detail / review popup UI
 - [ ] Status update (Move transaction)
 - [ ] Priority update (Move transaction)
+- [x] Storage Health UI shell inside each form card (healthy / renew soon / expiry progress)
+- [ ] Fetch current Walrus epoch and real expiry values
 - [x] Seal encryption adapter (`src/lazy/seal-encrypt.ts`)
 - [x] Integrate encrypt in public form submit flow
 - [x] Seal decryption adapter (`src/lazy/seal-decrypt.ts`)
-- [x] Decrypt button in dashboard for sensitive fields
-- [x] Locked field indicator for encrypted data
-- [ ] JSON export (download submissions as JSON)
-- [ ] CSV export for filtered submission list
+- [x] Decrypt button UI in dashboard for sensitive fields
+- [x] Locked/encrypted field indicator UI
+- [x] JSON export action UI
+- [x] CSV export action UI for filtered submission list
+- [x] Proof export popup UI
+- [ ] Implement JSON export download
+- [ ] Implement CSV export download
 - [ ] Admin note field (optional)
+
+Dashboard implementation status: `dashboard.html` now has a complete management UI with wallet,
+creator form loading, submission loading, Walrus download, Seal encrypt/decrypt adapters, compact My
+Forms sidebar, inline storage lifecycle, full-width responsive submission inbox, status filters,
+search/export controls, submission review popup, decrypt/review actions, and proof export popup.
+Remaining work is filter completeness, validation, export downloads, storage epoch wiring, and status
+/ priority transactions.
+
+Dashboard next steps:
+
+1. Add loading, empty, and error states around wallet, Sui queries, Walrus downloads, and Seal decrypt.
+2. Validate downloaded submission bodies with Zod before rendering them in the review popup.
+3. Wire full filters for feedback type, priority, date, attachment presence, encrypted/private fields,
+   and keyword search.
+4. Make CSV, JSON, and proof bundle exports follow the same filtered dataset as the inbox.
+5. Submit status and priority updates through generated Move bindings.
+6. Fetch current Walrus epoch and compute real storage health inside each form card.
+7. Add storage renewal action if feasible for MVP.
+8. Add unit/manual proof for filter logic and create -> submit -> review -> export flow.
 
 ## Day 7 — Sponsored + Storage Health + Deploy
 

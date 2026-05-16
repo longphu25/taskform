@@ -3,9 +3,8 @@
  */
 import { Transaction } from '@mysten/sui/transactions'
 import type { SuiClientTypes } from '@mysten/sui/client'
-import { PACKAGE_ID, REGISTRY_ID, dAppKit } from './sui-client'
-
-const CLOCK_ID = '0x6'
+import { createForm, publishForm, submitForm } from '../contract/taskform/taskform'
+import { REGISTRY_ID, dAppKit } from './sui-client'
 
 /**
  * Create form on-chain. Returns formObjectId and creatorCapId.
@@ -14,25 +13,21 @@ export async function createFormOnChain(params: {
   title: string
   schemaBlobId: string
   schemaBlobObjectId: string
-  schemaDownloadId: string
   expiryEpoch: number
 }): Promise<{ formObjectId: string; creatorCapId: string }> {
   const tx = new Transaction()
 
-  tx.moveCall({
-    package: PACKAGE_ID,
-    module: 'taskform',
-    function: 'create_form',
-    arguments: [
-      tx.object(REGISTRY_ID),
-      tx.pure.string(params.title),
-      tx.pure('vector<u8>', Array.from(new TextEncoder().encode(params.schemaBlobId))),
-      tx.pure.id(params.schemaBlobObjectId),
-      tx.pure('vector<u8>', Array.from(new TextEncoder().encode(params.schemaDownloadId))),
-      tx.pure.u64(params.expiryEpoch),
-      tx.object(CLOCK_ID),
-    ],
-  })
+  tx.add(
+    createForm({
+      arguments: [
+        tx.object(REGISTRY_ID),
+        tx.pure.string(params.title),
+        tx.pure('vector<u8>', Array.from(new TextEncoder().encode(params.schemaBlobId))),
+        tx.pure.id(params.schemaBlobObjectId),
+        tx.pure.u64(params.expiryEpoch),
+      ],
+    }),
+  )
 
   const result = await dAppKit.signAndExecuteTransaction({ transaction: tx })
   const txResult = result.Transaction ?? result.FailedTransaction
@@ -71,16 +66,11 @@ export async function publishFormOnChain(params: {
 }): Promise<void> {
   const tx = new Transaction()
 
-  tx.moveCall({
-    package: PACKAGE_ID,
-    module: 'taskform',
-    function: 'publish_form',
-    arguments: [
-      tx.object(params.formObjectId),
-      tx.object(params.creatorCapId),
-      tx.object(CLOCK_ID),
-    ],
-  })
+  tx.add(
+    publishForm({
+      arguments: [tx.object(params.formObjectId), tx.object(params.creatorCapId)],
+    }),
+  )
 
   const result = await dAppKit.signAndExecuteTransaction({ transaction: tx })
   const txResult = result.Transaction ?? result.FailedTransaction
@@ -96,24 +86,20 @@ export async function submitFormOnChain(params: {
   formObjectId: string
   submissionBlobId: string
   submissionBlobObjectId: string
-  submissionDownloadId: string
   expiryEpoch: number
 }): Promise<void> {
   const tx = new Transaction()
 
-  tx.moveCall({
-    package: PACKAGE_ID,
-    module: 'taskform',
-    function: 'submit_form',
-    arguments: [
-      tx.object(params.formObjectId),
-      tx.pure('vector<u8>', Array.from(new TextEncoder().encode(params.submissionBlobId))),
-      tx.pure.id(params.submissionBlobObjectId),
-      tx.pure('vector<u8>', Array.from(new TextEncoder().encode(params.submissionDownloadId))),
-      tx.pure.u64(params.expiryEpoch),
-      tx.object(CLOCK_ID),
-    ],
-  })
+  tx.add(
+    submitForm({
+      arguments: [
+        tx.object(params.formObjectId),
+        tx.pure('vector<u8>', Array.from(new TextEncoder().encode(params.submissionBlobId))),
+        tx.pure.id(params.submissionBlobObjectId),
+        tx.pure.u64(params.expiryEpoch),
+      ],
+    }),
+  )
 
   const result = await dAppKit.signAndExecuteTransaction({ transaction: tx })
   const txResult = result.Transaction ?? result.FailedTransaction

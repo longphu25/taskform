@@ -165,7 +165,6 @@ export function PublicFormPage() {
           formObjectId,
           submissionBlobId: submissionResult.blobId,
           submissionBlobObjectId: submissionResult.objectId,
-          submissionDownloadId: submissionResult.downloadId,
           expiryEpoch: epochs,
         })
       }
