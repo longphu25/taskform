@@ -20,6 +20,7 @@ export const Form = new MoveStruct({
     title: bcs.string(),
     schema_blob_id: bcs.vector(bcs.u8()),
     schema_blob_object_id: bcs.Address,
+    schema_download_id: bcs.vector(bcs.u8()),
     expiry_epoch: bcs.u64(),
     submission_count: bcs.u64(),
     latest_submission_id: bcs.Address,
@@ -119,6 +120,25 @@ export function schemaBlobId(options: SchemaBlobIdOptions) {
       package: packageAddress,
       module: 'taskform',
       function: 'schema_blob_id',
+      arguments: normalizeMoveArguments(options.arguments, argumentsTypes, parameterNames),
+    })
+}
+export interface SchemaDownloadIdArguments {
+  form: RawTransactionArgument<string>
+}
+export interface SchemaDownloadIdOptions {
+  package?: string
+  arguments: SchemaDownloadIdArguments | [form: RawTransactionArgument<string>]
+}
+export function schemaDownloadId(options: SchemaDownloadIdOptions) {
+  const packageAddress = options.package ?? '@local-pkg/taskform'
+  const argumentsTypes = [null] satisfies (string | null)[]
+  const parameterNames = ['form']
+  return (tx: Transaction) =>
+    tx.moveCall({
+      package: packageAddress,
+      module: 'taskform',
+      function: 'schema_download_id',
       arguments: normalizeMoveArguments(options.arguments, argumentsTypes, parameterNames),
     })
 }
@@ -269,6 +289,7 @@ export interface CreateFormArguments {
   title: RawTransactionArgument<string>
   schemaBlobId: RawTransactionArgument<Array<number>>
   schemaBlobObjectId: RawTransactionArgument<string>
+  schemaDownloadId: RawTransactionArgument<Array<number>>
   expiryEpoch: RawTransactionArgument<number | bigint>
 }
 export interface CreateFormOptions {
@@ -280,6 +301,7 @@ export interface CreateFormOptions {
         title: RawTransactionArgument<string>,
         schemaBlobId: RawTransactionArgument<Array<number>>,
         schemaBlobObjectId: RawTransactionArgument<string>,
+        schemaDownloadId: RawTransactionArgument<Array<number>>,
         expiryEpoch: RawTransactionArgument<number | bigint>,
       ]
 }
@@ -291,10 +313,18 @@ export function createForm(options: CreateFormOptions) {
     '0x1::string::String',
     'vector<u8>',
     '0x2::object::ID',
+    'vector<u8>',
     'u64',
     '0x2::clock::Clock',
   ] satisfies (string | null)[]
-  const parameterNames = ['registry', 'title', 'schemaBlobId', 'schemaBlobObjectId', 'expiryEpoch']
+  const parameterNames = [
+    'registry',
+    'title',
+    'schemaBlobId',
+    'schemaBlobObjectId',
+    'schemaDownloadId',
+    'expiryEpoch',
+  ]
   return (tx: Transaction) =>
     tx.moveCall({
       package: packageAddress,
@@ -353,6 +383,7 @@ export interface SubmitFormArguments {
   form: RawTransactionArgument<string>
   submissionBlobId: RawTransactionArgument<Array<number>>
   submissionBlobObjectId: RawTransactionArgument<string>
+  submissionDownloadId: RawTransactionArgument<Array<number>>
   expiryEpoch: RawTransactionArgument<number | bigint>
 }
 export interface SubmitFormOptions {
@@ -363,6 +394,7 @@ export interface SubmitFormOptions {
         form: RawTransactionArgument<string>,
         submissionBlobId: RawTransactionArgument<Array<number>>,
         submissionBlobObjectId: RawTransactionArgument<string>,
+        submissionDownloadId: RawTransactionArgument<Array<number>>,
         expiryEpoch: RawTransactionArgument<number | bigint>,
       ]
 }
@@ -376,10 +408,17 @@ export function submitForm(options: SubmitFormOptions) {
     null,
     'vector<u8>',
     '0x2::object::ID',
+    'vector<u8>',
     'u64',
     '0x2::clock::Clock',
   ] satisfies (string | null)[]
-  const parameterNames = ['form', 'submissionBlobId', 'submissionBlobObjectId', 'expiryEpoch']
+  const parameterNames = [
+    'form',
+    'submissionBlobId',
+    'submissionBlobObjectId',
+    'submissionDownloadId',
+    'expiryEpoch',
+  ]
   return (tx: Transaction) =>
     tx.moveCall({
       package: packageAddress,

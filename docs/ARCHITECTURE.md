@@ -116,8 +116,8 @@ Large data (schemas, submissions, attachments) lives on Walrus blobs.
 
 | Item | ID |
 |------|-----|
-| Package | `0x74c03ba837ce1a8efce0ca36c25a5e734cbfb266a660d1a480a54ad6b02560c6` |
-| TaskFormRegistry (shared) | `0x217f15103336d13f408caedc8a9b10cd1aa6ee199aab22da7f130fed1e9e3f5f` |
+| Package | `0xa704222949feffa24631d47797c8b15465f7776d412ace0233621e4840eb9dab` |
+| TaskFormRegistry (shared) | `0xb6567ce9583cd459297cd724ce11a0b201b9537fcfa3eb0556377493f4ba27be` |
 
 ### Entry Functions
 

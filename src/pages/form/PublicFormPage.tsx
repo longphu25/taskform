@@ -28,20 +28,40 @@ function buildZodSchema(fields: FormField[]) {
 
 export function PublicFormPage() {
   const params = new URLSearchParams(window.location.search)
-  const formId = params.get('formId')
+  // Support both new short URL (?id=0x...) and legacy (?formId=...&formObjectId=0x...)
+  const formObjectId = params.get('id') || params.get('formObjectId')
+  const legacyFormId = params.get('formId')
 
   const [schema, setSchema] = useState<FormSchema | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(!!formId)
+  const [loading, setLoading] = useState(!!(formObjectId || legacyFormId))
   const [values, setValues] = useState<Record<string, unknown>>({})
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
-    if (!formId) return
-    import('../../lazy/walrus-download')
-      .then(({ downloadJsonFromWalrus }) => downloadJsonFromWalrus<FormSchema>(formId))
+    if (!formObjectId && !legacyFormId) return
+
+    async function loadSchema() {
+      const { downloadJsonFromWalrus } = await import('../../lazy/walrus-download')
+
+      let downloadId = legacyFormId
+      if (!downloadId && formObjectId) {
+        // Read schema_download_id from on-chain Form object
+        const { Form } = await import('../../contract/taskform/taskform')
+        const { getSuiClient } = await import('../../lazy/sui-client')
+        const client = getSuiClient()
+        const formObj = await Form.get({ client, objectId: formObjectId })
+        const rawDownloadId = formObj.json.schema_download_id as number[]
+        downloadId = new TextDecoder().decode(new Uint8Array(rawDownloadId))
+      }
+
+      if (!downloadId) throw new Error('Could not resolve form download ID')
+      return downloadJsonFromWalrus<FormSchema>(downloadId)
+    }
+
+    loadSchema()
       .then((data) => {
         setSchema(data)
         const initial: Record<string, unknown> = {}
@@ -56,7 +76,7 @@ export function PublicFormPage() {
       })
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load form'))
       .finally(() => setLoading(false))
-  }, [formId])
+  }, [formObjectId, legacyFormId])
 
   const setValue = (fieldId: string, value: unknown) => {
     setValues((prev) => ({ ...prev, [fieldId]: value }))
@@ -102,7 +122,6 @@ export function PublicFormPage() {
     try {
       const { uploadToWalrus } = await import('../../lazy/walrus-upload')
       const epochs = schema.storagePolicy.submissionDuration
-      const formObjectId = new URLSearchParams(window.location.search).get('formObjectId')
 
       // Setup encrypt if any sensitive fields
       const hasSensitive = schema.fields.some((f) => f.sensitive)
@@ -155,19 +174,31 @@ export function PublicFormPage() {
         }),
       )
 
-      const submission = { formId, fields, submittedAt: Date.now() }
-      const submissionResult = await uploadToWalrus({ data: JSON.stringify(submission), epochs })
+      const submission = { formId: formObjectId, fields, submittedAt: Date.now() }
 
-      // Anchor on-chain
-      if (formObjectId && submissionResult.objectId) {
-        const { submitFormOnChain } = await import('../../lazy/contract')
-        await submitFormOnChain({
-          formObjectId,
-          submissionBlobId: submissionResult.blobId,
-          submissionBlobObjectId: submissionResult.objectId,
-          expiryEpoch: epochs,
-        })
-      }
+      // Pre-import submit_form binding for use in appendToCertify
+      const { submitForm } = await import('../../contract/taskform/taskform')
+
+      await uploadToWalrus({
+        data: JSON.stringify(submission),
+        epochs,
+        // Gộp certify + submit_form vào 1 PTB — giảm 1 lần ký ví
+        appendToCertify: formObjectId
+          ? (tx, meta) => {
+              tx.add(
+                submitForm({
+                  arguments: {
+                    form: formObjectId,
+                    submissionBlobId: Array.from(new TextEncoder().encode(meta.blobId)),
+                    submissionBlobObjectId: meta.objectId,
+                    submissionDownloadId: Array.from(new TextEncoder().encode(meta.blobId)),
+                    expiryEpoch: epochs,
+                  },
+                }),
+              )
+            }
+          : undefined,
+      })
 
       setSubmitted(true)
     } catch (err) {
@@ -177,7 +208,7 @@ export function PublicFormPage() {
     }
   }
 
-  if (!formId) {
+  if (!formObjectId && !legacyFormId) {
     return (
       <Shell>
         <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -275,7 +306,7 @@ export function PublicFormPage() {
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-[#071011] text-[#effff8]">
-      <nav className="fixed top-4 left-4 right-4 z-50 mx-auto max-w-2xl rounded-2xl border border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.82)] px-6 py-3 backdrop-blur-xl">
+      <nav className="fixed top-4 right-4 left-4 z-50 mx-auto max-w-2xl rounded-2xl border border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.82)] px-6 py-3 backdrop-blur-xl">
         <div className="flex items-center justify-between">
           <span className="text-lg font-bold tracking-tight">TaskForm</span>
           <span className="text-xs text-[#9fb9b1]/70">Powered by Walrus</span>
@@ -365,7 +396,7 @@ function FieldRenderer({
           {label}
           <div className="space-y-2">
             {field.options?.map((opt) => (
-              <label key={opt.value} className="flex items-center gap-2 cursor-pointer">
+              <label key={opt.value} className="flex cursor-pointer items-center gap-2">
                 <input
                   type="checkbox"
                   checked={(value as string[]).includes(opt.value)}
@@ -490,7 +521,7 @@ function FieldRenderer({
                   <button
                     type="button"
                     onClick={() => onChange(files.filter((_, idx) => idx !== i))}
-                    className="absolute -right-1.5 -top-1.5 flex size-5 cursor-pointer items-center justify-center rounded-full bg-red-500 text-xs text-[#effff8] opacity-0 transition-opacity group-hover:opacity-100"
+                    className="absolute -top-1.5 -right-1.5 flex size-5 cursor-pointer items-center justify-center rounded-full bg-red-500 text-xs text-[#effff8] opacity-0 transition-opacity group-hover:opacity-100"
                   >
                     ✕
                   </button>
@@ -506,7 +537,7 @@ function FieldRenderer({
     case 'confirmation':
       return (
         <div>
-          <label className="flex items-center gap-3 cursor-pointer">
+          <label className="flex cursor-pointer items-center gap-3">
             <input
               type="checkbox"
               checked={value as boolean}

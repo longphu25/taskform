@@ -28,9 +28,9 @@ function FormBuilderInner() {
   return (
     <div className="flex h-screen flex-col bg-[#071011] text-[#effff8]">
       {/* Navbar */}
-      <nav className="shrink-0 flex items-center justify-between border-b border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.82)] px-4 py-2.5 backdrop-blur-xl">
+      <nav className="flex shrink-0 items-center justify-between border-b border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.82)] px-4 py-2.5 backdrop-blur-xl">
         <div className="flex items-center gap-4">
-          <a href={pagePath('/')} className="text-lg font-semibold tracking-tight cursor-pointer">
+          <a href={pagePath('/')} className="cursor-pointer text-lg font-semibold tracking-tight">
             TaskForm
           </a>
           <span className="text-[#9fb9b1]/55">|</span>
@@ -39,7 +39,7 @@ function FormBuilderInner() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Form title..."
-            className="bg-transparent text-sm font-medium outline-none placeholder-[#9fb9b1]/55 w-48"
+            className="w-48 bg-transparent text-sm font-medium placeholder-[#9fb9b1]/55 outline-none"
           />
         </div>
 
@@ -49,7 +49,7 @@ function FormBuilderInner() {
             type="button"
             onClick={undo}
             disabled={!canUndo}
-            className="cursor-pointer rounded-lg p-2 text-[#9fb9b1] hover:bg-[#80ffd5]/10 hover:text-[#effff8] disabled:opacity-30 disabled:cursor-not-allowed"
+            className="cursor-pointer rounded-lg p-2 text-[#9fb9b1] hover:bg-[#80ffd5]/10 hover:text-[#effff8] disabled:cursor-not-allowed disabled:opacity-30"
             title="Undo (Ctrl+Z)"
           >
             <Undo2 className="size-4" />
@@ -58,7 +58,7 @@ function FormBuilderInner() {
             type="button"
             onClick={redo}
             disabled={!canRedo}
-            className="cursor-pointer rounded-lg p-2 text-[#9fb9b1] hover:bg-[#80ffd5]/10 hover:text-[#effff8] disabled:opacity-30 disabled:cursor-not-allowed"
+            className="cursor-pointer rounded-lg p-2 text-[#9fb9b1] hover:bg-[#80ffd5]/10 hover:text-[#effff8] disabled:cursor-not-allowed disabled:opacity-30"
             title="Redo (Ctrl+Y)"
           >
             <Redo2 className="size-4" />
@@ -70,7 +70,7 @@ function FormBuilderInner() {
           <button
             type="button"
             onClick={() => setShowPreview(!showPreview)}
-            className="cursor-pointer flex items-center gap-1.5 rounded-lg border border-[rgba(190,255,234,0.16)] px-3 py-1.5 text-sm transition-colors hover:bg-[#80ffd5]/10"
+            className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-[rgba(190,255,234,0.16)] px-3 py-1.5 text-sm transition-colors hover:bg-[#80ffd5]/10"
           >
             {showPreview ? <Pencil className="size-3.5" /> : <Eye className="size-3.5" />}
             {showPreview ? 'Editor' : 'Preview'}
@@ -102,31 +102,33 @@ function FormBuilderInner() {
                 {publishStep === 3 && 'Encoding blob...'}
                 {publishStep === 4 && 'Sign transaction to register blob...'}
                 {publishStep === 5 && 'Uploading to storage nodes...'}
-                {publishStep === 6 && 'Sign transaction to certify...'}
-                {publishStep === 7 && 'Creating form on-chain...'}
+                {publishStep === 6 && 'Certify blob + create form on-chain...'}
+                {publishStep === 7 && 'Parsing form IDs...'}
                 {publishStep === 8 && 'Publishing form on-chain...'}
               </p>
             </div>
             <div className="flex items-center gap-2 text-xs">
-              {(didSwap
-                ? ['Swap', 'Encode', 'Register', 'Upload', 'Certify', 'Create', 'Publish']
-                : ['Encode', 'Register', 'Upload', 'Certify', 'Create', 'Publish']
-              ).map((label, i) => {
-                const stepNum = didSwap ? i + 2 : i + 3
-                return (
-                  <div key={label} className="flex items-center gap-2">
-                    <span
-                      className={`flex items-center gap-1 ${stepNum <= publishStep ? 'text-[#80ffd5]' : 'text-[#9fb9b1]/55'}`}
-                    >
+              {(() => {
+                const steps = didSwap
+                  ? ['Swap', 'Encode', 'Register', 'Upload', 'Certify+Create', 'Publish']
+                  : ['Encode', 'Register', 'Upload', 'Certify+Create', 'Publish']
+                return steps.map((label, i) => {
+                  const stepNum = didSwap ? i + 2 : i + 3
+                  return (
+                    <div key={label} className="flex items-center gap-2">
                       <span
-                        className={`size-2 rounded-full ${stepNum < publishStep ? 'bg-[#80ffd5]' : stepNum === publishStep ? 'bg-[#ffc46b] animate-pulse' : 'bg-[rgba(190,255,234,0.16)]'}`}
-                      />
-                      {label}
-                    </span>
-                    {i < (didSwap ? 6 : 5) && <span className="text-[#9fb9b1]/55">-&gt;</span>}
-                  </div>
-                )
-              })}
+                        className={`flex items-center gap-1 ${stepNum <= publishStep ? 'text-[#80ffd5]' : 'text-[#9fb9b1]/55'}`}
+                      >
+                        <span
+                          className={`size-2 rounded-full ${stepNum < publishStep ? 'bg-[#80ffd5]' : stepNum === publishStep ? 'animate-pulse bg-[#ffc46b]' : 'bg-[rgba(190,255,234,0.16)]'}`}
+                        />
+                        {label}
+                      </span>
+                      {i < steps.length - 1 && <span className="text-[#9fb9b1]/55">-&gt;</span>}
+                    </div>
+                  )
+                })
+              })()}
             </div>
           </div>
         </div>
@@ -139,13 +141,13 @@ function FormBuilderInner() {
       ) : (
         <div className="flex flex-1 overflow-hidden">
           {/* Designer (sidebar + canvas + properties) */}
-          <div className="flex-1 flex overflow-hidden">
+          <div className="flex flex-1 overflow-hidden">
             <Designer />
           </div>
 
           {/* Right panel: form meta + storage + sponsor + publish */}
-          <div className="w-[260px] shrink-0 border-l border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.58)] overflow-y-auto">
-            <div className="p-4 space-y-4">
+          <div className="w-[260px] shrink-0 overflow-y-auto border-l border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.58)]">
+            <div className="space-y-4 p-4">
               {/* Description */}
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-[#9fb9b1]/70">
