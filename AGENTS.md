@@ -37,7 +37,7 @@ Read in this order:
 - Config: `sui-codegen.config.ts`
 - Output: `src/contract/` (generated, do not edit manually)
 - Package alias: `@local-pkg/taskform`
-- Run: `make codegen` or `pnpm codegen`
+- Run: `make codegen` or `bun run codegen`
 - Requires: `sui move summary` in `contract/` first (handled by Makefile)
 - ESLint ignores `src/contract/` via `globalIgnores` in `eslint.config.js`
 
@@ -46,13 +46,17 @@ Read in this order:
 | Command | Purpose |
 |---------|---------|
 | `make dev` | Start Vite dev server |
-| `make build` | Production build |
+| `make build` | Production build (with gzip + brotli compression) |
+| `make build-walrus` | Build for Walrus Site (base=/, generates ws-resources.json) |
 | `make lint` | ESLint |
 | `make format` | Biome format |
 | `make codegen` | Generate TS bindings from contract (summary + codegen + format) |
 | `make contract-build` | Build Move contract |
 | `make contract-test` | Run Move unit tests |
 | `make contract-publish` | Deploy contract to current network |
+
+> **Package manager:** Always use `bun` / `bunx` (not pnpm/npx/npm).
+> Direct script execution: `bun run <script>`. Binary execution: `bunx <bin>`.
 
 ### Frontend Architecture
 
