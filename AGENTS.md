@@ -26,8 +26,8 @@ Read in this order:
 
 | Item | Value |
 |------|-------|
-| Package ID | `0x168cecda7807f9e20e0a87611834d37583b7e7545a57fe0c92fab5b6477d5eff` |
-| TaskFormRegistry | `0x836a4776d73ceea1aeba030e11bd306825e2c2efc06f16bd6f1326bead8ad021` |
+| Package ID | `0x74c03ba837ce1a8efce0ca36c25a5e734cbfb266a660d1a480a54ad6b02560c6` |
+| TaskFormRegistry | `0x217f15103336d13f408caedc8a9b10cd1aa6ee199aab22da7f130fed1e9e3f5f` |
 | UpgradeCap | `0x60645d9ed5261457b57936ba501527909364161ca78a579c51a10db46fbc2da0` |
 | Network | Testnet |
 | Modules | `taskform`, `capabilities`, `events`, `submission`, `sponsor`, `seal_policy` |
@@ -92,7 +92,7 @@ const client = new SuiGrpcClient({
   mvr: {
     overrides: {
       packages: {
-        '@local-pkg/taskform': '0x657b4145e585ad305ac351170eb78c49ba8ba3099135e64ece43c02da1b69f0f',
+        '@local-pkg/taskform': '0x74c03ba837ce1a8efce0ca36c25a5e734cbfb266a660d1a480a54ad6b02560c6',
       },
     },
   },
