@@ -296,7 +296,7 @@ export function PublicFormPage() {
           disabled={submitting}
           className="mt-8 w-full cursor-pointer rounded-lg bg-[#80ffd5] px-4 py-3 font-medium text-[#06231d] transition-colors hover:bg-[#28d8c1] disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {submitting ? 'Submitting...' : 'Submit'}
+          {submitting ? 'Submitting...' : schema.submitButtonText || 'Submit'}
         </button>
       </div>
     </Shell>
