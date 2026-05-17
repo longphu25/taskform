@@ -49,10 +49,20 @@ export interface SponsorSettings {
   maxFileSizeMB: number
 }
 
+export type FormCategory =
+  | 'feedback'
+  | 'bug-report'
+  | 'feature-request'
+  | 'survey'
+  | 'application'
+  | 'general'
+
 export interface FormSchema {
   id: string
   title: string
   description: string
+  category?: FormCategory
+  submitButtonText?: string
   fields: FormField[]
   storagePolicy: StoragePolicy
   sponsor: SponsorSettings

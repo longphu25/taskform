@@ -51,10 +51,21 @@ export const sponsorSettingsSchema = z.object({
   maxFileSizeMB: z.number().min(1).max(100),
 })
 
+export const formCategorySchema = z.enum([
+  'feedback',
+  'bug-report',
+  'feature-request',
+  'survey',
+  'application',
+  'general',
+])
+
 export const formSchemaValidator = z.object({
   id: z.string().min(1),
   title: z.string().min(1).max(200),
   description: z.string().max(2000),
+  category: formCategorySchema.default('general'),
+  submitButtonText: z.string().max(50).optional(),
   fields: z.array(formFieldSchema).min(1).max(50),
   storagePolicy: storagePolicySchema,
   sponsor: sponsorSettingsSchema,
