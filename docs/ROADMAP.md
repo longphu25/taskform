@@ -22,7 +22,8 @@
 
 - [x] Form builder layout (2-column: editor + preview)
 - [x] Title and description inputs
-- [ ] Feedback category/template selector (Walrus feedback, bug report, feature request, survey, application)
+- [x] Template selector tab (Walrus feedback, bug report, feature request, survey)
+- [ ] Feedback category schema field and remaining templates (application, general feedback)
 - [x] Field list with drag-to-reorder
 - [x] Add field button + type selector
 - [x] Field editor: label, placeholder, required toggle, sensitive toggle
@@ -34,6 +35,26 @@
 - [x] Zod validation on form config before publish
 - [x] Publish button (wired to Walrus in Day 3)
 - [x] Form state management (React state or useReducer)
+
+Create Form implementation status: `create-form.html` now has a product-oriented builder layout
+with a default Field library tab, a Templates tab, prepared templates for Walrus feedback, bug
+report, feature request, and survey, a central form setup canvas, drag/reorder field list, field
+inspector, readiness metrics, storage policy controls, sponsor settings UI, preview mode, and
+Walrus + Sui publish flow.
+
+Create Form next steps:
+
+1. Add a confirmation dialog before a template overwrites an existing draft.
+2. Add a first-class `category` field to `FormSchema`, template metadata, public form loading, and
+   dashboard filtering.
+3. Add Application and General Feedback templates.
+4. Show inline readiness validation before publish: missing title, no fields, empty options,
+   invalid upload limits, and overlong description.
+5. Wire local draft autosave/restore and expose the existing saved/unsaved state in the UI.
+6. Make Preview behave closer to `form.html` by allowing trial input and required-field validation.
+7. Complete or scope down the sponsor flow: sponsor vault funding, budget display, max submissions,
+   file size enforcement, and self-paid fallback.
+8. Add responsive mobile/tablet drawer behavior for Field library, Templates, and Field inspector.
 
 ## Day 3 — Walrus Storage ✅
 
