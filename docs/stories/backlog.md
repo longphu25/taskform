@@ -8,7 +8,7 @@ Derived from TaskForm_Docs_Package_v3_cdn_optimized spec intake.
 |------|-------------|--------|
 | E01 | Foundation — Multi-page Vite, CDN, Tailwind, types, schemas | done |
 | E02 | Landing Page — Hero, features, CTA | done |
-| E03 | Form Builder — Field builder, preview, validation, publish | done |
+| E03 | Form Builder — Field builder, templates, preview, validation, publish | in-progress |
 | E04 | Walrus Storage — Upload/download abstraction, schema publish | done |
 | E05 | Public Form — Ultra-light renderer, lazy SDKs, submit | done |
 | E06 | Move Contract — Registry, Form, Caps, entry functions, tests | done |

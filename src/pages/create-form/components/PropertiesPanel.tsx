@@ -6,18 +6,29 @@ export function PropertiesPanel() {
 
   if (!selectedElement) {
     return (
-      <aside className="w-[280px] shrink-0 border-l border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.82)] flex items-center justify-center">
-        <p className="text-sm text-[#9fb9b1]/55">Select an element to edit</p>
-      </aside>
+      <section className="rounded-xl border border-[rgba(190,255,234,0.16)] bg-[rgba(12,34,35,0.72)] p-4">
+        <h2 className="text-xs font-medium uppercase tracking-wider text-[#9fb9b1]/75">
+          Field inspector
+        </h2>
+        <div className="mt-4 rounded-lg border border-dashed border-[rgba(190,255,234,0.16)] bg-[#071011]/45 px-4 py-6 text-center">
+          <p className="text-sm text-[#effff8]">No field selected</p>
+          <p className="mt-1 text-xs text-[#9fb9b1]/70">
+            Select a field on the canvas to edit label, options, privacy, and validation.
+          </p>
+        </div>
+      </section>
     )
   }
 
   return (
-    <aside className="w-[280px] shrink-0 border-l border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.82)] overflow-y-auto">
-      <div className="p-4 space-y-5">
-        <h3 className="text-xs font-medium uppercase tracking-wider text-[#9fb9b1]/70">
-          Properties
-        </h3>
+    <section className="rounded-xl border border-[rgba(190,255,234,0.16)] bg-[rgba(12,34,35,0.72)] p-4">
+      <div className="space-y-5">
+        <div>
+          <h2 className="text-xs font-medium uppercase tracking-wider text-[#9fb9b1]/75">
+            Field inspector
+          </h2>
+          <p className="mt-1 truncate text-sm text-[#effff8]">{selectedElement.label}</p>
+        </div>
 
         {/* Label */}
         <Field label="Label">
@@ -86,7 +97,7 @@ export function PropertiesPanel() {
             </Field>
           )}
       </div>
-    </aside>
+    </section>
   )
 }
 

@@ -147,7 +147,11 @@ export function DesignerProvider({ children }: { children: ReactNode }) {
 
       if (isMod && e.key === 'z') {
         e.preventDefault()
-        e.shiftKey ? redo() : undo()
+        if (e.shiftKey) {
+          redo()
+        } else {
+          undo()
+        }
       }
       if (isMod && e.key === 'y') {
         e.preventDefault()
@@ -205,6 +209,7 @@ export function DesignerProvider({ children }: { children: ReactNode }) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useDesigner() {
   const ctx = useContext(DesignerContext)
   if (!ctx) throw new Error('useDesigner must be used within DesignerProvider')

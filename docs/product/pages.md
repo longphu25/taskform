@@ -23,14 +23,44 @@
 
 ## create-form.html (Builder)
 
-- Title and description
-- Feedback category/template selector
-- Add/remove fields
-- Required toggle
-- Sensitive toggle
+- Title and description in the main builder canvas
+- Left sidebar with tabs:
+  - Field library (default): add/drag supported field types into the canvas
+  - Templates: apply prepared schemas for Walrus feedback, bug report, feature request, and survey
+- Add/remove/duplicate fields
+- Drag-to-reorder fields
+- Field inspector for label, placeholder, options, required toggle, sensitive toggle, and upload settings
+- Readiness panel for field count, required count, encrypted count, and upload count
 - Storage duration selector
-- Sponsored submission toggle (stretch)
+- Sponsored submission toggle and sponsor limits (stretch; UI/schema present, full sponsor vault flow pending)
+- Preview mode
 - Publish form action
+
+### create-form.html Current Gaps
+
+- Applying a template currently overwrites the current draft immediately. Add a confirmation dialog
+  when title, description, or fields already exist.
+- Feedback category is implied by the selected template but is not yet stored as a first-class
+  `FormSchema.category` value.
+- Missing prepared templates for Application and General Feedback.
+- Validation runs on publish, but the builder should show inline readiness issues before publish.
+- Preview is static and should more closely match the public `form.html` validation behavior.
+- Draft autosave/restore is not wired even though builder state already tracks save status.
+- Sponsor UI stores schema settings and toggles on-chain sponsored mode, but sponsor vault funding and
+  fallback behavior are not complete.
+- Mobile layout needs a dedicated sidebar/inspector drawer pattern.
+
+### create-form.html Next Steps
+
+1. Add template overwrite confirmation before replacing an existing draft.
+2. Add `category` to `FormSchema`, form templates, public form loading, and dashboard filters.
+3. Add Application and General Feedback templates.
+4. Add inline readiness validation for title, fields, empty options, invalid upload limits, and
+   description length.
+5. Add local draft autosave/restore with a visible saved/unsaved state.
+6. Upgrade preview to support trial input and required-field validation.
+7. Complete sponsor vault configuration or hide advanced sponsor fields until the full flow is ready.
+8. Add responsive mobile drawer behavior for field library, templates, and inspector.
 
 ## form.html (Public Submit)
 

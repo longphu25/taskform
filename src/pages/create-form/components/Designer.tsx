@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { ReactNode } from 'react'
 import {
   DndContext,
   DragOverlay,
@@ -17,8 +18,25 @@ import { formElementMap } from '../lib/form-elements'
 import { DesignerSidebar } from './DesignerSidebar'
 import { PropertiesPanel } from './PropertiesPanel'
 import type { FormField, FieldType } from '../../../types/form'
+import type { FormTemplate } from '../lib/form-templates'
 
-export function Designer() {
+interface DesignerProps {
+  title: string
+  description: string
+  onTitleChange: (title: string) => void
+  onDescriptionChange: (description: string) => void
+  onApplyTemplate: (template: FormTemplate) => void
+  inspector: ReactNode
+}
+
+export function Designer({
+  title,
+  description,
+  onTitleChange,
+  onDescriptionChange,
+  onApplyTemplate,
+  inspector,
+}: DesignerProps) {
   const { elements, addElement, setElements } = useDesigner()
   const [activeItem, setActiveItem] = useState<{ type: FieldType; element?: FormField } | null>(
     null,
@@ -74,15 +92,22 @@ export function Designer() {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex flex-1 h-[calc(100vh-5rem)] overflow-hidden">
-        {/* Sidebar — element palette */}
-        <DesignerSidebar />
+      <div className="flex min-h-0 flex-1 overflow-hidden">
+        <DesignerSidebar onApplyTemplate={onApplyTemplate} />
 
-        {/* Canvas — drop area */}
-        <DesignerCanvas />
+        <DesignerCanvas
+          title={title}
+          description={description}
+          onTitleChange={onTitleChange}
+          onDescriptionChange={onDescriptionChange}
+        />
 
-        {/* Properties panel */}
-        <PropertiesPanel />
+        <aside className="w-[360px] shrink-0 overflow-y-auto border-l border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.74)]">
+          <div className="space-y-4 p-4">
+            <PropertiesPanel />
+            {inspector}
+          </div>
+        </aside>
       </div>
 
       {/* Drag overlay */}
@@ -104,7 +129,19 @@ export function Designer() {
   )
 }
 
-function DesignerCanvas() {
+interface DesignerCanvasProps {
+  title: string
+  description: string
+  onTitleChange: (title: string) => void
+  onDescriptionChange: (description: string) => void
+}
+
+function DesignerCanvas({
+  title,
+  description,
+  onTitleChange,
+  onDescriptionChange,
+}: DesignerCanvasProps) {
   const { elements, setSelectedElement } = useDesigner()
   const { setNodeRef, isOver } = useDroppable({
     id: 'designer-drop-area',
@@ -114,25 +151,72 @@ function DesignerCanvas() {
   return (
     <div
       ref={setNodeRef}
-      className={`flex-1 overflow-auto bg-[#071011] ${isOver ? 'bg-[#80ffd5]/10' : ''}`}
+      className={`relative flex-1 overflow-auto bg-[#071011] ${isOver ? 'bg-[#80ffd5]/10' : ''}`}
       onClick={() => setSelectedElement(null)}
     >
-      {/* Grid background */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(190,255,234,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(190,255,234,0.045)_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(190,255,234,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(190,255,234,0.045)_1px,transparent_1px)] bg-[size:32px_32px]" />
 
       <div className="relative min-h-full p-6 lg:p-8">
+        <div
+          className="mx-auto mb-5 max-w-[720px] rounded-2xl border border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.82)] p-5 shadow-2xl shadow-black/20"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wider text-[#ffc46b]">
+                Form setup
+              </p>
+              <p className="mt-1 text-sm text-[#9fb9b1]">
+                This schema is uploaded to Walrus and anchored by the Sui form object.
+              </p>
+            </div>
+            <span className="rounded-full border border-[rgba(190,255,234,0.16)] px-2.5 py-1 text-xs text-[#9fb9b1]">
+              Draft schema
+            </span>
+          </div>
+
+          <label htmlFor="form-title" className="mb-1.5 block text-xs font-medium text-[#9fb9b1]">
+            Title
+          </label>
+          <input
+            id="form-title"
+            type="text"
+            value={title}
+            onChange={(event) => onTitleChange(event.target.value)}
+            placeholder="Walrus builder feedback"
+            className="w-full rounded-lg border border-[rgba(190,255,234,0.16)] bg-[#071011]/70 px-3 py-2.5 text-lg font-semibold text-[#effff8] outline-none placeholder:text-[#9fb9b1]/45 focus:border-[#80ffd5]"
+          />
+
+          <label
+            htmlFor="form-description"
+            className="mb-1.5 mt-4 block text-xs font-medium text-[#9fb9b1]"
+          >
+            Description
+          </label>
+          <textarea
+            id="form-description"
+            value={description}
+            onChange={(event) => onDescriptionChange(event.target.value)}
+            placeholder="Tell submitters what feedback, proof, or files you need."
+            rows={3}
+            className="w-full resize-none rounded-lg border border-[rgba(190,255,234,0.16)] bg-[#071011]/70 px-3 py-2.5 text-sm text-[#effff8] outline-none placeholder:text-[#9fb9b1]/45 focus:border-[#80ffd5]"
+          />
+        </div>
+
         {elements.length === 0 ? (
           <div
-            className={`flex flex-col items-center justify-center h-[60vh] border-2 border-dashed rounded-2xl transition-colors ${
+            className={`mx-auto flex h-[42vh] max-w-[720px] flex-col items-center justify-center rounded-2xl border-2 border-dashed transition-colors ${
               isOver ? 'border-[#80ffd5]/50 bg-[#80ffd5]/5' : 'border-[rgba(190,255,234,0.16)]'
             }`}
           >
-            <p className="text-lg font-medium text-[#9fb9b1]/70">Drag elements here</p>
-            <p className="mt-1 text-sm text-[#9fb9b1]/55">or click an element in the sidebar</p>
+            <p className="text-lg font-medium text-[#effff8]">Add your first field</p>
+            <p className="mt-1 text-sm text-[#9fb9b1]/70">
+              Click a field type on the left, or drag it into this canvas.
+            </p>
           </div>
         ) : (
           <SortableContext items={elements.map((e) => e.id)} strategy={verticalListSortingStrategy}>
-            <div className="flex flex-col gap-3 max-w-[640px] mx-auto">
+            <div className="mx-auto flex max-w-[720px] flex-col gap-3">
               {elements.map((el) => (
                 <SortableFieldElement key={el.id} element={el} />
               ))}
@@ -162,7 +246,7 @@ function SortableFieldElement({ element }: { element: FormField }) {
     <div
       ref={setNodeRef}
       style={style}
-      className={`group relative rounded-xl border transition-all duration-200 cursor-pointer ${
+      className={`group relative cursor-pointer rounded-xl border transition-all duration-200 ${
         isSelected
           ? 'border-[#80ffd5]/50 bg-[#80ffd5]/5 shadow-lg shadow-[#80ffd5]/10'
           : 'border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.82)] hover:border-[rgba(190,255,234,0.34)] hover:bg-[rgba(8,24,25,0.82)]'
@@ -177,14 +261,14 @@ function SortableFieldElement({ element }: { element: FormField }) {
         type="button"
         {...attributes}
         {...listeners}
-        className="absolute left-3 top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing text-[#9fb9b1]/55 hover:text-[#9fb9b1] p-1"
+        className="absolute left-3 top-1/2 -translate-y-1/2 cursor-grab p-1 text-[#9fb9b1]/55 hover:text-[#9fb9b1] active:cursor-grabbing"
         onClick={(e) => e.stopPropagation()}
       >
         <GripVertical className="size-4" />
       </button>
 
       {/* Content */}
-      <div className="flex items-center gap-3 px-12 py-4 min-h-[56px]">
+      <div className="flex min-h-[64px] items-center gap-3 px-12 py-4">
         <span className="text-[#9fb9b1]/70">{config?.icon}</span>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium truncate">
@@ -199,7 +283,7 @@ function SortableFieldElement({ element }: { element: FormField }) {
       </div>
 
       {/* Actions */}
-      <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="absolute right-3 top-1/2 flex -translate-y-1/2 gap-1 opacity-0 transition-opacity group-hover:opacity-100">
         <button
           type="button"
           onClick={(e) => {

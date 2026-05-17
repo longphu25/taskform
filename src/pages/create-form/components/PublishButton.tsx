@@ -1,5 +1,11 @@
 import { useState } from 'react'
-import type { FormField, StoragePolicy, SponsorSettings, FormSchema } from '../../../types/form'
+import type {
+  FormField,
+  StoragePolicy,
+  SponsorSettings,
+  FormSchema,
+  FormCategory,
+} from '../../../types/form'
 import { formSchemaValidator } from '../../../schemas/form'
 import { pagePath } from '../../../utils/paths'
 import { useWalletAddress } from '../hooks/useWalletAddress'
@@ -7,11 +13,14 @@ import { useWalletAddress } from '../hooks/useWalletAddress'
 interface PublishButtonProps {
   title: string
   description: string
+  category: FormCategory
+  submitButtonText: string
   fields: FormField[]
   storagePolicy: StoragePolicy
   sponsorSettings: SponsorSettings
   onPublishingChange?: (publishing: boolean) => void
   onStepChange?: (step: number) => void
+  onPublished?: () => void
 }
 
 type PublishState = 'idle' | 'validating' | 'uploading' | 'success' | 'error'
@@ -19,11 +28,14 @@ type PublishState = 'idle' | 'validating' | 'uploading' | 'success' | 'error'
 export function PublishButton({
   title,
   description,
+  category,
+  submitButtonText,
   fields,
   storagePolicy,
   sponsorSettings,
   onPublishingChange,
   onStepChange,
+  onPublished,
 }: PublishButtonProps) {
   const [state, setState] = useState<PublishState>('idle')
   const [error, setError] = useState<string | null>(null)
@@ -48,6 +60,8 @@ export function PublishButton({
       id: crypto.randomUUID(),
       title,
       description,
+      category,
+      submitButtonText: submitButtonText.trim() || undefined,
       fields,
       storagePolicy,
       sponsor: sponsorSettings,
@@ -133,6 +147,7 @@ export function PublishButton({
       setPublicLink(link)
       setState('success')
       onPublishingChange?.(false)
+      onPublished?.()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed')
       setState('error')
@@ -143,7 +158,7 @@ export function PublishButton({
   const canPublish = title.trim().length > 0 && fields.length > 0
 
   return (
-    <div className="rounded-2xl border border-[rgba(190,255,234,0.16)] bg-[rgba(8,24,25,0.82)] p-6">
+    <div>
       {state === 'success' && publicLink ? (
         <div className="space-y-4">
           <div className="flex items-center gap-2">
